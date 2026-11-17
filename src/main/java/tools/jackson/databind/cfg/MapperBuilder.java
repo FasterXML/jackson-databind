@@ -1222,7 +1222,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * if needed multiple times.
      */
     public B findAndAddModules() {
-        return _addAutoRegisterModules(findModules());
+        return addModules(_autoRegisterable(findModules()));
     }
 
     /**
@@ -1238,17 +1238,14 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * if needed multiple times.
      */
     public B findAndAddModules(ClassLoader cl) {
-        return _addAutoRegisterModules(findModules(cl));
+        return addModules(_autoRegisterable(findModules(cl)));
     }
 
     // [databind#6457]: allow modules to opt out of auto-registration
-    private B _addAutoRegisterModules(List<JacksonModule> modules) {
-        for (JacksonModule module : modules) {
-            if (module.canAutoRegister()) {
-                addModule(module);
-            }
-        }
-        return _this();
+    private static List<JacksonModule> _autoRegisterable(List<JacksonModule> modules) {
+        return modules.stream()
+                .filter(JacksonModule::canAutoRegister)
+                .toList();
     }
 
     /**

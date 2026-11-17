@@ -41,6 +41,21 @@ public class ModuleAutoRegister6457Test extends DatabindTestUtil
         public boolean canAutoRegister() { return false; }
     }
 
+    // Auto-registrable module that depends on opted-out one
+    public static class DependentModule6457 extends AutoModule6457 {
+        @Override
+        public String getModuleName() { return "DependentModule6457"; }
+
+        @Override
+        public Iterable<? extends JacksonModule> getDependencies() {
+            return List.of(new NoAutoModule6457());
+        }
+    }
+
+    private final static String AUTO_NAME = AutoModule6457.class.getName();
+    private final static String NO_AUTO_NAME = NoAutoModule6457.class.getName();
+    private final static String DEPENDENT_NAME = DependentModule6457.class.getName();
+
     /**
      * Class loader that (re)defines given test module classes itself, so they
      * end up in an unnamed module (ServiceLoader ignores {@code META-INF/services}
@@ -51,10 +66,10 @@ public class ModuleAutoRegister6457Test extends DatabindTestUtil
         private final Set<String> _ownClasses;
         private final URL _serviceFile;
 
-        ServiceClassLoader(ClassLoader parent, URL serviceFile, String... ownClasses) {
+        ServiceClassLoader(ClassLoader parent, URL serviceFile, Set<String> ownClasses) {
             super(parent);
             _serviceFile = serviceFile;
-            _ownClasses = new HashSet<>(Arrays.asList(ownClasses));
+            _ownClasses = ownClasses;
         }
 
         @Override
@@ -67,6 +82,9 @@ public class ModuleAutoRegister6457Test extends DatabindTestUtil
                 if (c == null) {
                     String path = name.replace('.', '/') + ".class";
                     try (InputStream in = getParent().getResourceAsStream(path)) {
+                        if (in == null) {
+                            throw new ClassNotFoundException(name+" (no class file '"+path+"' visible)");
+                        }
                         byte[] b = in.readAllBytes();
                         c = defineClass(name, b, 0, b.length);
                     } catch (IOException e) {
@@ -86,16 +104,16 @@ public class ModuleAutoRegister6457Test extends DatabindTestUtil
         }
     }
 
+    @TempDir
+    Path tempDir;
+
     @Test
-    void autoRegistrationSkipsOptedOutModule(@TempDir Path tempDir) throws Exception
+    void autoRegistrationSkipsOptedOutModule() throws Exception
     {
-        final String autoName = AutoModule6457.class.getName();
-        final String noAutoName = NoAutoModule6457.class.getName();
-        Path serviceFile = tempDir.resolve("services");
-        Files.writeString(serviceFile, autoName + "\n" + noAutoName + "\n",
-                StandardCharsets.UTF_8);
-        ClassLoader cl = new ServiceClassLoader(getClass().getClassLoader(),
-                serviceFile.toUri().toURL(), autoName, noAutoName);
+        ClassLoader cl = serviceLoader("""
+                %s
+                %s
+                """.formatted(AUTO_NAME, NO_AUTO_NAME));
 
         // Discovery itself finds all modules...
         List<JacksonModule> mods = MapperBuilder.findModules(cl);
@@ -103,14 +121,63 @@ public class ModuleAutoRegister6457Test extends DatabindTestUtil
                 mods.stream().map(JacksonModule::getModuleName).toList());
 
         // ... but auto-registration skips opted-out ones
-
         ObjectMapper mapper = JsonMapper.builder()
                 .findAndAddModules(cl)
                 .build();
-        assertEquals(List.of(autoName),
-                mapper.registeredModules().stream()
-                    .map(m -> m.getRegistrationId())
-                    .toList());
+        assertEquals(List.of(AUTO_NAME), registrationIds(mapper));
+    }
+
+    // No-ClassLoader variant uses thread context class loader
+    @Test
+    void autoRegistrationSkipsOptedOutModuleDefaultLoader() throws Exception
+    {
+        ClassLoader cl = serviceLoader("""
+                %s
+                %s
+                """.formatted(AUTO_NAME, NO_AUTO_NAME));
+        final Thread t = Thread.currentThread();
+        final ClassLoader origCL = t.getContextClassLoader();
+        ObjectMapper mapper;
+        try {
+            t.setContextClassLoader(cl);
+            mapper = JsonMapper.builder()
+                    .findAndAddModules()
+                    .build();
+        } finally {
+            t.setContextClassLoader(origCL);
+        }
+        assertEquals(List.of(AUTO_NAME), registrationIds(mapper));
+    }
+
+    // Main use case: explicitly registered (configured) instance must not be
+    // replaced by discovered instance (same registration id)
+    @Test
+    void autoRegistrationKeepsExplicitInstance() throws Exception
+    {
+        ClassLoader cl = serviceLoader("""
+                %s
+                """.formatted(NO_AUTO_NAME));
+        JacksonModule explicit = new NoAutoModule6457();
+        ObjectMapper mapper = JsonMapper.builder()
+                .addModule(explicit)
+                .findAndAddModules(cl)
+                .build();
+        Collection<JacksonModule> registered = mapper.registeredModules();
+        assertEquals(1, registered.size());
+        assertSame(explicit, registered.iterator().next());
+    }
+
+    // Opt-out does not prevent registration as dependency of another module
+    @Test
+    void optedOutModuleRegisteredAsDependency() throws Exception
+    {
+        ClassLoader cl = serviceLoader("""
+                %s
+                """.formatted(DEPENDENT_NAME));
+        ObjectMapper mapper = JsonMapper.builder()
+                .findAndAddModules(cl)
+                .build();
+        assertEquals(List.of(NO_AUTO_NAME, DEPENDENT_NAME), registrationIds(mapper));
     }
 
     @Test
@@ -122,9 +189,21 @@ public class ModuleAutoRegister6457Test extends DatabindTestUtil
         ObjectMapper mapper = JsonMapper.builder()
                 .addModule(new NoAutoModule6457())
                 .build();
-        assertEquals(List.of(NoAutoModule6457.class.getName()),
-                mapper.registeredModules().stream()
-                    .map(m -> m.getRegistrationId())
-                    .toList());
+        assertEquals(List.of(NO_AUTO_NAME), registrationIds(mapper));
+    }
+
+    private ClassLoader serviceLoader(String serviceFileContents) throws IOException
+    {
+        Path serviceFile = Files.createTempFile(tempDir, "services", null);
+        Files.writeString(serviceFile, serviceFileContents, StandardCharsets.UTF_8);
+        return new ServiceClassLoader(getClass().getClassLoader(),
+                serviceFile.toUri().toURL(),
+                Set.of(AUTO_NAME, NO_AUTO_NAME, DEPENDENT_NAME));
+    }
+
+    private static List<Object> registrationIds(ObjectMapper mapper) {
+        return mapper.registeredModules().stream()
+                .map(JacksonModule::getRegistrationId)
+                .toList();
     }
 }

@@ -77,6 +77,11 @@ public abstract class JacksonModule
      * (and is also registered normally if returned by
      * {@link #getDependencies()} of another module).
      *<p>
+     * Note that this method is called on a module instance that
+     * {@link java.util.ServiceLoader} has already constructed: an auto-discoverable
+     * module must still be constructible with its no-argument constructor
+     * even if it returns {@code false} here.
+     *<p>
      * Default implementation returns {@code true}.
      *
      * @return {@code true} if this module can be registered by auto-discovery;

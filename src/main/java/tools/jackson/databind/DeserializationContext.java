@@ -3,6 +3,7 @@ package tools.jackson.databind;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.*;
+import java.util.function.Supplier;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
@@ -485,6 +486,29 @@ public abstract class DeserializationContext
      * to the active parser, that should be used instead.
      */
     public final JsonParser getParser() { return _parser; }
+
+    /**
+     * Executes an operation with the specified parser as the active parser for
+     * this context. The previous parser is restored even if the operation fails.
+     * This is useful when replaying buffered content through a deserializer.
+     * The caller retains ownership of both parsers; neither is closed here.
+     *
+     * @param <T> Type of the operation result
+     * @param parser Parser to expose through {@link #getParser()} during the operation
+     * @param operation Operation to execute
+     * @return Result of the operation
+     *
+     * @since 3.3
+     */
+    public final <T> T withParser(JsonParser parser, Supplier<T> operation) {
+        final JsonParser previous = _parser;
+        _parser = Objects.requireNonNull(parser, "parser");
+        try {
+            return operation.get();
+        } finally {
+            _parser = previous;
+        }
+    }
 
     public final Object findInjectableValue(Object valueId,
             BeanProperty forProperty, Object beanInstance, Boolean optional, Boolean useInput)
@@ -1363,12 +1387,16 @@ public abstract class DeserializationContext
         throws JacksonException
     {
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
-        while (h != null) {
-            // Can bail out if it's handled
-            if (h.value().handleUnknownProperty(this, p, deser, instanceOrClass, propName)) {
-                return true;
+        try {
+            while (h != null) {
+                // Can bail out if it's handled
+                if (h.value().handleUnknownProperty(this, p, deser, instanceOrClass, propName)) {
+                    return true;
+                }
+                h = h.next();
             }
-            h = h.next();
+        } catch (Exception e) {
+            throw _wrapUnknownPropertyProblem(p, e, instanceOrClass, propName);
         }
         // Nope, not handled. Potentially that's a problem...
         if (!isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
@@ -1381,6 +1409,27 @@ public abstract class DeserializationContext
         //   parser during polymorphic deserialization) rather than the top-level
         //   `_parser`, so the reported location reflects the actual offending token.
         throw UnrecognizedPropertyException.from(p, instanceOrClass, propName, propIds);
+    }
+
+    // [databind#6375]: Wrap non-Jackson exceptions thrown by
+    // `DeserializationProblemHandler.handleUnknownProperty()` to include path to
+    // unknown property (unless `DeserializationFeature.WRAP_EXCEPTIONS` is disabled)
+    private DatabindException _wrapUnknownPropertyProblem(JsonParser p, Exception e,
+            Object instanceOrClass, String propName)
+    {
+        // Leave handler-thrown Jackson exceptions as they are
+        ClassUtil.throwIfJacksonE(e);
+        if (!isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)) {
+            ClassUtil.throwIfRTE(e);
+        }
+        String msg = ClassUtil.exceptionMessage(e);
+        if (msg == null || msg.isEmpty()) {
+            msg = "(was "+e.getClass().getName()+")";
+        }
+        // Like above, use caller-supplied parser for location
+        DatabindException de = new DatabindException(p, msg, p.currentLocation(), e);
+        de.prependPath(instanceOrClass, propName);
+        return de;
     }
 
     /**

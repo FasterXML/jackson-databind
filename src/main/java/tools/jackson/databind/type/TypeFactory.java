@@ -354,7 +354,11 @@ public class TypeFactory
         }
         if (loader != null) {
             try {
-                return classForName(className, true, loader);
+                // Resolve only; do NOT initialize the class here. Class names come
+                // from input (Class-valued properties, polymorphic type ids), and a
+                // named class should not have its static initializer run just to
+                // resolve it -- initialization happens if/when it is actually used.
+                return classForName(className, false, loader);
             } catch (Exception e) {
                 prob = ClassUtil.getRootCause(e);
             }
@@ -372,11 +376,13 @@ public class TypeFactory
 
     protected Class<?> classForName(String name, boolean initialize,
             ClassLoader loader) throws ClassNotFoundException {
-        return Class.forName(name, true, loader);
+        return Class.forName(name, initialize, loader);
     }
 
     protected Class<?> classForName(String name) throws ClassNotFoundException {
-        return Class.forName(name);
+        // Match the loader used by `Class.forName(name)` (this class's loader) but
+        // without initializing the resolved class; see `findClass(...)`.
+        return Class.forName(name, false, TypeFactory.class.getClassLoader());
     }
 
     protected Class<?> _findPrimitive(String className)
@@ -503,10 +509,49 @@ public class TypeFactory
 
         } while (false);
 
+        // [databind#6220]: key/content type of base type may have been refined (like with
+        //   `@JsonDeserialize(keyAs/contentAs)`) without changing its type bindings, which
+        //   resolution above (other than short-cuts) is based on: retain such refinements
+        newType = _retainRefinedKeyAndContent(baseType, newType);
+
         // 25-Sep-2016, tatu: As per [databind#1384] also need to ensure handlers get
         //   copied as well
         newType = newType.withHandlersFrom(baseType);
         return newType;
+    }
+
+    private JavaType _retainRefinedKeyAndContent(JavaType baseType, JavaType newType)
+    {
+        // Only between same kinds of types (Map-like, Collection-like, reference)
+        if ((baseType.isMapLikeType() != newType.isMapLikeType())
+                || (baseType.isCollectionLikeType() != newType.isCollectionLikeType())
+                || (baseType.isReferenceType() != newType.isReferenceType())) {
+            return newType;
+        }
+        if (newType.isMapLikeType()) {
+            JavaType keyType = _refinedOrNull(baseType.getKeyType(), newType.getKeyType());
+            if (keyType != null) {
+                newType = ((MapLikeType) newType).withKeyType(keyType);
+            }
+        }
+        JavaType contentType = _refinedOrNull(baseType.getContentType(), newType.getContentType());
+        if (contentType != null) {
+            newType = newType.withContentType(contentType);
+        }
+        return newType;
+    }
+
+    // Returns `baseType` if it is a strict subtype of `resolved`; `null` otherwise
+    private JavaType _refinedOrNull(JavaType baseType, JavaType resolved)
+    {
+        if ((baseType == null) || (resolved == null)) {
+            return null;
+        }
+        final Class<?> baseRaw = baseType.getRawClass();
+        if (resolved.hasRawClass(baseRaw) || !resolved.getRawClass().isAssignableFrom(baseRaw)) {
+            return null;
+        }
+        return baseType;
     }
 
     private TypeBindings _bindingsForSubtype(JavaType baseType, int typeParamCount,

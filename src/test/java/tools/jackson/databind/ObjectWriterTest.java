@@ -1,7 +1,6 @@
 package tools.jackson.databind;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
 
@@ -17,6 +16,7 @@ import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,7 +26,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.*;
  * Unit tests for checking features added to {@link ObjectWriter}, such
  * as adding of explicit pretty printer.
  */
-public class ObjectWriterTest
+public class ObjectWriterTest extends DatabindTestUtil
 {
     static class CloseableValue implements Closeable
     {
@@ -86,18 +86,18 @@ public class ObjectWriterTest
         data.put("a", 1);
 
         // default: no indentation
-        assertEquals("{\"a\":1}", writer.writeValueAsString(data));
+        assertEquals(a2q("{'a':1}"), writer.writeValueAsString(data));
 
         // and then with standard
         writer = writer.withDefaultPrettyPrinter();
 
         // pretty printer uses system-specific line feeds, so we do that as well.
-        String lf = System.getProperty("line.separator");
-        assertEquals("{" + lf + "  \"a\" : 1" + lf + "}", writer.writeValueAsString(data));
+        String lf = System.lineSeparator();
+        assertEquals(a2q("{" + lf + "  'a' : 1" + lf + "}"), writer.writeValueAsString(data));
 
         // and finally, again without indentation
         writer = writer.with((PrettyPrinter) null);
-        assertEquals("{\"a\":1}", writer.writeValueAsString(data));
+        assertEquals(a2q("{'a':1}"), writer.writeValueAsString(data));
     }
 
     @Test
@@ -118,7 +118,7 @@ public class ObjectWriterTest
         map.put("a", 1);
         assertEquals("{a:1}", writer.writeValueAsString(map));
         // but can also reconfigure
-        assertEquals("{\"a\":1}", writer.with(JsonWriteFeature.QUOTE_PROPERTY_NAMES)
+        assertEquals(a2q("{'a':1}"), writer.with(JsonWriteFeature.QUOTE_PROPERTY_NAMES)
                 .writeValueAsString(map));
     }
 
@@ -131,7 +131,7 @@ public class ObjectWriterTest
         stuff.put("a", 5);
         ObjectWriter writer = MAPPER.writerFor(JsonNode.class);
         String json = writer.writeValueAsString(stuff);
-        assertEquals("{\"a\":5}", json);
+        assertEquals(a2q("{'a':5}"), json);
 
         assertTrue(W.createArrayNode().isArray());
     }
@@ -163,9 +163,9 @@ public class ObjectWriterTest
         ObjectWriter w = MAPPER.writer()
                 .without(SerializationFeature.EAGER_SERIALIZER_FETCH);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        w.writeValue(out, Integer.valueOf(3));
+        w.writeValue(out, 3);
         out.close();
-        assertEquals("3", out.toString("UTF-8"));
+        assertEquals("3", utf8String(out));
     }
 
     @Test
@@ -358,7 +358,7 @@ public class ObjectWriterTest
             w.acceptJsonFormatVisitor((JavaType) null, null);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "argument \"type\" is null");
+            verifyException(e, a2q("argument 'type' is null"));
         }
     }
 
@@ -393,7 +393,7 @@ public class ObjectWriterTest
         jsonGenerator.writeString("value");
         jsonGenerator.close();
 
-        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals(a2q("'value'"), utf8String(outputStream));
 
         // the stream has not been closed by close
         outputStream.write(1);
@@ -408,7 +408,7 @@ public class ObjectWriterTest
         jsonGenerator.writeString("value");
         jsonGenerator.close();
 
-        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals(a2q("'value'"), utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -420,7 +420,7 @@ public class ObjectWriterTest
         jsonGenerator.writeString("value");
         jsonGenerator.close();
 
-        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals(a2q("'value'"), utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -432,7 +432,7 @@ public class ObjectWriterTest
         jsonGenerator.writeString("value");
         jsonGenerator.close();
 
-        assertEquals(writer.toString(), "\"value\"");
+        assertEquals(a2q("'value'"), writer.toString());
 
         // the writer has not been closed by close
         writer.append('1');
@@ -448,7 +448,7 @@ public class ObjectWriterTest
         jsonGenerator.writeString("value");
         jsonGenerator.close();
 
-        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals(a2q("'value'"), utf8String(outputStream));
 
         // the data output has not been closed by close
         dataOutput.write(1);
@@ -472,7 +472,7 @@ public class ObjectWriterTest
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         MAPPER.writer().writeValue(outputStream, "value");
 
-        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals(a2q("'value'"), utf8String(outputStream));
 
         // the stream has not been closed by close
         outputStream.write(1);
@@ -484,7 +484,7 @@ public class ObjectWriterTest
         Path path = Files.createTempFile("", "");
         MAPPER.writer().writeValue(path.toFile(), "value");
 
-        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals(a2q("'value'"), utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -493,7 +493,7 @@ public class ObjectWriterTest
         Path path = Files.createTempFile("", "");
         MAPPER.writer().writeValue(path, "value");
 
-        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals(a2q("'value'"), utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -502,7 +502,7 @@ public class ObjectWriterTest
         Writer writer = new StringWriter();
         MAPPER.writer().writeValue(writer, "value");
 
-        assertEquals(writer.toString(), "\"value\"");
+        assertEquals(a2q("'value'"), writer.toString());
 
         // the writer has not been closed by close
         writer.append('1');
@@ -515,7 +515,7 @@ public class ObjectWriterTest
         DataOutput dataOutput = new DataOutputStream(outputStream);
         MAPPER.writer().writeValue(dataOutput, "value");
 
-        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals(a2q("'value'"), utf8String(outputStream));
 
         // the data output has not been closed by close
         dataOutput.write(1);
@@ -528,7 +528,7 @@ public class ObjectWriterTest
         JsonGenerator jsonGenerator = MAPPER.createGenerator(outputStream);
         MAPPER.writer().writeValue(jsonGenerator, "value");
 
-        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals(a2q("'value'"), utf8String(outputStream));
 
         // the output stream has not been closed by close
         outputStream.write(1);
@@ -553,7 +553,7 @@ public class ObjectWriterTest
         SequenceWriter sequenceWriter = MAPPER.writer().writeValues(outputStream);
         sequenceWriter.write("value");
 
-        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals(a2q("'value'"), utf8String(outputStream));
 
         // the stream has not been closed by close
         outputStream.write(1);
@@ -566,7 +566,7 @@ public class ObjectWriterTest
         SequenceWriter sequenceWriter = MAPPER.writer().writeValues(path.toFile());
         sequenceWriter.write("value");
 
-        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals(a2q("'value'"), utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -576,7 +576,7 @@ public class ObjectWriterTest
         SequenceWriter sequenceWriter = MAPPER.writer().writeValues(path);
         sequenceWriter.write("value");
 
-        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals(a2q("'value'"), utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -586,7 +586,7 @@ public class ObjectWriterTest
         SequenceWriter sequenceWriter = MAPPER.writer().writeValues(writer);
         sequenceWriter.write("value");
 
-        assertEquals(writer.toString(), "\"value\"");
+        assertEquals(a2q("'value'"), writer.toString());
 
         // the writer has not been closed by close
         writer.append('1');
@@ -600,7 +600,7 @@ public class ObjectWriterTest
         SequenceWriter sequenceWriter = MAPPER.writer().writeValues(dataOutput);
         sequenceWriter.write("value");
 
-        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals(a2q("'value'"), utf8String(outputStream));
 
         // the data output has not been closed by close
         dataOutput.write(1);
@@ -614,7 +614,7 @@ public class ObjectWriterTest
         SequenceWriter sequenceWriter = MAPPER.writer().writeValues(jsonGenerator);
         sequenceWriter.write("value");
 
-        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+        assertEquals(a2q("'value'"), utf8String(outputStream));
 
         // the data output has not been closed by close
         outputStream.write(1);
@@ -641,7 +641,7 @@ public class ObjectWriterTest
         sequenceWriter.flush();
         sequenceWriter.close();
 
-        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "[\"value\"]");
+        assertEquals(a2q("['value']"), utf8String(outputStream));
 
         // the stream has not been closed by close
         outputStream.write(1);
@@ -656,7 +656,7 @@ public class ObjectWriterTest
         sequenceWriter.flush();
         sequenceWriter.close();
 
-        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "[\"value\"]");
+        assertEquals(a2q("['value']"), utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -668,7 +668,7 @@ public class ObjectWriterTest
         sequenceWriter.flush();
         sequenceWriter.close();
 
-        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "[\"value\"]");
+        assertEquals(a2q("['value']"), utf8String(Files.readAllBytes(path)));
     }
 
     @Test
@@ -680,7 +680,7 @@ public class ObjectWriterTest
         sequenceWriter.flush();
         sequenceWriter.close();
 
-        assertEquals(writer.toString(), "[\"value\"]");
+        assertEquals(a2q("['value']"), writer.toString());
 
         // the writer has not been closed by close
         writer.append('1');
@@ -696,7 +696,7 @@ public class ObjectWriterTest
         sequenceWriter.flush();
         sequenceWriter.close();
 
-        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "[\"value\"]");
+        assertEquals(a2q("['value']"), utf8String(outputStream));
 
         // the data output has not been closed by close
         dataOutput.write(1);
@@ -714,7 +714,7 @@ public class ObjectWriterTest
         jsonGenerator.flush();
         jsonGenerator.close();
 
-        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "[\"value\"]");
+        assertEquals(a2q("['value']"), utf8String(outputStream));
 
         // the data output has not been closed by close
         outputStream.write(1);

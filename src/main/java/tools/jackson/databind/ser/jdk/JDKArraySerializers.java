@@ -150,7 +150,20 @@ public class JDKArraySerializers
 
         @Override
         public boolean isEmpty(SerializationContext prov, boolean[] value) {
-            return value.length == 0;
+            if (value.length == 0) {
+                return true;
+            }
+            // [databind#6065]: with content @JsonInclude applied to containers,
+            // an array whose every element is suppressed is considered empty
+            if (_needToCheckFiltering(prov)) {
+                for (boolean v : value) {
+                    if (_shouldSerializeElement(prov, Boolean.valueOf(v))) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
         }
 
         @Override
@@ -162,7 +175,8 @@ public class JDKArraySerializers
         public final void serialize(boolean[] value, JsonGenerator g, SerializationContext ctxt) throws JacksonException
         {
             final int len = value.length;
-            if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+            // [databind#6299]: do not unwrap if the only element is filtered out
+            if ((len == 1) && _shouldUnwrapSingle(ctxt) && !isEmpty(ctxt, value)) {
                 serializeContents(value, g, ctxt);
                 return;
             }
@@ -226,7 +240,20 @@ public class JDKArraySerializers
 
         @Override
         public boolean isEmpty(SerializationContext prov, short[] value) {
-            return value.length == 0;
+            if (value.length == 0) {
+                return true;
+            }
+            // [databind#6065]: with content @JsonInclude applied to containers,
+            // an array whose every element is suppressed is considered empty
+            if (_needToCheckFiltering(prov)) {
+                for (short v : value) {
+                    if (_shouldSerializeElement(prov, Short.valueOf(v))) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
         }
 
         @Override
@@ -238,7 +265,8 @@ public class JDKArraySerializers
         public final void serialize(short[] value, JsonGenerator g, SerializationContext ctxt) throws JacksonException
         {
             final int len = value.length;
-            if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+            // [databind#6299]: do not unwrap if the only element is filtered out
+            if ((len == 1) && _shouldUnwrapSingle(ctxt) && !isEmpty(ctxt, value)) {
                 serializeContents(value, g, ctxt);
                 return;
             }
@@ -378,7 +406,20 @@ public class JDKArraySerializers
 
         @Override
         public boolean isEmpty(SerializationContext prov, int[] value) {
-            return value.length == 0;
+            if (value.length == 0) {
+                return true;
+            }
+            // [databind#6065]: with content @JsonInclude applied to containers,
+            // an array whose every element is suppressed is considered empty
+            if (_needToCheckFiltering(prov)) {
+                for (int v : value) {
+                    if (_shouldSerializeElement(prov, Integer.valueOf(v))) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
         }
 
         @Override
@@ -390,7 +431,8 @@ public class JDKArraySerializers
         public final void serialize(int[] value, JsonGenerator g, SerializationContext ctxt) throws JacksonException
         {
             final int len = value.length;
-            if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+            // [databind#6299]: do not unwrap if the only element is filtered out
+            if ((len == 1) && _shouldUnwrapSingle(ctxt) && !isEmpty(ctxt, value)) {
                 serializeContents(value, g, ctxt);
                 return;
             }
@@ -460,7 +502,20 @@ public class JDKArraySerializers
 
         @Override
         public boolean isEmpty(SerializationContext prov, long[] value) {
-            return value.length == 0;
+            if (value.length == 0) {
+                return true;
+            }
+            // [databind#6065]: with content @JsonInclude applied to containers,
+            // an array whose every element is suppressed is considered empty
+            if (_needToCheckFiltering(prov)) {
+                for (long v : value) {
+                    if (_shouldSerializeElement(prov, Long.valueOf(v))) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
         }
 
         @Override
@@ -472,7 +527,8 @@ public class JDKArraySerializers
         public final void serialize(long[] value, JsonGenerator g, SerializationContext ctxt) throws JacksonException
         {
             final int len = value.length;
-            if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+            // [databind#6299]: do not unwrap if the only element is filtered out
+            if ((len == 1) && _shouldUnwrapSingle(ctxt) && !isEmpty(ctxt, value)) {
                 serializeContents(value, g, ctxt);
                 return;
             }
@@ -547,7 +603,20 @@ public class JDKArraySerializers
 
         @Override
         public boolean isEmpty(SerializationContext prov, float[] value) {
-            return value.length == 0;
+            if (value.length == 0) {
+                return true;
+            }
+            // [databind#6065]: with content @JsonInclude applied to containers,
+            // an array whose every element is suppressed is considered empty
+            if (_needToCheckFiltering(prov)) {
+                for (float v : value) {
+                    if (_shouldSerializeElement(prov, Float.valueOf(v))) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
         }
 
         @Override
@@ -572,7 +641,8 @@ public class JDKArraySerializers
         public final void serialize(float[] value, JsonGenerator g, SerializationContext ctxt) throws JacksonException
         {
             final int len = value.length;
-            if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+            // [databind#6299]: do not unwrap if the only element is filtered out
+            if ((len == 1) && _shouldUnwrapSingle(ctxt) && !isEmpty(ctxt, value)) {
                 serializeContents(value, g, ctxt);
                 return;
             }
@@ -649,7 +719,20 @@ public class JDKArraySerializers
 
         @Override
         public boolean isEmpty(SerializationContext prov, double[] value) {
-            return value.length == 0;
+            if (value.length == 0) {
+                return true;
+            }
+            // [databind#6065]: with content @JsonInclude applied to containers,
+            // an array whose every element is suppressed is considered empty
+            if (_needToCheckFiltering(prov)) {
+                for (double v : value) {
+                    if (_shouldSerializeElement(prov, Double.valueOf(v))) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
         }
 
         @Override
@@ -675,7 +758,8 @@ public class JDKArraySerializers
             throws JacksonException
         {
             final int len = value.length;
-            if ((len == 1) && _shouldUnwrapSingle(ctxt)) {
+            // [databind#6299]: do not unwrap if the only element is filtered out
+            if ((len == 1) && _shouldUnwrapSingle(ctxt) && !isEmpty(ctxt, value)) {
                 serializeContents(value, g, ctxt);
                 return;
             }

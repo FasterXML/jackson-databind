@@ -201,7 +201,7 @@ public class BeanConversionsTest
     @Test
     public void testConvertUsingCast() throws Exception
     {
-        String str = new String("foo");
+        String str = "foo";
         CharSequence seq = str;
         String result = MAPPER.convertValue(seq, String.class);
         // should just cast...

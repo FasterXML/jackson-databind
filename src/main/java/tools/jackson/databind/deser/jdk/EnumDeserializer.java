@@ -263,6 +263,10 @@ public class EnumDeserializer
             String text)
         throws JacksonException
     {
+        // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
+        if (text == null) {
+            return ctxt.handleUnexpectedToken(_enumClass(), p);
+        }
         CompactStringObjectMap lookup = _resolveCurrentLookup(ctxt);
         Object result = lookup.find(text);
         if (result == null) {

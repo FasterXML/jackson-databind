@@ -1,22 +1,28 @@
 package tools.jackson.databind.ser.jackson;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import tools.jackson.core.*;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
+import tools.jackson.databind.cfg.ConfigOverride;
+import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import tools.jackson.databind.jsontype.TypeIdResolver;
 import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.ser.BeanPropertyWriter;
 import tools.jackson.databind.ser.BeanSerializer;
 import tools.jackson.databind.ser.std.StdDynamicSerializer;
 import tools.jackson.databind.util.ClassUtil;
@@ -59,6 +65,24 @@ public class JsonValueSerializer
 
     protected final Set<String> _ignoredProperties;
 
+    /**
+     * Flag set when the value inclusion configured for the {@code @JsonValue} type
+     * (via config override "include as property") does not exclude "empty" values,
+     * and nothing more specific has been configured for the enclosing property: if so,
+     * {@link #isEmpty} must not report the value as empty.
+     * See [databind#5380].
+     *
+     * @since 3.3
+     */
+    protected final boolean _emptyCheckDisabled;
+
+    /**
+     * Transformer applied to dynamically resolved value serializers (to apply
+     * {@link #_ignoredProperties}); held to avoid allocation on every lookup.
+     */
+    private final UnaryOperator<ValueSerializer<Object>> _ignoredPropertiesTransformer =
+            this::_applyIgnoredProperties;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -83,10 +107,21 @@ public class JsonValueSerializer
         _accessor = accessor;
         _forceTypeInformation = true; // gets reconsidered when we are contextualized
         _ignoredProperties = ignoredProperties;
+        _emptyCheckDisabled = false;
     }
 
     protected JsonValueSerializer(JsonValueSerializer src, BeanProperty property,
             TypeSerializer vts, ValueSerializer<?> ser, boolean forceTypeInfo)
+    {
+        this(src, property, vts, ser, forceTypeInfo, src._emptyCheckDisabled);
+    }
+
+    /**
+     * @since 3.3
+     */
+    protected JsonValueSerializer(JsonValueSerializer src, BeanProperty property,
+            TypeSerializer vts, ValueSerializer<?> ser, boolean forceTypeInfo,
+            boolean emptyCheckDisabled)
     {
         super(src, property, vts, ser);
         _valueType = src._valueType;
@@ -94,6 +129,7 @@ public class JsonValueSerializer
         _staticTyping = src._staticTyping;
         _forceTypeInformation = forceTypeInfo;
         _ignoredProperties = src._ignoredProperties;
+        _emptyCheckDisabled = emptyCheckDisabled;
     }
 
     public static JsonValueSerializer construct(SerializationConfig config,
@@ -121,6 +157,21 @@ public class JsonValueSerializer
         return new JsonValueSerializer(this, property, vts, ser, forceTypeInfo);
     }
 
+    /**
+     * Mutant factory method for constructing instance with given setting for
+     * {@link #_emptyCheckDisabled}.
+     *
+     * @since 3.3
+     */
+    public JsonValueSerializer withEmptyCheckDisabled(boolean state)
+    {
+        if (state == _emptyCheckDisabled) {
+            return this;
+        }
+        return new JsonValueSerializer(this, _property, _valueTypeSerializer,
+                _valueSerializer, _forceTypeInformation, state);
+    }
+
     /*
     /**********************************************************
     /* Overrides
@@ -134,6 +185,10 @@ public class JsonValueSerializer
         Object referenced = _accessor.getValue(bean);
         if (referenced == null) {
             return true;
+        }
+        // [databind#5380]: inclusion configured for value type does not exclude empty values
+        if (_emptyCheckDisabled) {
+            return false;
         }
         ValueSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
@@ -160,8 +215,16 @@ public class JsonValueSerializer
         if (vts != null) {
             vts = vts.forProperty(ctxt, property);
         }
+        // [databind#5380]: may need to honor inclusion configured for value type
+        final boolean emptyCheckDisabled = _isEmptyCheckDisabled(ctxt, property);
         ValueSerializer<?> ser = _valueSerializer;
         if (ser == null) {
+            // [databind#4762]: bind the value serializer to the `@JsonValue` accessor, so
+            //   that annotations on the accessor (notably `@JsonInclude`/`@JsonFormat`) are
+            //   honored. Configuration on the enclosing property still takes precedence
+            //   (see `JsonValueProperty`), preserving [databind#2822].
+            BeanProperty valueProp = _accessorProperty(property);
+
             // Can only assign serializer statically if the declared type is final:
             // if not, we don't really know the actual type until we get the instance.
 
@@ -174,25 +237,151 @@ public class JsonValueSerializer
                  *   to serializer factory at this point...
                  */
                 // I _think_ this can be considered a primary property...
-                ser = ctxt.findPrimaryPropertySerializer(_valueType, property);
+                ser = ctxt.findPrimaryPropertySerializer(_valueType, valueProp);
                 ser = _withIgnoreProperties(ser, _ignoredProperties);
                 /* 09-Dec-2010, tatu: Turns out we must add special handling for
                  *   cases where "native" (aka "natural") type is being serialized,
                  *   using standard serializer
                  */
                 boolean forceTypeInformation = isNaturalTypeWithStdHandling(_valueType.getRawClass(), ser);
-                return withResolved(property, vts, ser, forceTypeInformation);
+                return withResolved(valueProp, vts, ser, forceTypeInformation)
+                        .withEmptyCheckDisabled(emptyCheckDisabled);
             }
-            // [databind#2822]: better hold on to "property", regardless
-            if (property != _property) {
-                return withResolved(property, vts, ser, _forceTypeInformation);
-            }
-        } else {
-            // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
-            ser = ctxt.handlePrimaryContextualization(ser, property);
-            return withResolved(property, vts, ser, _forceTypeInformation);
+            // [databind#2822]: better hold on to "property", regardless. For the non-final
+            //   value type the serializer is resolved dynamically at write time via
+            //   `_property` in `StdDynamicSerializer#_findAndAddDynamic`.
+            return withResolved(valueProp, vts, ser, _forceTypeInformation)
+                    .withEmptyCheckDisabled(emptyCheckDisabled);
         }
-        return this;
+        // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
+        ser = ctxt.handlePrimaryContextualization(ser, property);
+        return withResolved(property, vts, ser, _forceTypeInformation)
+                .withEmptyCheckDisabled(emptyCheckDisabled);
+    }
+
+    /**
+     * Helper method for determining whether "empty" values must not be suppressed
+     * because value inclusion configured for the {@code @JsonValue} value (via
+     * annotation on accessor, or {@code ConfigOverride.getIncludeAsProperty()} of
+     * value type) does not exclude them, and nothing more specific is configured
+     * for the property: that is, neither an annotation on property, nor override for
+     * declared property type.
+     * See [databind#5380].
+     *
+     * @since 3.3
+     */
+    protected boolean _isEmptyCheckDisabled(SerializationContext ctxt, BeanProperty property)
+    {
+        // Only for actual bean properties declared with exactly this type: not root
+        // values, nested `@JsonValue` values (see `JsonValueProperty`) nor content
+        // of container (or `Object`-typed) properties
+        if (!(property instanceof BeanPropertyWriter)
+                || !property.getType().hasRawClass(handledType())) {
+            return false;
+        }
+        final SerializationConfig config = ctxt.getConfig();
+        // Value inclusion from annotation on `@JsonValue` accessor ([databind#4762]),
+        // if any; otherwise from config override for the value type
+        JsonInclude.Value v = _findInclusion(config, _accessor);
+        if (!_hasValueInclusion(v)) {
+            v = config.getConfigOverride(_valueType.getRawClass()).getIncludeAsProperty();
+        }
+        final JsonInclude.Include incl = (v == null) ? null : v.getValueInclusion();
+        if ((incl != JsonInclude.Include.ALWAYS) && (incl != JsonInclude.Include.NON_NULL)
+                // "absent" means "empty" for reference types
+                && ((incl != JsonInclude.Include.NON_ABSENT) || _valueType.isReferenceType())) {
+            return false;
+        }
+        // Note: both "include as property" and "include" overrides of declared type
+        // are used for property inclusion (see `PropertyBuilder.buildWriter()`)
+        final ConfigOverride declOverride = config.getConfigOverride(property.getType().getRawClass());
+        return !_hasValueInclusion(_findInclusion(config, property.getMember()))
+                && !_hasValueInclusion(declOverride.getIncludeAsProperty())
+                && !_hasValueInclusion(declOverride.getInclude());
+    }
+
+    private static JsonInclude.Value _findInclusion(SerializationConfig config,
+            AnnotatedMember member) {
+        return (member == null) ? null
+                : config.getAnnotationIntrospector().findPropertyInclusion(config, member);
+    }
+
+    private static boolean _hasValueInclusion(JsonInclude.Value v) {
+        return (v != null) && (v.getValueInclusion() != JsonInclude.Include.USE_DEFAULTS);
+    }
+
+    /**
+     * Constructs a {@link BeanProperty} used to contextualize the value serializer.
+     * Configuration declared on the enclosing property (e.g. {@code @JsonFormat},
+     * see [databind#2822]) continues to take precedence, while configuration declared
+     * on the {@code @JsonValue} accessor itself (e.g. {@code @JsonInclude}) is layered
+     * underneath so that it is no longer silently ignored. [databind#4762]
+     */
+    protected BeanProperty _accessorProperty(BeanProperty property)
+    {
+        // Defensive: `_accessor` is always non-null in practice (set by constructors).
+        // If it somehow were null we cannot build an accessor-backed property, so fall
+        // back to the enclosing `property` unchanged (i.e. pre-[databind#4762] behavior).
+        if (_accessor == null) {
+            return property;
+        }
+        PropertyName name = (property == null)
+                ? PropertyName.construct(_accessor.getName()) : property.getFullName();
+        PropertyName wrapperName = (property == null) ? null : property.getWrapperName();
+        PropertyMetadata metadata = (property == null)
+                ? PropertyMetadata.STD_REQUIRED_OR_OPTIONAL : property.getMetadata();
+        return new JsonValueProperty(property, name, _valueType, wrapperName, _accessor, metadata);
+    }
+
+    /**
+     * {@link BeanProperty} used when contextualizing the value serializer for a
+     * {@code @JsonValue} accessor. It is backed by the accessor (so annotations such as
+     * {@code @JsonInclude} declared on it are seen, [databind#4762]) but lets any
+     * configuration on the enclosing property override it, preserving the established
+     * precedence where property-level {@code @JsonFormat} wins ([databind#2822]).
+     */
+    protected static class JsonValueProperty extends BeanProperty.Std
+    {
+        protected final BeanProperty _enclosing;
+
+        public JsonValueProperty(BeanProperty enclosing, PropertyName name,
+                JavaType type, PropertyName wrapperName,
+                AnnotatedMember accessor, PropertyMetadata metadata) {
+            super(name, type, wrapperName, accessor, metadata);
+            _enclosing = enclosing;
+        }
+
+        @Override
+        public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType) {
+            JsonFormat.Value v = super.findPropertyFormat(config, baseType);
+            if (_enclosing != null) {
+                v = v.withOverrides(_enclosing.findPropertyFormat(config, baseType));
+            }
+            return v;
+        }
+
+        @Override
+        public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType) {
+            JsonInclude.Value v = super.findPropertyInclusion(config, baseType);
+            if (_enclosing != null) {
+                v = v.withOverrides(_enclosing.findPropertyInclusion(config, baseType));
+            }
+            return v;
+        }
+
+        @Override
+        public <A extends Annotation> A getAnnotation(Class<A> acls) {
+            A a = (_enclosing == null) ? null : _enclosing.getAnnotation(acls);
+            return (a != null) ? a : super.getAnnotation(acls);
+        }
+
+        @Override
+        public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
+            // Only the enclosing property can carry context annotations; the accessor-backed
+            // `super` always returns null here (`BeanProperty.Std.getContextAnnotation`), so
+            // delegating to `_enclosing` alone loses nothing when it is null.
+            return (_enclosing == null) ? null : _enclosing.getContextAnnotation(acls);
+        }
     }
 
     /*
@@ -221,23 +410,29 @@ public class JsonValueSerializer
         if (ser == null) {
             ser = _findSerializer(ctxt, value);
         }
-        if (_valueTypeSerializer != null) {
-            ser.serializeWithType(value, gen, ctxt, _valueTypeSerializer);
-        } else {
-            ser.serialize(value, gen, ctxt);
+        // [databind#6206]: simple check for direct cycle through accessor
+        if ((value == bean) && _checkSelfReference(ctxt, bean, ser)) {
+            ctxt.defaultSerializeNullValue(gen);
+            return;
+        }
+        try {
+            if (_valueTypeSerializer != null) {
+                ser.serializeWithType(value, gen, ctxt, _valueTypeSerializer);
+            } else {
+                ser.serialize(value, gen, ctxt);
+            }
+        } catch (StackOverflowError e) {
+            // 09-Sep-2026, pjfanning: [databind#6206] Accessor value may lead back to
+            //   a value serialized the same way, and such a cycle writes no structural
+            //   tokens -- so `StreamWriteConstraints` nesting limit never trips.
+            throw DatabindException.from(gen, "Infinite recursion (StackOverflowError)", e)
+                .prependPath(bean, _accessor.getName() + "()");
         }
     }
 
     protected ValueSerializer<Object> _findSerializer(SerializationContext ctxt, Object value) {
-        final UnaryOperator<ValueSerializer<Object>> serTransformer =
-                valueSer -> _withIgnoreProperties(valueSer, _ignoredProperties);
-        Class<?> cc = value.getClass();
-        if (_valueType.hasGenericTypes()) {
-            return _findAndAddDynamic(ctxt,
-                    ctxt.constructSpecializedType(_valueType, cc),
-                    serTransformer);
-        }
-        return _findAndAddDynamic(ctxt, cc, serTransformer);
+        // [databind#6392]: must check for already resolved serializer first
+        return _findCachedOrAddDynamic(ctxt, _valueType, value.getClass(), _ignoredPropertiesTransformer);
     }
 
     /**
@@ -258,6 +453,10 @@ public class JsonValueSerializer
             }
         }
         return (ValueSerializer<Object>) ser;
+    }
+
+    private ValueSerializer<Object> _applyIgnoredProperties(ValueSerializer<Object> ser) {
+        return _withIgnoreProperties(ser, _ignoredProperties);
     }
 
     @Override
@@ -297,12 +496,14 @@ public class JsonValueSerializer
         }
         ValueSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
-            Class<?> cc = value.getClass();
-            if (_valueType.hasGenericTypes()) {
-                ser = _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(_valueType, cc));
-            } else {
-                ser = _findAndAddDynamic(ctxt, cc);
-            }
+            // [databind#6392]: same lookup as `serialize()`, as cache is shared
+            ser = _findSerializer(ctxt, value);
+        }
+        // [databind#6206]: simple check for direct cycle through accessor
+        //   (if written as null, no type id, same as with actual null value above)
+        if ((value == bean) && _checkSelfReference(ctxt, bean, ser)) {
+            ctxt.defaultSerializeNullValue(gen);
+            return;
         }
 
         // 16-Apr-2018, tatu: This is interesting piece of vestigal code but...
@@ -314,7 +515,13 @@ public class JsonValueSerializer
             // Confusing? Type id is for POJO and NOT for value returned by JsonValue accessor...
             WritableTypeId typeIdDef = typeSer0.writeTypePrefix(gen, ctxt,
                     typeSer0.typeId(bean, JsonToken.VALUE_STRING));
-            ser.serialize(value, gen, ctxt);
+            try {
+                ser.serialize(value, gen, ctxt);
+            } catch (StackOverflowError e) {
+                // [databind#6206]: see `serialize()`
+                throw DatabindException.from(gen, "Infinite recursion (StackOverflowError)", e)
+                    .prependPath(bean, _accessor.getName() + "()");
+            }
             typeSer0.writeTypeSuffix(gen, ctxt, typeIdDef);
             return;
         }
@@ -328,7 +535,50 @@ public class JsonValueSerializer
         //    is not very clear. So most likely it'll fail at some point and require
         //    full investigation. But not today.
         TypeSerializerRerouter rr = new TypeSerializerRerouter(typeSer0, bean);
-        ser.serializeWithType(value, gen, ctxt, rr);
+        try {
+            ser.serializeWithType(value, gen, ctxt, rr);
+        } catch (StackOverflowError e) {
+            // [databind#6206]: see `serialize()`
+            throw DatabindException.from(gen, "Infinite recursion (StackOverflowError)", e)
+                .prependPath(bean, _accessor.getName() + "()");
+        }
+    }
+
+    /**
+     * Method called when {@code @JsonValue} accessor returned the POJO itself:
+     * that is a direct (immediate) cycle, and unlike deeper cycles it can be
+     * detected before recursing (and running out of stack).
+     *<p>
+     * Only reported as a problem if the value would be serialized by another
+     * {@code @JsonValue} based serializer that uses the same accessor: custom
+     * serializers (and Object Id handling) may well handle self-reference just fine,
+     * and a different accessor (as with static typing, for a supertype) may not
+     * lead back here at all -- and if it does, recursion is caught as
+     * {@link StackOverflowError} as with longer cycles.
+     *<p>
+     * If {@link SerializationFeature#FAIL_ON_SELF_REFERENCES} is disabled but
+     * {@link SerializationFeature#WRITE_SELF_REFERENCES_AS_NULL} enabled,
+     * self-reference is to be written as {@code null} instead.
+     *
+     * @return {@code true} if self-reference is to be written as {@code null};
+     *    {@code false} if value is to be serialized normally
+     *
+     * @since 3.1.8
+     */
+    protected boolean _checkSelfReference(SerializationContext ctxt, Object bean,
+            ValueSerializer<?> ser)
+    {
+        if ((ser instanceof JsonValueSerializer)
+                && _accessor.getMember().equals(((JsonValueSerializer) ser)._accessor.getMember())
+                && !ser.usesObjectId()) {
+            if (ctxt.isEnabled(SerializationFeature.FAIL_ON_SELF_REFERENCES)) {
+                ctxt.reportBadDefinition(bean.getClass(), String.format(
+                        "Direct self-reference leading to cycle (through `@JsonValue` accessor `%s()`)",
+                        _accessor.getName()));
+            }
+            return ctxt.isEnabled(SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL);
+        }
+        return false;
     }
 
     @Override

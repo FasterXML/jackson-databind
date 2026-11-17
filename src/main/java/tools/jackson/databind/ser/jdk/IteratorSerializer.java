@@ -57,6 +57,10 @@ public class IteratorSerializer
 
     @Override
     public boolean isEmpty(SerializationContext ctxt, Iterator<?> value) {
+        // [databind#6065]: unlike other containers, cannot apply content @JsonInclude
+        // filtering here: inspecting elements would consume the (single-use) Iterator,
+        // leaving nothing for `serialize()`. So an Iterator that becomes empty after
+        // content filtering is still emitted as `[]` rather than dropped.
         return !value.hasNext();
     }
 
@@ -139,15 +143,7 @@ public class IteratorSerializer
                 continue;
             }
             Class<?> cc = elem.getClass();
-            ValueSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
-            if (serializer == null) {
-                if (_elementType.hasGenericTypes()) {
-                    serializer = _findAndAddDynamic(ctxt,
-                            ctxt.constructSpecializedType(_elementType, cc));
-                } else {
-                    serializer = _findAndAddDynamic(ctxt, cc);
-                }
-            }
+            ValueSerializer<Object> serializer = _findCachedOrAddDynamic(ctxt, _elementType, cc);
             // Check if this element should be suppressed (only in filtered mode)
             if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
                 continue;

@@ -1004,9 +1004,13 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /**
-     * Method for setting default Setter configuration, regarding things like
-     * merging, null-handling; used for properties for which there are
-     * no per-type or per-property overrides (via annotations or config overrides).
+     * Sets the default value of {@link JsonFormat#lenient()} for types and
+     * properties without a more specific format override.
+     * Whether and how this setting is used depends on the deserializer;
+     * for example, date deserializers use it to control lenient date parsing.
+     *
+     * @param b {@link Boolean#TRUE} to enable leniency, {@link Boolean#FALSE}
+     *   to request strict handling, or {@code null} to leave the default unspecified
      */
     public B defaultLeniency(Boolean b) {
         _configOverrides.setDefaultLeniency(b);
@@ -1256,6 +1260,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * may lead to unavailability of core Jackson annotations.
      * If you want to combine handling of multiple introspectors,
      * have a look at {@link tools.jackson.databind.introspect.AnnotationIntrospectorPair}.
+     *<p>
+     * Passing {@code null} disables annotation processing, same as disabling
+     * {@link MapperFeature#USE_ANNOTATIONS}.
      *
      * @see tools.jackson.databind.introspect.AnnotationIntrospectorPair
      */

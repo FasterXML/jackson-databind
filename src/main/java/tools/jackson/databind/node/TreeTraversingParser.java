@@ -58,7 +58,7 @@ public class TreeTraversingParser
     public TreeTraversingParser(JsonNode n) { this(n, ObjectReadContext.empty()); }
 
     public TreeTraversingParser(JsonNode n, ObjectReadContext readContext) {
-        this(n, readContext, null);
+        this(n, readContext, (TokenStreamContext) null);
     }
 
     /**
@@ -80,7 +80,43 @@ public class TreeTraversingParser
     public TreeTraversingParser(JsonNode n, ObjectReadContext readContext,
             TokenStreamContext parentContext)
     {
-        super(readContext);
+        this(n, readContext, parentContext, readContext.streamReadConstraints());
+    }
+
+    /**
+     * Constructor for cases where {@link StreamReadConstraints} to apply come
+     * from a source other than the {@link ObjectReadContext} given: typically
+     * a format backend that parses its input into a tree and then exposes it
+     * through this parser (like TOML backend), and needs constraints of its
+     * {@link TokenStreamFactory} applied, the same way streaming parsers apply
+     * constraints of their {@code IOContext} regardless of read context.
+     *
+     * @param n Tree to traverse
+     * @param readContext Read context to use
+     * @param constraints Constraints to apply (both for {@link #streamReadConstraints()}
+     *    and for token count validation); must not be {@code null}. Passing
+     *    {@code readContext.streamReadConstraints()} is equivalent to using
+     *    {@link #TreeTraversingParser(JsonNode, ObjectReadContext)}
+     *
+     * @since 3.3
+     */
+    public TreeTraversingParser(JsonNode n, ObjectReadContext readContext,
+            StreamReadConstraints constraints)
+    {
+        this(n, readContext, null, constraints);
+    }
+
+    /**
+     * Constructor that combines {@link #TreeTraversingParser(JsonNode, ObjectReadContext, TokenStreamContext)}
+     * and {@link #TreeTraversingParser(JsonNode, ObjectReadContext, StreamReadConstraints)}.
+     * As with the latter, {@code constraints} must not be {@code null}.
+     *
+     * @since 3.3
+     */
+    public TreeTraversingParser(JsonNode n, ObjectReadContext readContext,
+            TokenStreamContext parentContext, StreamReadConstraints constraints)
+    {
+        super(readContext, constraints);
         _source = n;
         _nodeCursor = new NodeCursor.RootCursor(n, parentContext);
     }

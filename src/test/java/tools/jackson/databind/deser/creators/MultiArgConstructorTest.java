@@ -89,12 +89,11 @@ public class MultiArgConstructorTest
         @Override
         public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember param) {
             if (param instanceof AnnotatedParameter ap) {
-                switch (ap.getIndex()) {
-                case 0: return "a";
-                case 1: return "b";
-                default:
-                    return "param"+ap.getIndex();
-                }
+                return switch (ap.getIndex()) {
+                    case 0 -> "a";
+                    case 1 -> "b";
+                    default -> "param" + ap.getIndex();
+                };
             }
             return super.findImplicitPropertyName(config, param);
         }
@@ -166,18 +165,11 @@ public class MultiArgConstructorTest
                 ));
         int[] stuff = value.stuff;
         for (int i = 0; i < stuff.length; ++i) {
-            int exp;
+            int exp = switch (i) { // These are off-by-one...
+                case 6, 7, 28, 34 -> i + 1;
+                default -> 0;
+            };
 
-            switch (i) {
-            case 6: // These are off-by-one...
-            case 7:
-            case 28:
-            case 34:
-                exp = i+1;
-                break;
-            default:
-                exp = 0;
-            }
             assertEquals(exp, stuff[i], "Entry #"+i);
         }
     }

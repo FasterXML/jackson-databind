@@ -135,6 +135,7 @@ public class NumberSerializer
         return BigDecimalAsStringSerializer.BD_INSTANCE;
     }
 
+    @JacksonStdImpl
     final static class BigDecimalAsStringSerializer
         extends ToStringSerializerBase
     {

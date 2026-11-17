@@ -163,6 +163,56 @@ public abstract class StdContainerSerializer<T>
     }
 
     /**
+     * Helper method for finding serializer for element/value of given runtime type:
+     * first checks for an already resolved serializer in {@link #_dynamicValueSerializers}
+     * and, if none found, resolves one (using type specialized from {@code declaredType}
+     * if it has generic types; otherwise {@code runtimeType} as is) and adds it.
+     *
+     * @param declaredType Declared (nominal) element/value type
+     * @param runtimeType Actual runtime type of element/value
+     *
+     * @since 3.4
+     */
+    protected final ValueSerializer<Object> _findCachedOrAddDynamic(SerializationContext ctxt,
+            JavaType declaredType, Class<?> runtimeType)
+    {
+        ValueSerializer<Object> ser = _dynamicValueSerializers.serializerFor(runtimeType);
+        if (ser == null) {
+            if (declaredType.hasGenericTypes()) {
+                ser = _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(declaredType, runtimeType));
+            } else {
+                ser = _findAndAddDynamic(ctxt, runtimeType);
+            }
+        }
+        return ser;
+    }
+
+    /**
+     * Helper method for finding serializer for element/value of given runtime type:
+     * first checks for an already resolved serializer in {@link #_dynamicValueSerializers}
+     * and, if none found, resolves one for {@code runtimeType} (without type
+     * specialization) and adds it.
+     *
+     * @param runtimeType Actual runtime type of element/value
+     *
+     * @since 3.4
+     */
+    protected final ValueSerializer<Object> _findCachedOrAddDynamic(SerializationContext ctxt,
+            Class<?> runtimeType)
+    {
+        ValueSerializer<Object> ser = _dynamicValueSerializers.serializerFor(runtimeType);
+        if (ser == null) {
+            ser = _findAndAddDynamic(ctxt, runtimeType);
+        }
+        return ser;
+    }
+
+    /**
+     * Method for resolving serializer for given type and adding it in
+     * {@link #_dynamicValueSerializers}. NOTE: does NOT check for an already
+     * resolved serializer first; callers should usually use
+     * {@link #_findCachedOrAddDynamic} instead.
+     *
      * @since 3.0
      */
     protected ValueSerializer<Object> _findAndAddDynamic(SerializationContext ctxt, Class<?> type)
@@ -177,6 +227,11 @@ public abstract class StdContainerSerializer<T>
     }
 
     /**
+     * Method for resolving serializer for given type and adding it in
+     * {@link #_dynamicValueSerializers}. NOTE: does NOT check for an already
+     * resolved serializer first; callers should usually use
+     * {@link #_findCachedOrAddDynamic} instead.
+     *
      * @since 3.0
      */
     protected ValueSerializer<Object> _findAndAddDynamic(SerializationContext ctxt, JavaType type)

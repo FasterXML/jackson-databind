@@ -17,6 +17,7 @@ import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
 import tools.jackson.databind.type.LogicalType;
+import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.databind.util.StdDateFormat;
 
 public abstract class DateBasedDeserializer<T>
@@ -51,6 +52,13 @@ public abstract class DateBasedDeserializer<T>
     @Override // since 2.12
     public LogicalType logicalType() {
         return LogicalType.DateTime;
+    }
+
+    // [databind#6437]: "empty" values (Date, Calendar, java.sql types) are mutable,
+    // must not be shared (see StdScalarDeserializer.getEmptyAccessPattern())
+    @Override
+    public AccessPattern getEmptyAccessPattern() {
+        return AccessPattern.DYNAMIC;
     }
 
     @Override
@@ -133,7 +141,8 @@ public abstract class DateBasedDeserializer<T>
         throws JacksonException
     {
         if (_customFormat != null) {
-            if (p.hasToken(JsonToken.VALUE_STRING)) {
+            // No text (VALUE_STRING with corrupt content, e.g. Ion): let base class handle it
+            if (p.hasToken(JsonToken.VALUE_STRING) && (p.getString() != null)) {
                 String str = p.getString().trim();
                 if (str.isEmpty()) {
                     final CoercionAction act = _checkFromStringCoercion(ctxt, str);

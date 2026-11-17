@@ -185,7 +185,26 @@ public class StringArraySerializer
 
     @Override
     public boolean isEmpty(SerializationContext prov, String[] value) {
-        return (value.length == 0);
+        if (value.length == 0) {
+            return true;
+        }
+        // [databind#6065]: with content @JsonInclude applied to containers,
+        // an array whose every element is suppressed is considered empty
+        if (_needToCheckFiltering(prov)) {
+            for (String str : value) {
+                if (str == null) {
+                    if (_suppressNulls) {
+                        continue;
+                    }
+                    return false;
+                }
+                if (_shouldSerializeElement(prov, str, _elementSerializer)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -208,8 +227,11 @@ public class StringArraySerializer
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, g, ctxt);
-                return;
+                // [databind#6299]: do not unwrap if the only element is filtered out
+                if (!isEmpty(ctxt, value)) {
+                    serializeContents(value, g, ctxt);
+                    return;
+                }
             }
         }
         g.writeStartArray(value, len);

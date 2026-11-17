@@ -4,10 +4,12 @@ import java.nio.ByteBuffer;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
 import tools.jackson.databind.util.ByteBufferBackedInputStream;
 
+@JacksonStdImpl
 public class ByteBufferSerializer extends StdScalarSerializer<ByteBuffer>
 {
     public ByteBufferSerializer() { super(ByteBuffer.class); }

@@ -2,6 +2,8 @@ package tools.jackson.databind.ext.javatime.ser;
 
 import java.time.Month;
 import java.time.temporal.TemporalAccessor;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -50,6 +52,13 @@ public class MonthSerializerTest
         public Month value;
         public FrBean() { }
         public FrBean(Month v) { value = v; }
+    }
+
+    static class ShapeStringBean {
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
+        public Month value;
+        public ShapeStringBean() { }
+        public ShapeStringBean(Month v) { value = v; }
     }
 
     static class ShapeArrayBean {
@@ -141,6 +150,42 @@ public class MonthSerializerTest
     {
         String json = MAPPER.writeValueAsString(new ShapeArrayBean(Month.DECEMBER));
         assertEquals("{\"value\":[12]}", json);
+    }
+
+    // [databind#6233]: explicit String shape (no pattern) writes Enum name;
+    // locale-independent so neither ONE_BASED_MONTHS nor default Locale matter
+    @ParameterizedTest(name = "month={0}, oneBased={1}")
+    @MethodSource("monthsAndOneBased")
+    public void roundTripWithShapeString(Month month, boolean oneBased) throws Exception
+    {
+        ObjectMapper mapper = mapperBuilder()
+                .configure(DateTimeFeature.ONE_BASED_MONTHS, oneBased)
+                .defaultLocale(Locale.FRENCH)
+                .build();
+        String json = mapper.writeValueAsString(new ShapeStringBean(month));
+        assertEquals("""
+                {"value":"%s"}""".formatted(month.name()), json);
+        assertEquals(month, mapper.readValue(json, ShapeStringBean.class).value);
+    }
+
+    // [databind#6233]: same as above but via config override, no annotation
+    @ParameterizedTest(name = "month={0}, oneBased={1}")
+    @MethodSource("monthsAndOneBased")
+    public void roundTripWithConfigOverrideShapeString(Month month, boolean oneBased) throws Exception
+    {
+        ObjectMapper mapper = mapperBuilder()
+                .configure(DateTimeFeature.ONE_BASED_MONTHS, oneBased)
+                .withConfigOverride(Month.class, o -> o.setFormat(
+                        JsonFormat.Value.forShape(JsonFormat.Shape.STRING)))
+                .build();
+        String json = mapper.writeValueAsString(month);
+        assertEquals(q(month.name()), json);
+        assertEquals(month, mapper.readValue(json, Month.class));
+    }
+
+    private static Stream<Arguments> monthsAndOneBased() {
+        return Arrays.stream(Month.values())
+                .flatMap(m -> Stream.of(Arguments.of(m, false), Arguments.of(m, true)));
     }
 
     private static Stream<Arguments> oneBasedVsIndex() {

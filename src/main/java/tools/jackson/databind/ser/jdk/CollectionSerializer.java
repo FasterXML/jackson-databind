@@ -8,9 +8,9 @@ import tools.jackson.databind.JavaType;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.util.ClassUtil;
-import tools.jackson.databind.ser.impl.PropertySerializerMap;
 import tools.jackson.databind.ser.std.AsArraySerializerBase;
 import tools.jackson.databind.ser.std.StdContainerSerializer;
 
@@ -21,6 +21,7 @@ import tools.jackson.databind.ser.std.StdContainerSerializer;
  * If so, we will just construct an {@link java.util.Iterator}
  * to iterate over elements.
  */
+@JacksonStdImpl
 public class CollectionSerializer
     extends AsArraySerializerBase<Collection<?>>
 {
@@ -86,7 +87,15 @@ public class CollectionSerializer
 
     @Override
     public boolean isEmpty(SerializationContext prov, Collection<?> value) {
-        return value.isEmpty();
+        if (value.isEmpty()) {
+            return true;
+        }
+        // [databind#6065]: with content @JsonInclude applied to containers,
+        // a collection whose every element is suppressed is considered empty
+        if (_needToCheckFiltering(prov)) {
+            return _allElementsSuppressed(prov, value.iterator());
+        }
+        return false;
     }
 
     @Override
@@ -110,8 +119,11 @@ public class CollectionSerializer
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContentsImpl(value, g, ctxt);
-                return;
+                // [databind#6299]: do not unwrap if the only element is filtered out
+                if (!isEmpty(ctxt, value)) {
+                    serializeContentsImpl(value, g, ctxt);
+                    return;
+                }
             }
         }
         g.writeStartArray(value, len);
@@ -149,7 +161,6 @@ public class CollectionSerializer
         if (!it.hasNext()) {
             return;
         }
-        PropertySerializerMap serializers = _dynamicValueSerializers;
         // [databind#4849]/[databind#4214]: need to check for EnumSet
         final TypeSerializer typeSer = (_maybeEnumSet && value instanceof EnumSet<?>)
                 ? null : _valueTypeSerializer;
@@ -167,15 +178,7 @@ public class CollectionSerializer
                     ctxt.defaultSerializeNullValue(g);
                 } else {
                     Class<?> cc = elem.getClass();
-                    ValueSerializer<Object> serializer = serializers.serializerFor(cc);
-                    if (serializer == null) {
-                        if (_elementType.hasGenericTypes()) {
-                            serializer = _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(_elementType, cc));
-                        } else {
-                            serializer = _findAndAddDynamic(ctxt, cc);
-                        }
-                        serializers = _dynamicValueSerializers;
-                    }
+                    ValueSerializer<Object> serializer = _findCachedOrAddDynamic(ctxt, _elementType, cc);
                     // Check if this element should be suppressed (only in filtered mode)
                     if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
                         ++i;

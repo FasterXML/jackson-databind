@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 // 22-Mar-2026, tatu: @Isolated: installs a custom SecurityManager which
 // might leak into concurrently running tests, causing spurious SecurityExceptions.
 @Isolated
+@SuppressWarnings("removal") // SecurityManager use is the point of this test
 public class AccessFixTest extends DatabindTestUtil
 {
     static class CauseBlockingSecurityManager

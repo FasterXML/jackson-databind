@@ -2,6 +2,8 @@ package tools.jackson.databind.jdk21;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -17,6 +19,7 @@ public class Java21CollectionsTest extends DatabindTestUtil
             SequencedMap<String, Integer> sequencedMap) {
     }
 
+    @Test
     public void testSequencedCollectionTypesDeserialize() throws Exception {
         String json = """
                 {
@@ -33,6 +36,7 @@ public class Java21CollectionsTest extends DatabindTestUtil
         assertEquals(LinkedHashMap.class, value.sequencedMap.getClass());
     }
 
+    @Test
     public void testSequencedCollectionTypesRoundTrip() throws Exception {
         ArrayList<String> arrayList = new ArrayList<>();
         arrayList.add("A");

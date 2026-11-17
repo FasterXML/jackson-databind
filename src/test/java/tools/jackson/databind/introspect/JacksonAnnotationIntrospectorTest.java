@@ -278,4 +278,32 @@ public class JacksonAnnotationIntrospectorTest
         JavaType result = intr.findPolymorphicBaseType(config, ac, null, baseType);
         assertNull(result);
     }
+
+    // Sub-class using copy constructor, to create re-configured copies
+    static class CopyingIntrospector extends JacksonAnnotationIntrospector {
+        private static final long serialVersionUID = 1L;
+
+        public CopyingIntrospector() { }
+
+        protected CopyingIntrospector(CopyingIntrospector src) {
+            super(src);
+        }
+    }
+
+    @Test
+    public void testCopyConstructor() throws Exception
+    {
+        CopyingIntrospector src = new CopyingIntrospector();
+        assertTrue(new CopyingIntrospector(src)._cfgConstructorPropertiesImpliesCreator);
+
+        src.setConstructorPropertiesImpliesCreator(false);
+        CopyingIntrospector copy = new CopyingIntrospector(src);
+        assertFalse(copy._cfgConstructorPropertiesImpliesCreator);
+        // cached state is not shared
+        assertNotNull(copy._annotationsInside);
+        assertNotSame(src._annotationsInside, copy._annotationsInside);
+        // and copy is independent of source
+        src.setConstructorPropertiesImpliesCreator(true);
+        assertFalse(copy._cfgConstructorPropertiesImpliesCreator);
+    }
 }

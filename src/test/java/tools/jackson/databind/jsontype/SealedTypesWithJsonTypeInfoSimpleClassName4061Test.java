@@ -192,8 +192,8 @@ public class SealedTypesWithJsonTypeInfoSimpleClassName4061Test extends Databind
 
     Root root = MAPPER.readValue(jsonStr, Root.class);
 
-    assertInstanceOf(MergeChildA.class, root.child);
-    assertEquals("I'm child A", ((MergeChildA) root.child).name);
+    MergeChildA mergeChildA = assertInstanceOf(MergeChildA.class, root.child);
+    assertEquals("I'm child A", mergeChildA.name);
   }
 
   // case insenstive type name
@@ -205,8 +205,8 @@ public class SealedTypesWithJsonTypeInfoSimpleClassName4061Test extends Databind
 
     Root root = mapper.readValue(jsonStr, Root.class);
 
-    assertInstanceOf(MergeChildA.class, root.child);
-    assertEquals("I'm child A", ((MergeChildA) root.child).name);
+    MergeChildA mergeChildA = assertInstanceOf(MergeChildA.class, root.child);
+    assertEquals("I'm child A", mergeChildA.name);
   }
 
   @Test

@@ -13,6 +13,7 @@ import tools.jackson.databind.introspect.AnnotatedAndMetadata;
 import tools.jackson.databind.introspect.AnnotatedConstructor;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedMethod;
+import tools.jackson.databind.jsontype.impl.SubTypeValidator;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.EnumResolver;
 
@@ -59,6 +60,7 @@ public class JDKKeyDeserializers
         return new JDKKeyDeserializer.DelegatingKD(type.getRawClass(), deser);
     }
 
+    @SuppressWarnings("deprecation") // SubTypeValidator
     public static KeyDeserializer findStringBasedKeyDeserializer(DeserializationContext ctxt,
             JavaType type)
    {
@@ -72,6 +74,13 @@ public class JDKKeyDeserializers
         //   4. Implicit Factory method with name of "valueOf()" (primary) or
         //      "fromString()" (secondary). Likewise, no visibility check as of yet.
 
+        // Never construct String-based key deserializers for known "gadget" types
+        // (checked here so that all callers are covered, not just deserializer factory)
+        if (SubTypeValidator.instance().isIllegalType(type.getRawClass())) {
+            return ctxt.reportBadDefinition(type, String.format(
+                    "Illegal type (%s) to deserialize as Map key: prevented for security reasons",
+                    type.getRawClass().getName()));
+        }
         // We don't need full deserialization information, just need to know creators.
         final BeanDescription beanDesc = ctxt.introspectBeanDescriptionForCreation(type);
         // Ok, so: can we find T(String) constructor?
@@ -92,6 +101,7 @@ public class JDKKeyDeserializers
             (m.annotated.getParameterCount() != 1)
                 || (m.annotated.getRawParameterType(0) != String.class)
                 || (m.metadata == JsonCreator.Mode.PROPERTIES)
+                || _isPropertiesBasedByName(ctxt, m)
                 );
 
         // Any explicit?
@@ -129,6 +139,38 @@ public class JDKKeyDeserializers
             ClassUtil.checkAndFixAccess(m, ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
         }
         return new JDKKeyDeserializer.StringFactoryKeyDeserializer(m);
+    }
+
+    /**
+     * Helper method for [databind#3947]: Creator explicitly annotated but without
+     * explicit {@code mode} is properties-based if its parameter has an explicit
+     * name -- and hence NOT usable as Map key Creator, which requires delegating style.
+     *<p>
+     * NOTE: implements just the "explicit name" part of the rules that
+     * {@code POJOPropertiesCollector} applies for {@code Mode.DEFAULT} Creators.
+     * Its other rules do not apply here: Map keys are always read from JSON Strings,
+     * so single-argument {@code ConstructorDetector} settings (which decide between
+     * delegating and properties-based for value Creators) and the {@code @JsonValue}
+     * check are irrelevant -- only delegating Creators can ever serve as key Creators.
+     *<p>
+     * Kept here, instead of in {@code BeanDescription}, so that introspection keeps
+     * reporting the mode as declared, and only key-Creator selection applies this
+     * inference.
+     */
+    private static boolean _isPropertiesBasedByName(DeserializationContext ctxt,
+            AnnotatedAndMetadata<AnnotatedMethod, JsonCreator.Mode> candidate)
+    {
+        // Only annotated-but-modeless Creators need inference: explicit modes are
+        // handled by caller, and non-annotated candidates (`valueOf()`/`fromString()`)
+        // have `null` metadata and are delegating by definition
+        if (candidate.metadata == JsonCreator.Mode.DEFAULT) {
+            // Caller has already verified there is exactly one parameter
+            PropertyName name = ctxt.getAnnotationIntrospector()
+                    .findNameForDeserialization(ctxt.getConfig(),
+                            candidate.annotated.getParameter(0));
+            return (name != null) && !name.isEmpty();
+        }
+        return false;
     }
 
     // 13-Jun-2021, tatu: For now just look for constructor that takes one `String`

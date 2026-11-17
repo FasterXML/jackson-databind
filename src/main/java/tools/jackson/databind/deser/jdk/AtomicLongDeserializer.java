@@ -5,9 +5,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
 import tools.jackson.databind.type.LogicalType;
+import tools.jackson.databind.util.AccessPattern;
 
+@JacksonStdImpl
 public class AtomicLongDeserializer extends StdScalarDeserializer<AtomicLong>
 {
     public AtomicLongDeserializer() { super(AtomicLong.class); }
@@ -18,6 +21,13 @@ public class AtomicLongDeserializer extends StdScalarDeserializer<AtomicLong>
     @Override // @since 2.12
     public Object getEmptyValue(DeserializationContext ctxt) {
         return new AtomicLong();
+    }
+
+    // [databind#6437]: "empty" value is mutable, must not be shared
+    // (see StdScalarDeserializer.getEmptyAccessPattern())
+    @Override
+    public AccessPattern getEmptyAccessPattern() {
+        return AccessPattern.DYNAMIC;
     }
 
     @Override

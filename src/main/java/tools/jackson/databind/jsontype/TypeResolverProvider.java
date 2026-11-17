@@ -350,6 +350,6 @@ Use one of the other inclusion mechanisms (such as `As.PROPERTY` or `As.WRAPPER_
     @Deprecated(since = "3.2")
     protected TypeResolverBuilder<?> _constructStdTypeResolverBuilder(MapperConfig<?> config,
             JsonTypeInfo.Value typeInfo, JavaType baseType) {
-        return _constructStdTypeResolverBuilder(config, typeInfo, null);
+        return _constructStdTypeResolverBuilder(config, typeInfo, baseType, null);
     }
 }

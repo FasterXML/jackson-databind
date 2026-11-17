@@ -52,14 +52,14 @@ public class YearMonthSerializer extends JSR310FormattedSerializerBase<YearMonth
     }
 
     private YearMonthSerializer(YearMonthSerializer base, DateTimeFormatter dtf,
-            Boolean useTimestamp) {
-        super(base, dtf, useTimestamp, null, null);
+            Boolean useTimestamp, JsonFormat.Shape shape) {
+        super(base, dtf, useTimestamp, null, shape);
     }
 
     @Override
     protected YearMonthSerializer withFormat(DateTimeFormatter dtf,
             Boolean useTimestamp, JsonFormat.Shape shape) {
-        return new YearMonthSerializer(this, dtf, useTimestamp);
+        return new YearMonthSerializer(this, dtf, useTimestamp, shape);
     }
 
     @Override

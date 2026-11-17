@@ -241,7 +241,15 @@ public class ObjectArraySerializer
 
     @Override
     public boolean isEmpty(SerializationContext prov, Object[] value) {
-        return value.length == 0;
+        if (value.length == 0) {
+            return true;
+        }
+        // [databind#6065]: with content @JsonInclude applied to containers,
+        // an array whose every element is suppressed is considered empty
+        if (_needToCheckFiltering(prov)) {
+            return _allElementsSuppressed(prov, value);
+        }
+        return false;
     }
 
     @Override
@@ -264,8 +272,11 @@ public class ObjectArraySerializer
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, g, ctxt);
-                return;
+                // [databind#6299]: do not unwrap if the only element is filtered out
+                if (!isEmpty(ctxt, value)) {
+                    serializeContents(value, g, ctxt);
+                    return;
+                }
             }
         }
         g.writeStartArray(value, len);
@@ -303,15 +314,7 @@ public class ObjectArraySerializer
                     continue;
                 }
                 Class<?> cc = elem.getClass();
-                ValueSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
-                if (serializer == null) {
-                    if (_elementType.hasGenericTypes()) {
-                        serializer = _findAndAddDynamic(ctxt,
-                                ctxt.constructSpecializedType(_elementType, cc));
-                    } else {
-                        serializer = _findAndAddDynamic(ctxt, cc);
-                    }
-                }
+                ValueSerializer<Object> serializer = _findCachedOrAddDynamic(ctxt, _elementType, cc);
                 // Check if this element should be suppressed (only in filtered mode)
                 if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
                     continue;
@@ -390,10 +393,7 @@ public class ObjectArraySerializer
                     continue;
                 }
                 Class<?> cc = elem.getClass();
-                ValueSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
-                if (serializer == null) {
-                    serializer = _findAndAddDynamic(ctxt, cc);
-                }
+                ValueSerializer<Object> serializer = _findCachedOrAddDynamic(ctxt, cc);
                 // Check if this element should be suppressed (only in filtered mode)
                 if (filtered && !_shouldSerializeElement(ctxt, elem, serializer)) {
                     continue;
@@ -478,6 +478,41 @@ public class ObjectArraySerializer
             return true;
         }
         return !_suppressableValue.equals(elem);
+    }
+
+    /**
+     * Helper method for content-aware emptiness checks (used by {@link #isEmpty}):
+     * when content {@code @JsonInclude} is applied to containers, an array is
+     * considered empty if every one of its elements would be suppressed during
+     * serialization (so the array would render as an empty array). Callers should
+     * only invoke this when {@link #_needToCheckFiltering} returns true.
+     *
+     * @since 3.2.1
+     */
+    protected boolean _allElementsSuppressed(SerializationContext ctxt, Object[] value)
+    {
+        for (Object elem : value) {
+            if (elem == null) {
+                if (_suppressNulls) {
+                    continue;
+                }
+                return false;
+            }
+            // Only the "empty" check needs an element serializer; other suppression
+            // mechanisms compare the element directly, so avoid resolving one
+            ValueSerializer<Object> serializer = null;
+            if (_suppressableValue == MARKER_FOR_EMPTY) {
+                serializer = _elementSerializer;
+                if (serializer == null) {
+                    Class<?> cc = elem.getClass();
+                    serializer = _findCachedOrAddDynamic(ctxt, _elementType, cc);
+                }
+            }
+            if (_shouldSerializeElement(ctxt, elem, serializer)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

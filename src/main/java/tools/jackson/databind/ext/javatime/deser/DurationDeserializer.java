@@ -117,8 +117,7 @@ public class DurationDeserializer extends JSR310DeserializerBase<Duration>
                                     pattern, DurationUnitConverter.descForAllowed()));
                 }
             }
-            timestampsAsNanosOverride =
-                format.getFeature(JsonFormat.Feature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
+            timestampsAsNanosOverride = _findReadTimestampsAsNanosOverride(format);
         }
         if (leniency != _isLenient
             || !Objects.equals(unitConverter, _durationUnitConverter)

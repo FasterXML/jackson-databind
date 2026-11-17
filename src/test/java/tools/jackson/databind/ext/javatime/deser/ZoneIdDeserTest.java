@@ -94,6 +94,7 @@ public class ZoneIdDeserTest extends DateTimeTestBase
                 "empty string failed to deserialize to null with lenient setting");
     }
 
+    @Test
     public void testStrictDeserializeFromEmptyString()
     {
 

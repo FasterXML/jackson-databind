@@ -14,7 +14,6 @@ import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.util.Annotations;
-import tools.jackson.databind.util.internal.UnreflectHandleSupplier;
 
 import static java.lang.invoke.MethodType.methodType;
 
@@ -26,16 +25,24 @@ import static java.lang.invoke.MethodType.methodType;
 public final class MethodProperty
     extends SettableBeanProperty
 {
+    // @since 3.3
+    private static final MethodType SETTER_TYPE = methodType(void.class, Object.class, Object.class);
+    // @since 3.3
+    private static final MethodType SETTER_RETURN_TYPE = methodType(Object.class, Object.class, Object.class);
+
     protected final AnnotatedMember _annotated;
 
     /**
-     * Setter MethodHandle holder for modifying property value.
+     * Lazily resolved setter handle for modifying property value;
+     * {@code volatile} so a racy first use is safely published (duplicate
+     * resolution is harmless, handles are equivalent).
      */
-    protected final SetterHolder _setter = new SetterHolder(methodType(void.class, Object.class, Object.class));
+    protected volatile MethodHandle _setter;
     /**
-     * Setter MethodHandle holder for modifying property value and returning the modified bean.
+     * Lazily resolved setter handle for modifying property value and returning
+     * the modified bean; resolved same way as {@link #_setter}.
      */
-    protected final SetterHolder _setterReturn = new SetterHolder(methodType(Object.class, Object.class, Object.class));
+    protected volatile MethodHandle _setterReturn;
 
     protected final boolean _skipNulls;
 
@@ -52,12 +59,17 @@ public final class MethodProperty
             NullValueProvider nva) {
         super(src, deser, nva);
         _annotated = src._annotated;
+        // same setter, so share handles already resolved (if any)
+        _setter = src._setter;
+        _setterReturn = src._setterReturn;
         _skipNulls = NullsConstantProvider.isSkipper(nva);
     }
 
     protected MethodProperty(MethodProperty src, PropertyName newName) {
         super(src, newName);
         _annotated = src._annotated;
+        _setter = src._setter;
+        _setterReturn = src._setterReturn;
         _skipNulls = src._skipNulls;
     }
 
@@ -129,7 +141,7 @@ public final class MethodProperty
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
         try {
-            _setter.get().invokeExact(instance, value);
+            _setterHandle().invokeExact(instance, value);
         } catch (Throwable e) {
             _throwAsJacksonE(p, e, value);
         }
@@ -137,7 +149,7 @@ public final class MethodProperty
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p,
-    		DeserializationContext ctxt, Object instance) throws JacksonException
+            DeserializationContext ctxt, Object instance) throws JacksonException
     {
         Object value;
         if (p.hasToken(JsonToken.VALUE_NULL)) {
@@ -158,7 +170,7 @@ public final class MethodProperty
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
         try {
-            Object result = _setterReturn.get().invokeExact(instance, value);
+            Object result = _setterReturnHandle().invokeExact(instance, value);
             return (result == null) ? instance : result;
         } catch (Throwable e) {
             _throwAsJacksonE(p, e, value);
@@ -176,7 +188,7 @@ public final class MethodProperty
             }
         }
         try {
-            _setter.get().invokeExact(instance, value);
+            _setterHandle().invokeExact(instance, value);
         } catch (Throwable e) {
             _throwAsJacksonE(ctxt.getParser(), e, value);
         }
@@ -192,7 +204,7 @@ public final class MethodProperty
             }
         }
         try {
-            Object result = _setterReturn.get().invokeExact(instance, value);
+            Object result = _setterReturnHandle().invokeExact(instance, value);
             return (result == null) ? instance : result;
         } catch (Throwable e) {
             _throwAsJacksonE(ctxt.getParser(), e, value);
@@ -200,21 +212,39 @@ public final class MethodProperty
         }
     }
 
-    class SetterHolder extends UnreflectHandleSupplier {
-        SetterHolder(MethodType asType) {
-            super(asType);
+    // @since 3.3
+    private MethodHandle _setterHandle() throws IllegalAccessException {
+        MethodHandle h = _setter;
+        if (h == null) {
+            h = _unreflectSetter().asType(SETTER_TYPE);
+            _setter = h;
         }
+        return h;
+    }
 
-        @Override
-        protected MethodHandle unreflect() throws IllegalAccessException {
-            if (_annotated instanceof AnnotatedMethod am) {
-                return MethodHandles.lookup().unreflect(am.getAnnotated())
-                        // [databind#5231] If it's varargs, disable varargs handling, 2025-July-25 (Since 3.0)
-                        .asFixedArity();
-            } else {
-                AnnotatedField af = (AnnotatedField) _annotated;
-                return MethodHandles.lookup().unreflectSetter(af.getAnnotated());
-            }
+    // @since 3.3
+    private MethodHandle _setterReturnHandle() throws IllegalAccessException {
+        MethodHandle h = _setterReturn;
+        if (h == null) {
+            h = _unreflectSetter().asType(SETTER_RETURN_TYPE);
+            _setterReturn = h;
         }
+        return h;
+    }
+
+    /*
+     * Note: resolved lazily, on first use, since access to non-public members
+     * is only enabled by {@link #fixAccess} which is called after construction.
+     *
+     * @since 3.3
+     */
+    private MethodHandle _unreflectSetter() throws IllegalAccessException {
+        if (_annotated instanceof AnnotatedMethod am) {
+            return MethodHandles.lookup().unreflect(am.getAnnotated())
+                    // [databind#5231] If it's varargs, disable varargs handling, 2025-July-25 (Since 3.0)
+                    .asFixedArity();
+        }
+        AnnotatedField af = (AnnotatedField) _annotated;
+        return MethodHandles.lookup().unreflectSetter(af.getAnnotated());
     }
 }

@@ -5,6 +5,7 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
@@ -40,6 +41,44 @@ public class NullConversionsForContentTest
     static class NullContentUndefined<T> {
         @JsonSetter // leave with defaults
         public T values;
+    }
+
+    // [databind#5742]: nested List
+    static class NestedListHolder {
+        @JsonSetter(contentNulls = Nulls.FAIL)
+        public List<List<String>> nested;
+    }
+
+    // [databind#5742]: record-like creator form
+    static class NestedListRecord5742 {
+        public final List<List<String>> foo;
+
+        @JsonCreator
+        NestedListRecord5742(@JsonSetter(contentNulls = Nulls.FAIL)
+                @JsonProperty("foo") List<List<String>> foo) {
+            this.foo = foo;
+        }
+    }
+
+    // [databind#5742]: nested Map
+    static class NestedMapHolder {
+        @JsonSetter(contentNulls = Nulls.FAIL)
+        public Map<String, List<String>> nested;
+    }
+
+    // [databind#5742]: nested 2D array
+    static class Nested2DArrayHolder {
+        @JsonSetter(contentNulls = Nulls.FAIL)
+        public String[][] nested;
+    }
+
+    // [databind#5742]: actual Java record (original issue reproduction)
+    record NestedListRecord(@JsonSetter(contentNulls = Nulls.FAIL) List<List<String>> foo) { }
+
+    // [databind#5742]: nested EnumMap
+    static class NestedEnumMapHolder {
+        @JsonSetter(contentNulls = Nulls.FAIL)
+        public EnumMap<ABC, List<String>> nested;
     }
 
     // [databind#4200]
@@ -531,5 +570,249 @@ public class NullConversionsForContentTest
             assertEquals("foo", result.values.get(ABC.A));
             assertEquals("bar", result.values.get(ABC.C));
         }
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, [databind#5742] nested contentNulls propagation
+    /**********************************************************
+     */
+
+    // [databind#5742]: record/creator form (original issue reproduction)
+    @Test
+    public void testNestedListNullsDoNotPropagateCreator5742() throws Exception
+    {
+        // [null] -> outer content is null -> should FAIL
+        try {
+            MAPPER.readValue(a2q("{'foo':[null]}"), NestedListRecord5742.class);
+            fail("Should fail for null content in outer list");
+        } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value");
+        }
+        // [[null]] -> outer content is [null] (non-null List), inner content has null -> should PASS
+        NestedListRecord5742 result = MAPPER.readValue(a2q("{'foo':[[null]]}"), NestedListRecord5742.class);
+        assertEquals(1, result.foo.size());
+        assertEquals(1, result.foo.get(0).size());
+        assertNull(result.foo.get(0).get(0));
+    }
+
+    // [databind#5742]: actual Java record (exact issue reproduction)
+    @Test
+    public void testNestedListNullsDoNotPropagateRecord5742() throws Exception
+    {
+        // [null] -> outer content is null -> should FAIL
+        try {
+            MAPPER.readValue(a2q("{'foo':[null]}"), NestedListRecord.class);
+            fail("Should fail for null content in outer list");
+        } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value");
+        }
+        // [[null]] -> outer content is [null] (non-null List), inner content has null -> should PASS
+        NestedListRecord result = MAPPER.readValue(a2q("{'foo':[[null]]}"), NestedListRecord.class);
+        assertEquals(1, result.foo().size());
+        assertEquals(1, result.foo().get(0).size());
+        assertNull(result.foo().get(0).get(0));
+    }
+
+    // [databind#5742]: field-based nested List
+    @Test
+    public void testNestedListNullsDoNotPropagate5742() throws Exception
+    {
+        // [null] -> outer content is null -> FAIL
+        try {
+            MAPPER.readValue(a2q("{'nested':[null]}"), NestedListHolder.class);
+            fail("Should fail for null content in outer list");
+        } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value");
+        }
+        // [[null]] -> inner list has null -> should PASS
+        NestedListHolder result = MAPPER.readValue(a2q("{'nested':[[null]]}"), NestedListHolder.class);
+        assertEquals(1, result.nested.size());
+        assertEquals(1, result.nested.get(0).size());
+        assertNull(result.nested.get(0).get(0));
+    }
+
+    // [databind#5742]: nested Map<String, List<String>>
+    @Test
+    public void testNestedMapNullsDoNotPropagate5742() throws Exception
+    {
+        // {"nested":{"a":null}} -> outer map value is null -> FAIL
+        try {
+            MAPPER.readValue(a2q("{'nested':{'a':null}}"), NestedMapHolder.class);
+            fail("Should fail for null value in outer map");
+        } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value");
+        }
+        // {"nested":{"a":[null]}} -> inner list has null -> should PASS
+        NestedMapHolder result = MAPPER.readValue(a2q("{'nested':{'a':[null]}}"), NestedMapHolder.class);
+        assertEquals(1, result.nested.size());
+        assertEquals(1, result.nested.get("a").size());
+        assertNull(result.nested.get("a").get(0));
+    }
+
+    // [databind#5742]: nested 2D array String[][]
+    @Test
+    public void testNested2DArrayNullsDoNotPropagate5742() throws Exception
+    {
+        // [null] -> outer content is null -> FAIL
+        try {
+            MAPPER.readValue(a2q("{'nested':[null]}"), Nested2DArrayHolder.class);
+            fail("Should fail for null content in outer array");
+        } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value");
+        }
+        // [[null]] -> inner array has null -> should PASS
+        Nested2DArrayHolder result = MAPPER.readValue(a2q("{'nested':[[null]]}"), Nested2DArrayHolder.class);
+        assertEquals(1, result.nested.length);
+        assertEquals(1, result.nested[0].length);
+        assertNull(result.nested[0][0]);
+    }
+
+    // [databind#5742]: nested EnumMap<ABC, List<String>>
+    @Test
+    public void testNestedEnumMapNullsDoNotPropagate5742() throws Exception
+    {
+        // {"nested":{"A":null}} -> outer map value is null -> FAIL
+        try {
+            MAPPER.readValue(a2q("{'nested':{'A':null}}"), NestedEnumMapHolder.class);
+            fail("Should fail for null value in outer EnumMap");
+        } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value");
+        }
+        // {"nested":{"A":[null]}} -> inner list has null -> should PASS
+        NestedEnumMapHolder result = MAPPER.readValue(a2q("{'nested':{'A':[null]}}"), NestedEnumMapHolder.class);
+        assertEquals(1, result.nested.size());
+        assertEquals(1, result.nested.get(ABC.A).size());
+        assertNull(result.nested.get(ABC.A).get(0));
+    }
+
+    // [databind#5742]: regression check - global default contentNulls=FAIL should preserve existing behavior
+    @Test
+    public void testGlobalDefaultNullsNotAffected5742() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultNullHandling(n -> n.withContentNulls(Nulls.FAIL))
+                .build();
+        // No annotation: global default applies at every level
+        // Both [null] and [[null]] should FAIL for List<List<String>> with global default
+        try {
+            mapper.readValue(a2q("{'values':[null]}"),
+                    new TypeReference<NullContentUndefined<List<List<String>>>>() { });
+            fail("Should fail for [null] with global default");
+        } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value");
+        }
+        try {
+            mapper.readValue(a2q("{'values':[[null]]}"),
+                    new TypeReference<NullContentUndefined<List<List<String>>>>() { });
+            fail("Should fail for [[null]] with global default");
+        } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value");
+        }
+    }
+
+    // [databind#5742]: regression check - ConfigOverride only should preserve existing behavior
+    @Test
+    public void testConfigOverrideOnlyNotAffected5742() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(List.class,
+                        o -> o.setNullHandling(JsonSetter.Value.forContentNulls(Nulls.FAIL)))
+                .build();
+        // No annotation: nested type is also `List` so same Config Override applies
+        try {
+            mapper.readValue(a2q("{'values':[null]}"),
+                    new TypeReference<NullContentUndefined<List<List<String>>>>() { });
+            fail("Should fail for [null] with ConfigOverride");
+        } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value");
+        }
+        try {
+            mapper.readValue(a2q("{'values':[[null]]}"),
+                    new TypeReference<NullContentUndefined<List<List<String>>>>() { });
+            fail("Should fail for [[null]] with ConfigOverride");
+        } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value");
+        }
+    }
+
+    // [databind#5742]: annotation FAIL + global SKIP -> inner should use global SKIP
+    @Test
+    public void testAnnotationPlusGlobalDefault5742() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultNullHandling(n -> n.withContentNulls(Nulls.SKIP))
+                .build();
+        // outer [null] -> FAIL (annotation)
+        try {
+            mapper.readValue(a2q("{'nested':[null]}"), NestedListHolder.class);
+            fail("Should fail for null content in outer list");
+        } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value");
+        }
+        // outer [[null]] -> inner SKIP applied: null is skipped
+        NestedListHolder result = mapper.readValue(a2q("{'nested':[[null]]}"), NestedListHolder.class);
+        assertEquals(1, result.nested.size());
+        assertEquals(0, result.nested.get(0).size()); // null was skipped
+    }
+
+    // [databind#5742]: annotation FAIL on Map + ConfigOverride(List.class) SKIP -> inner list uses SKIP
+    @Test
+    public void testAnnotationPlusConfigOverride5742() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(List.class,
+                        o -> o.setNullHandling(JsonSetter.Value.forContentNulls(Nulls.SKIP)))
+                .build();
+        // {"nested":{"a":null}} -> outer map value null -> FAIL
+        try {
+            mapper.readValue(a2q("{'nested':{'a':null}}"), NestedMapHolder.class);
+            fail("Should fail for null value in outer map");
+        } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value");
+        }
+        // {"nested":{"a":[null]}} -> inner list uses ConfigOverride(List.class) SKIP
+        NestedMapHolder result = mapper.readValue(a2q("{'nested':{'a':[null]}}"), NestedMapHolder.class);
+        assertEquals(1, result.nested.size());
+        assertEquals(0, result.nested.get("a").size()); // null was skipped
+    }
+
+    // [databind#5742]: three levels; only immediate content checked
+    @Test
+    public void nested3LevelNullsDoNotPropagate5742() throws Exception
+    {
+        assertThrows(InvalidNullException.class,
+                () -> MAPPER.readValue("""
+                        {"nested":[null]}
+                        """, Nested3ListHolder.class));
+        Nested3ListHolder r = MAPPER.readValue("""
+                {"nested":[[null,[null]]]}
+                """, Nested3ListHolder.class);
+        assertNull(r.nested.get(0).get(0));
+        assertNull(r.nested.get(0).get(1).get(0));
+    }
+
+    // [databind#5742]: Config Override of outer type does not apply to nested type either
+    @Test
+    public void configOverrideOfOuterTypeDoesNotPropagate5742() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(Map.class,
+                        o -> o.setNullHandling(JsonSetter.Value.forContentNulls(Nulls.FAIL)))
+                .build();
+        TypeReference<NullContentUndefined<Map<String, List<String>>>> ref = new TypeReference<>() { };
+        assertThrows(InvalidNullException.class,
+                () -> mapper.readValue("""
+                        {"values":{"a":null}}
+                        """, ref));
+        NullContentUndefined<Map<String, List<String>>> r = mapper.readValue("""
+                {"values":{"a":[null]}}
+                """, ref);
+        assertNull(r.values.get("a").get(0));
+    }
+
+    static class Nested3ListHolder {
+        @JsonSetter(contentNulls = Nulls.FAIL)
+        public List<List<List<String>>> nested;
     }
 }

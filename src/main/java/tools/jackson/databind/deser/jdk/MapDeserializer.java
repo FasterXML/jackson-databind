@@ -346,10 +346,12 @@ public class MapDeserializer
             valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
         }
         final JavaType vt = _containerType.getContentType();
+        // [databind#5742]: content nulls of property only apply to immediate content
+        final BeanProperty contentProp = _contentProperty(ctxt, property, vt);
         if (valueDeser == null) {
-            valueDeser = ctxt.findContextualValueDeserializer(vt, property);
+            valueDeser = ctxt.findContextualValueDeserializer(vt, contentProp);
         } else { // if directly assigned, probably not yet contextual, so:
-            valueDeser = ctxt.handleSecondaryContextualization(valueDeser, property, vt);
+            valueDeser = ctxt.handleSecondaryContextualization(valueDeser, contentProp, vt);
         }
         TypeDeserializer vtd = _valueTypeDeserializer;
         if (vtd != null) {

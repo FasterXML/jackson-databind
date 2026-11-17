@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -141,6 +143,62 @@ public class IgnorePropertiesExternalTypeIdTest extends DatabindTestUtil
         public TwoPropsBean bean;
     }
 
+    // Builder-based
+    @JsonDeserialize(builder = BuiltBean.Builder.class)
+    static class BuiltBean {
+        public final String id;
+        public final Animal value;
+
+        BuiltBean(String id, Animal value) {
+            this.id = id;
+            this.value = value;
+        }
+
+        @JsonPOJOBuilder(withPrefix = "")
+        static class Builder {
+            private String id;
+            private Animal value;
+
+            public Builder id(String id) {
+                this.id = id;
+                return this;
+            }
+
+            @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+                    include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type")
+            @JsonSubTypes({ @JsonSubTypes.Type(value = Dog.class, name = "dog") })
+            public Builder value(Animal value) {
+                this.value = value;
+                return this;
+            }
+
+            public BuiltBean build() {
+                return new BuiltBean(id, value);
+            }
+        }
+    }
+
+    static class BuiltIgnoringWrapper {
+        @JsonIgnoreProperties("value")
+        public BuiltBean bean;
+    }
+
+    // Value property included but not its type id name: type id must still be used
+    static class CreatorValueIncludingWrapper {
+        @JsonIncludeProperties({ "id", "value" })
+        public CreatorBean bean;
+    }
+
+    static class PlainValueIncludingWrapper {
+        @JsonIncludeProperties({ "id", "value" })
+        public PlainBean bean;
+    }
+
+    static class BuiltValueIncludingWrapper {
+        @JsonIncludeProperties({ "id", "value" })
+        public BuiltBean bean;
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#6312]: type id of excluded property must not be reported as unknown
@@ -247,6 +305,43 @@ public class IgnorePropertiesExternalTypeIdTest extends DatabindTestUtil
             assertEquals("Rex", ign.bean.value.name);
             assertNull(ign.bean.sameTypeId);
             assertNull(ign.bean.otherTypeId);
+        }
+    }
+
+    @Test
+    public void ignoredExternalTypedPropertyWithBuilder() throws Exception
+    {
+        for (ObjectMapper mapper : MAPPERS) {
+            for (String doc : DOCS) {
+                BuiltIgnoringWrapper ign = mapper.readValue(doc, BuiltIgnoringWrapper.class);
+                assertEquals("x", ign.bean.id);
+                assertNull(ign.bean.value);
+            }
+        }
+    }
+
+    // Included value property must be bound even if its type id name is not
+    // explicitly included
+    @Test
+    public void includedExternalTypedPropertyWithoutTypeIdName() throws Exception
+    {
+        for (ObjectMapper mapper : MAPPERS) {
+            for (String doc : DOCS) {
+                CreatorValueIncludingWrapper c = mapper.readValue(doc,
+                        CreatorValueIncludingWrapper.class);
+                assertEquals("x", c.bean.id);
+                assertEquals("Rex", c.bean.value.name);
+
+                PlainValueIncludingWrapper pl = mapper.readValue(doc,
+                        PlainValueIncludingWrapper.class);
+                assertEquals("x", pl.bean.id);
+                assertEquals("Rex", pl.bean.value.name);
+
+                BuiltValueIncludingWrapper b = mapper.readValue(doc,
+                        BuiltValueIncludingWrapper.class);
+                assertEquals("x", b.bean.id);
+                assertEquals("Rex", b.bean.value.name);
+            }
         }
     }
 }

@@ -33,6 +33,9 @@ Sven Döring (@sdoeringNew)
 Steven Schlansker (@stevenschlansker)
  * Contributed #2083: Replace Reflection usage with `MethodHandle` (3.0)
   [3.0.0]
+ * Reported #6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
+   `AccessPattern.ALWAYS_NULL` but return an empty Optional
+  [3.1.9]
 
 Michael Dillon (@michaelcdillon)
  * Requested #2593: StackTraceElement w/ >= Java 9 doesn't deserialize properly
@@ -483,6 +486,14 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6338: `readerForUpdating()` ignores `@JsonSetter(nulls = Nulls.SKIP)`
    for creator properties: existing value is overwritten with `null`
   [3.1.9]
+ * Reported #6309: NPE serializing an Enum whose `toString()` returns `null`
+   (3.x regression from 2.x)
+  [3.1.9]
+ * Reported #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+  [3.1.9]
+ * Reported, fixed #6443: JDK deserialization of a `JsonNode` with a negative length prefix
+   throws `NegativeArraySizeException` instead of an `IOException`
+  [3.1.9]
 
 Anna Breeva (@ab310013)
  * Reported #6315: Map key deserializers should apply same type checks as bean
@@ -496,4 +507,21 @@ Anna Breeva (@ab310013)
 
 @bugada
  * Reported #6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
+  [3.1.9]
+
+@nu11Po1nter1
+ * Fixed #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
+  [3.1.9]
+
+Jared Jacobs (@2is10)
+ * Reported, fixed #6332: Regression from 3.0 to 3.1: `@JsonUnwrapped` drops/rejects
+   the type id property of a polymorphic unwrapped value
+  [3.1.9]
+ * Reported, fixed #6426: Varargs delegating `@JsonCreator` fails with "Cannot cast
+   [Ljava.lang.String; to java.lang.String" (3.x regression)
+  [3.1.9]
+
+Matt Van Horn (@mvanhorn)
+ * Fixed #6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
+   `AccessPattern.ALWAYS_NULL` but return an empty Optional
   [3.1.9]

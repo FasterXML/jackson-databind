@@ -2,6 +2,8 @@ package tools.jackson.databind.deser.impl;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
@@ -10,6 +12,7 @@ import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.bean.BeanDeserializerBase;
 import tools.jackson.databind.deser.bean.PropertyValueBuffer;
+import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.TokenBuffer;
 
@@ -335,14 +338,25 @@ public class UnwrappedPropertyHandler
         //   (typically a custom unwrapping deserializer capturing arbitrary fields).
         Set<String> propNames = new HashSet<>();
         bd.collectAllPropertyNamesTo(propNames);
+        // Names to route: own properties plus, for polymorphic values, type id
+        //   (latter not counted in "opaque" check below)
+        List<String> toAdd = new ArrayList<>(propNames);
+        // [databind#6332]: polymorphic unwrapped value also needs its type id property
+        TypeDeserializer typeDeser = prop.getValueTypeDeserializer();
+        if (typeDeser != null) {
+            JsonTypeInfo.As incl = typeDeser.getTypeInclusion();
+            if (incl == JsonTypeInfo.As.PROPERTY || incl == JsonTypeInfo.As.EXISTING_PROPERTY) {
+                toAdd.add(typeDeser.getPropertyName());
+            }
+        }
         if ((caseInsensitive != null) && bd.isCaseInsensitive()) {
             caseInsensitive[0] = true;
             Locale loc = (locale == null) ? Locale.ROOT : locale;
-            for (String name : propNames) {
+            for (String name : toAdd) {
                 names.add(name.toLowerCase(loc));
             }
         } else {
-            names.addAll(propNames);
+            names.addAll(toAdd);
         }
         return propNames.isEmpty();
     }

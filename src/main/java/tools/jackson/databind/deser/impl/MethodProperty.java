@@ -208,9 +208,7 @@ public final class MethodProperty
         @Override
         protected MethodHandle unreflect() throws IllegalAccessException {
             if (_annotated instanceof AnnotatedMethod am) {
-                return MethodHandles.lookup().unreflect(am.getAnnotated())
-                        // [databind#5231] If it's varargs, disable varargs handling, 2025-July-25 (Since 3.0)
-                        .asFixedArity();
+                return MethodHandles.lookup().unreflect(am.getAnnotated());
             } else {
                 AnnotatedField af = (AnnotatedField) _annotated;
                 return MethodHandles.lookup().unreflectSetter(af.getAnnotated());

@@ -22,7 +22,7 @@ public final class AnnotatedMethod
     extends AnnotatedWithParams
 {
     final protected transient Method _method;
-    final protected MethodHolder _invokerFixedArity = new MethodHolder(null);
+    final protected MethodHolder _invokerWithArgs = new MethodHolder(null);
     final protected MethodHolder _invokerNullary = new MethodHolder(methodType(Object.class));
     final protected MethodHolder _invokerUnary = new MethodHolder(methodType(Object.class, Object.class));
 
@@ -98,7 +98,7 @@ public final class AnnotatedMethod
     @Override
     public final Object call(Object[] args) throws Exception {
         try {
-            return _invokerFixedArity.get().invokeWithArguments(args);
+            return _invokerWithArgs.get().invokeWithArguments(args);
         } catch (final Throwable e) {
             throw sneakyThrow(e);
         }
@@ -123,7 +123,7 @@ public final class AnnotatedMethod
 
     public final Object callOnWith(Object pojo, Object... args) throws Exception {
         try {
-            MethodHandle invoker = _invokerFixedArity.get();
+            MethodHandle invoker = _invokerWithArgs.get();
             if (!Modifier.isStatic(_method.getModifiers())) {
                 invoker = invoker.bindTo(pojo);
             }

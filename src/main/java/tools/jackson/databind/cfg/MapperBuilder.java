@@ -1161,8 +1161,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /**
-     * Method for locating available methods, using JDK {@link ServiceLoader}
+     * Method for locating available modules, using JDK {@link ServiceLoader}
      * facility, along with module-provided SPI.
+     * Modules for which {@link JacksonModule#canAutoRegister()} returns
+     * {@code false} are not included.
      *<p>
      * Note that method does not do any caching, so calls should be considered
      * potentially expensive.
@@ -1172,8 +1174,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /**
-     * Method for locating available methods, using JDK {@link ServiceLoader}
+     * Method for locating available modules, using JDK {@link ServiceLoader}
      * facility, along with module-provided SPI.
+     * Modules for which {@link JacksonModule#canAutoRegister()} returns
+     * {@code false} are not included.
      *<p>
      * Note that method does not do any caching, so calls should be considered
      * potentially expensive.
@@ -1183,7 +1187,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         ArrayList<JacksonModule> modules = new ArrayList<>();
         ServiceLoader<JacksonModule> loader = secureGetServiceLoader(JacksonModule.class, classLoader);
         for (JacksonModule module : loader) {
-            modules.add(module);
+            // [databind#6457]: allow modules to opt out of auto-registration
+            if (module.canAutoRegister()) {
+                modules.add(module);
+            }
         }
         return modules;
     }

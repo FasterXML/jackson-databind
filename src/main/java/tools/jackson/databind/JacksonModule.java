@@ -67,6 +67,26 @@ public abstract class JacksonModule
         return Collections.emptyList();
     }
 
+    /**
+     * Method called to determine whether this module can be registered
+     * automatically when found via module auto-discovery
+     * ({@link MapperBuilder#findModules()}, {@link MapperBuilder#findAndAddModules()}).
+     * If {@code false} is returned, module is skipped by auto-discovery;
+     * it can still be registered explicitly with {@link MapperBuilder#addModule}
+     * (and is also registered normally if returned by
+     * {@link #getDependencies()} of another module).
+     *<p>
+     * Default implementation returns {@code true}.
+     *
+     * @return {@code true} if this module can be registered by auto-discovery;
+     *    {@code false} if it must be registered explicitly
+     *
+     * @since 3.4
+     */
+    public boolean canAutoRegister() {
+        return true;
+    }
+
     /*
     /**********************************************************************
     /* Life-cycle: registration

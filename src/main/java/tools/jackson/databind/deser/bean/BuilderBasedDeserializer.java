@@ -1010,14 +1010,17 @@ public class BuilderBasedDeserializer
             }
             // advanced to value
             p.nextToken();
-            // ignorable things should be ignored
             final String propName = p.currentName();
-            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
-                handleIgnoredProperty(p, ctxt, bean, propName);
+            // external type id (or property that depends on it)? Checked before ignorals
+            // so that type id names not otherwise included still get through, same as with
+            // property-based Creator ([databind#6243]); excluded external-typed properties
+            // were removed from handler ([databind#6312])
+            if (ext.handlePropertyValue(p, ctxt, propName, bean)) {
                 continue;
             }
-            // but others are likely to be part of external type id thingy...
-            if (ext.handlePropertyValue(p, ctxt, propName, bean)) {
+            // ignorable things should be ignored
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
+                handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }
             // if not, the usual fallback handling:

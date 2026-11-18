@@ -472,8 +472,12 @@ public class POJONode
             super.asDecimal();
         }
 
-        // Then, extract from Number
-        return _extractAsBigDecimal();
+        // Then, extract from Number (`null` for NaN and infinities, as with `DoubleNode`)
+        BigDecimal dec = _extractAsBigDecimal();
+        if (dec == null) {
+            return _reportBigDecimalConversionNaNFail("asDecimal()");
+        }
+        return dec;
     }
 
     @Override
@@ -483,8 +487,9 @@ public class POJONode
             return defaultValue;
         }
 
-        // Then, extract from Number
-        return _extractAsBigDecimal();
+        // Then, extract from Number; default for NaN and infinities
+        BigDecimal dec = _extractAsBigDecimal();
+        return (dec == null) ? defaultValue : dec;
     }
 
     @Override
@@ -494,8 +499,8 @@ public class POJONode
             return Optional.empty();
         }
 
-        // Then, extract from Number
-        return Optional.of(_extractAsBigDecimal());
+        // Then, extract from Number; empty for NaN and infinities
+        return Optional.ofNullable(_extractAsBigDecimal());
     }
 
     // extract Long from Number, or return null if range check fails

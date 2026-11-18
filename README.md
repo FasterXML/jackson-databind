@@ -431,6 +431,39 @@ Note that use of a "creator method" (`@JsonCreator` with `@JsonProperty` annotat
 can mix and match properties from constructor/factory method with ones that
 are set via setters or directly using fields.
 
+### Annotations: wrapping properties
+
+`@JsonWrapped` groups one or more fields into a synthetic nested JSON object — the inverse of `@JsonUnwrapped`. Any Jackson-serializable type (scalars, POJOs, collections, maps, arrays) can be used as an inner field.
+
+```java
+public class Gene {
+    public String name;
+
+    @JsonWrapped("chr") public String chromosome;
+    @JsonWrapped("chr") public int    position;
+}
+```
+
+Serializing a `Gene` instance produces:
+
+```json
+{
+  "name" : "BRCA1",
+  "chr" : {
+    "chromosome" : "17",
+    "position" : 43044295
+  }
+}
+```
+
+Deserialization is also supported: Jackson reads the nested `"chr"` object and maps its fields back to the annotated POJO fields (round-trip).
+
+Note: non-scalar types (POJOs, collections, maps, arrays) are supported for baseline
+serialization/deserialization. Existing interaction limitations around `@JsonView`,
+`@JsonFilter`, and `@JsonInclude` on inner wrapped fields still apply — see the
+[`@JsonWrapped` Javadoc](https://github.com/FasterXML/jackson-annotations/blob/2.x/src/main/java/com/fasterxml/jackson/annotation/JsonWrapped.java)
+for the full list of constraints.
+
 ## Tutorial: fancier stuff, conversions
 
 One useful (but not very widely known) feature of Jackson is its ability

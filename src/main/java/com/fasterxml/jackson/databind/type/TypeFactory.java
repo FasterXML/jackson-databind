@@ -636,6 +636,11 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
         // But we can check type parameters "blindly"
         List<JavaType> expectedTypes = exp.getBindings().getTypeParameters();
         List<JavaType> actualTypes = act.getBindings().getTypeParameters();
+        // A raw actual type (like `Inner` in `class Sub extends Outer<Inner>`) has no
+        // type parameters to verify, and is assignable as such
+        if (actualTypes.isEmpty()) {
+            return true;
+        }
         for (int i = 0, len = expectedTypes.size(); i < len; ++i) {
             JavaType exp2 = expectedTypes.get(i);
             JavaType act2 = actualTypes.get(i);

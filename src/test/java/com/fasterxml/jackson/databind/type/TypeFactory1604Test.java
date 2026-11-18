@@ -37,6 +37,14 @@ public class TypeFactory1604Test
     }
 
     static class Left<V> extends Either<V, Void> { }
+
+    static class Outer<T> { }
+
+    static class Inner<Y> { }
+
+    // raw `Inner` in the supertype
+    @SuppressWarnings("rawtypes")
+    static class RawInnerOuter<X> extends Outer<Inner> { }
     static class Right<V> extends Either<Void, V> { }
 
     @Test
@@ -152,5 +160,16 @@ public class TypeFactory1604Test
         assertEquals(2, params.length);
         assertEquals(Void.class, params[0].getRawClass());
         assertEquals(Object.class, params[1].getRawClass());
+    }
+
+    // Specializing to a subtype whose supertype has a raw nested type argument used to
+    // fail with IndexOutOfBoundsException when verifying the nested type parameters
+    @Test
+    public void testSpecializeWithRawNestedTypeArgument()
+    {
+        TypeFactory tf = newTypeFactory();
+        JavaType base = tf.constructType(new TypeReference<Outer<Inner<String>>>() { });
+        JavaType spec = tf.constructSpecializedType(base, RawInnerOuter.class);
+        assertEquals(RawInnerOuter.class, spec.getRawClass());
     }
 }

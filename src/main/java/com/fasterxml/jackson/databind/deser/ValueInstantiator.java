@@ -111,8 +111,8 @@ public abstract class ValueInstantiator
         return canCreateUsingDefault()
                 || canCreateUsingDelegate() || canCreateUsingArrayDelegate()
                 || canCreateFromObjectWith() || canCreateFromString()
-                || canCreateFromInt() || canCreateFromLong()
-                || canCreateFromDouble() || canCreateFromBoolean();
+                || canCreateFromInt() || canCreateFromLong() || canCreateFromBigInteger()
+                || canCreateFromDouble() || canCreateFromBigDecimal() || canCreateFromBoolean();
     }
 
     /**
@@ -498,7 +498,11 @@ public abstract class ValueInstantiator
         @Override
         public boolean canCreateFromLong() { return delegate().canCreateFromLong(); }
         @Override
+        public boolean canCreateFromBigInteger() { return delegate().canCreateFromBigInteger(); }
+        @Override
         public boolean canCreateFromDouble() { return delegate().canCreateFromDouble(); }
+        @Override
+        public boolean canCreateFromBigDecimal() { return delegate().canCreateFromBigDecimal(); }
         @Override
         public boolean canCreateFromBoolean() { return delegate().canCreateFromBoolean(); }
         @Override

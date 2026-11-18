@@ -623,4 +623,35 @@ public class ValueInstantiatorTest
             verifyException(e, "no String-argument constructor/factory");
         }
     }
+
+    static class BigNumberOnlyInstantiator extends ValueInstantiator.Base
+    {
+        private final boolean _fromBigInteger;
+
+        BigNumberOnlyInstantiator(boolean fromBigInteger) {
+            super(Object.class);
+            _fromBigInteger = fromBigInteger;
+        }
+
+        @Override
+        public boolean canCreateFromBigInteger() { return _fromBigInteger; }
+
+        @Override
+        public boolean canCreateFromBigDecimal() { return !_fromBigInteger; }
+    }
+
+    // A creator from BigInteger or BigDecimal alone must count for canInstantiate(),
+    // also through a ValueInstantiator.Delegating wrapper
+    @Test
+    public void testCanInstantiateWithBigNumberCreatorOnly()
+    {
+        for (boolean fromBigInteger : new boolean[] { true, false }) {
+            ValueInstantiator inst = new BigNumberOnlyInstantiator(fromBigInteger);
+            assertTrue(inst.canInstantiate());
+            ValueInstantiator wrapped = new ValueInstantiator.Delegating(inst) { };
+            assertEquals(fromBigInteger, wrapped.canCreateFromBigInteger());
+            assertEquals(!fromBigInteger, wrapped.canCreateFromBigDecimal());
+            assertTrue(wrapped.canInstantiate());
+        }
+    }
 }

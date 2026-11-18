@@ -2156,6 +2156,9 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6443: JDK deserialization of a `JsonNode` with a negative length prefix
    throws `NegativeArraySizeException` instead of an `IOException`
   [2.24.0]
+ * Reported, fixed #6465: `ValueInstantiator.canInstantiate()` ignores `BigInteger`/`BigDecimal`
+   creators, and `ValueInstantiator.Delegating` hides them
+  [2.24.0]
 
 DongNyoung Lee (@Dongnyoung)
  * Contributed fix for #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected

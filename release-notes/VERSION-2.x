@@ -16,6 +16,9 @@ Project: jackson-databind
   `NegativeArraySizeException` instead of an `IOException`; corrupt content now
   also fails with an `IOException` (`InvalidObjectException`), not `IllegalArgumentException`
  (reported, fixed by @Marti2203)
+#6465: `ValueInstantiator.canInstantiate()` ignores `BigInteger`/`BigDecimal` creators,
+  and `ValueInstantiator.Delegating` hides them
+ (reported, fixed by @Marti2203)
 
 2.23.1 (not yet released)
 

@@ -424,7 +424,7 @@ public class StdDateFormat
                 }
             }
         }
-        if ((i < 0)
+        if ((i < 0) && !dateStr.isEmpty()
             // let's just assume negative numbers are fine (can't be RFC-1123 anyway); check length for positive
                 && (dateStr.charAt(0) == '-' || NumberInput.inLongRange(dateStr, false))) {
             return _parseDateFromLong(dateStr, pos);
@@ -673,7 +673,7 @@ public class StdDateFormat
         final int totalLen = dateStr.length();
         // actually, one short-cut: if we end with "Z", must be UTC
         TimeZone tz = DEFAULT_TIMEZONE;
-        if ((_timezone != null) && ('Z' != dateStr.charAt(totalLen-1))) {
+        if ((_timezone != null) && (totalLen > 0) && ('Z' != dateStr.charAt(totalLen-1))) {
             tz = _timezone;
         }
         Calendar cal = _getCalendar(tz);

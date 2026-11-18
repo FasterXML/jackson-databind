@@ -183,4 +183,16 @@ public class StdDateFormatTest extends DatabindTestUtil
         assertFalse(f.testLooksLikeISO8601("20250305"));
         assertEquals(20250305L, f.parse("20250305").getTime());
     }
+
+    // Empty input must give a ParseException, not StringIndexOutOfBoundsException
+    @Test
+    public void testParseEmpty() throws Exception
+    {
+        final StdDateFormat noTz = new StdDateFormat();
+        final StdDateFormat withTz = noTz.withTimeZone(TimeZone.getTimeZone("UTC"));
+        for (StdDateFormat f : new StdDateFormat[] { noTz, withTz }) {
+            assertThrows(ParseException.class, () -> f.parse(""));
+            assertThrows(ParseException.class, () -> f.parse("   "));
+        }
+    }
 }

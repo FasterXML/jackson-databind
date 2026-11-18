@@ -214,8 +214,8 @@ public abstract class ReferenceTypeDeserializer<T>
         Object contents;
         // 26-Oct-2016, tatu: first things first; see if we should be able to merge:
         Boolean B = _valueDeserializer.supportsUpdate(ctxt.getConfig());
-        // if explicitly stated that merge won't work...
-        if (B.equals(Boolean.FALSE) ||  (_valueTypeDeserializer != null)) {
+        // if explicitly stated that merge won't work... (`null` means "may be possible")
+        if (Boolean.FALSE.equals(B) ||  (_valueTypeDeserializer != null)) {
             contents = (_valueTypeDeserializer == null)
                     ? _valueDeserializer.deserialize(p, ctxt)
                     : _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);

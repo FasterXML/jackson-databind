@@ -16,6 +16,9 @@ Project: jackson-databind
   `NegativeArraySizeException` instead of an `IOException`; corrupt content now
   also fails with an `IOException` (`InvalidObjectException`), not `IllegalArgumentException`
  (reported, fixed by @Marti2203)
+#6461: `ReferenceTypeDeserializer` NPE when updating with a value deserializer whose
+  `supportsUpdate()` returns `null` (the default)
+ (reported, fixed by @Marti2203)
 
 2.23.1 (not yet released)
 

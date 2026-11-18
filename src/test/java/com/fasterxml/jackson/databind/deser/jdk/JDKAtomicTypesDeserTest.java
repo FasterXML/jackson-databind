@@ -12,18 +12,23 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.deser.std.StringDeserializer;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
 
 public class JDKAtomicTypesDeserTest
 {
@@ -450,5 +455,27 @@ public class JDKAtomicTypesDeserTest
         // And then absent (missing), via Creator method, should become actual null
         bean = MAPPER.readValue("{}", AtomicRefWithNodeBean.class);
         assertNull(bean._atomicNode);
+    }
+
+    // Value deserializer that keeps the default "don't know" (null) answer of supportsUpdate()
+    static class NoOpinionStringDeserializer extends StringDeserializer {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public Boolean supportsUpdate(DeserializationConfig config) {
+            return null;
+        }
+    }
+
+    @Test
+    public void testUpdateWithValueDeserializerWithoutUpdateOpinion() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule().addDeserializer(String.class, new NoOpinionStringDeserializer()))
+                .build();
+        AtomicReference<String> ref = new AtomicReference<>("a");
+        AtomicReference<String> result = mapper.readerForUpdating(ref).readValue(q("b"));
+        assertSame(ref, result);
+        assertEquals("b", result.get());
     }
 }

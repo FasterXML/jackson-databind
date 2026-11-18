@@ -48,6 +48,16 @@ public class EnumMapDeserializer
     protected final ValueInstantiator _valueInstantiator;
 
     /**
+     * Flag that indicates whether value merging should be applied when
+     * deserializing content (EnumMap values) during Map merge operation.
+     * Set to {@code false} when content type has ConfigOverride with
+     * {@code mergeable = false}.
+     *
+     * @since 3.4
+     */
+    protected final boolean _mergeValues;
+
+    /**
      * Deserializer that is used iff delegate-based creator is
      * to be used for deserializing from JSON Object.
      */
@@ -110,6 +120,7 @@ public class EnumMapDeserializer
         _valueDeserializer = (ValueDeserializer<Object>) valueDeser;
         _valueTypeDeserializer = vtd;
         _valueInstantiator = valueInst;
+        _mergeValues = true;
         _ignorableProperties = (ignorable == null || ignorable.isEmpty()) ? null : ignorable;
         _includableProperties = includable;
         _inclusionChecker = IgnorePropertiesUtil.buildCheckerIfNeeded(_ignorableProperties, includable);
@@ -135,6 +146,18 @@ public class EnumMapDeserializer
             NullValueProvider nuller,
             Set<String> ignorable, Set<String> includable)
     {
+        this(base, keyDeser, valueDeser, vtd, nuller, ignorable, includable,
+                base._mergeValues);
+    }
+
+    /**
+     * @since 3.4
+     */
+    protected EnumMapDeserializer(EnumMapDeserializer base,
+            KeyDeserializer keyDeser, ValueDeserializer<?> valueDeser, TypeDeserializer vtd,
+            NullValueProvider nuller,
+            Set<String> ignorable, Set<String> includable, boolean mergeValues)
+    {
         super(base, nuller, base._unwrapSingle);
         _enumClass = base._enumClass;
         _keyDeserializer = keyDeser;
@@ -142,6 +165,7 @@ public class EnumMapDeserializer
         _valueTypeDeserializer = vtd;
 
         _valueInstantiator = base._valueInstantiator;
+        _mergeValues = mergeValues;
         _delegateDeserializer = base._delegateDeserializer;
         _propertyBasedCreator = base._propertyBasedCreator;
 
@@ -176,6 +200,18 @@ public class EnumMapDeserializer
         }
         return new EnumMapDeserializer(this,
                 keyDeserializer, valueDeserializer, valueTypeDeser, nuller, ignorable, includable);
+    }
+
+    /**
+     * @since 3.4
+     */
+    protected EnumMapDeserializer withMergeValues(boolean mergeValues) {
+        if (_mergeValues == mergeValues) {
+            return this;
+        }
+        return new EnumMapDeserializer(this,
+                _keyDeserializer, _valueDeserializer, _valueTypeDeserializer, _nullProvider,
+                _ignorableProperties, _includableProperties, mergeValues);
     }
 
     /*
@@ -265,8 +301,15 @@ public class EnumMapDeserializer
                 }
             }
         }
-        return withResolved(keyDeser, valueDeser, vtd,
+        EnumMapDeserializer deser = withResolved(keyDeser, valueDeser, vtd,
                 findContentNullProvider(ctxt, property, valueDeser), ignored, included);
+        // [databind#6445]: Check if content type has mergeable disabled
+        // (same as `MapDeserializer`, [databind#3205])
+        Boolean contentMergeable = ctxt.getConfig().getDefaultMergeable(vt.getRawClass());
+        if (Boolean.FALSE.equals(contentMergeable)) {
+            deser = deser.withMergeValues(false);
+        }
+        return deser;
     }
 
     /**
@@ -331,7 +374,9 @@ public class EnumMapDeserializer
         case JsonTokenId.ID_START_OBJECT:
         case JsonTokenId.ID_END_OBJECT:
         case JsonTokenId.ID_PROPERTY_NAME:
-            return deserialize(p, ctxt, constructMap(ctxt));
+            // [databind#6445]: Fresh map: never merge, so a repeated key
+            // replaces the earlier value (same as `MapDeserializer._readAndBind`)
+            return _deserializeInto(p, ctxt, constructMap(ctxt), false);
         case JsonTokenId.ID_STRING:
             // (empty) String may be ok however; or single-String-arg ctor
             return _deserializeFromStringForContainer(p, ctxt);
@@ -346,6 +391,22 @@ public class EnumMapDeserializer
     @Override
     public EnumMap<?,?> deserialize(JsonParser p, DeserializationContext ctxt,
             EnumMap result)
+        throws JacksonException
+    {
+        // Caller supplied an existing map: merge into its values when allowed
+        // (see `_deserializeInto`)
+        return _deserializeInto(p, ctxt, result, _mergeValues);
+    }
+
+    /**
+     * Shared implementation for the two {@code deserialize} methods.
+     * Values are merged into existing entries only when {@code mergeValues} is
+     * {@code true}, that is, when the caller supplied a pre-existing map to update.
+     * A freshly constructed map must never merge: a repeated key replaces the
+     * earlier value, as with {@code MapDeserializer._readAndBind}.
+     */
+    private EnumMap<?,?> _deserializeInto(JsonParser p, DeserializationContext ctxt,
+            EnumMap result, boolean mergeValues)
         throws JacksonException
     {
         // [databind#631]: Assign current value, to be accessible by custom deserializers
@@ -408,7 +469,20 @@ public class EnumMapDeserializer
                     }
                     value = null;
                 } else {
-                    value = _deserializeNoNullChecks(p, ctxt);
+                    // [databind#6445]: Only attempt to merge content values when
+                    // updating a caller-supplied map and the content type's
+                    // ConfigOverride allows it (same as `MapDeserializer`)
+                    Object old = mergeValues ? result.get(key) : null;
+                    if (old != null) {
+                        if (_valueTypeDeserializer == null) {
+                            value = _valueDeserializer.deserialize(p, ctxt, old);
+                        } else {
+                            value = _valueDeserializer.deserializeWithType(p, ctxt,
+                                    _valueTypeDeserializer, old);
+                        }
+                    } else {
+                        value = _deserializeNoNullChecks(p, ctxt);
+                    }
                 }
 
                 if (value == null) {
@@ -493,7 +567,9 @@ public class EnumMapDeserializer
                     } catch (Exception e) {
                         return wrapAndThrow(ctxt, e, _containerType.getRawClass(), keyName);
                     }
-                    return deserialize(p, ctxt, result);
+                    // Freshly built map: never merge (same as
+                    // `MapDeserializer` creator path using `_readAndBind`)
+                    return _deserializeInto(p, ctxt, result, false);
                 }
                 continue;
             }

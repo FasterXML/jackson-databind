@@ -656,9 +656,13 @@ public class TypeFactory
         // But we can check type parameters "blindly"
         List<JavaType> expectedTypes = exp.getBindings().getTypeParameters();
         List<JavaType> actualTypes = act.getBindings().getTypeParameters();
+        // [databind#6463]: A raw actual type (like `Inner` in `class Sub extends Outer<Inner>`)
+        // has no type parameters: handle the same way as `_resolveTypePlaceholders()`
+        // does, as if bound to `Object`
+        final int actCount = actualTypes.size();
         for (int i = 0, len = expectedTypes.size(); i < len; ++i) {
             JavaType exp2 = expectedTypes.get(i);
-            JavaType act2 = actualTypes.get(i);
+            JavaType act2 = (i < actCount) ? actualTypes.get(i) : unknownType();
             if (!_verifyAndResolvePlaceholders(exp2, act2)) {
                 return false;
             }

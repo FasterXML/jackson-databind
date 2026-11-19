@@ -552,6 +552,16 @@ public abstract class AnnotationIntrospector
     public NameTransformer findUnwrappingNameTransformer(MapperConfig<?> config, AnnotatedMember member) { return null; }
 
     /**
+     * Method called to find a JSON Pointer expression used as the source of
+     * the value for a property during deserialization.
+     *
+     * @return JSON Pointer expression, if defined; {@code null} otherwise
+     *
+     * @since 3.3
+     */
+    public String findPropertyJsonPointer(MapperConfig<?> config, AnnotatedMember member) { return null; }
+
+    /**
      * Method called to check whether given property is marked to
      * be ignored. This is used to determine whether to ignore
      * properties, on per-property basis, usually combining

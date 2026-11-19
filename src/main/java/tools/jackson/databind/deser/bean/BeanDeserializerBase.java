@@ -201,6 +201,13 @@ public abstract class BeanDeserializerBase
     protected UnwrappedPropertyHandler _unwrappedPropertyHandler;
 
     /**
+     * Handler for properties bound from JSON Pointer expressions.
+     *
+     * @since 3.3
+     */
+    protected JsonPointerPropertyHandler _jsonPointerPropertyHandler;
+
+    /**
      * Handler that we need if any of properties uses external
      * type id.
      */
@@ -329,6 +336,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _jsonPointerPropertyHandler = src._jsonPointerPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -364,6 +372,7 @@ public abstract class BeanDeserializerBase
         _nonStandardCreation = src._nonStandardCreation;
 
         _unwrappedPropertyHandler = unwrapHandler;
+        _jsonPointerPropertyHandler = src._jsonPointerPropertyHandler;
         _propertyBasedCreator = propertyBasedCreator;
         _beanProperties = renamedProperties;
 
@@ -395,6 +404,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _jsonPointerPropertyHandler = src._jsonPointerPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -444,6 +454,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _jsonPointerPropertyHandler = src._jsonPointerPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -478,6 +489,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _jsonPointerPropertyHandler = src._jsonPointerPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -598,6 +610,28 @@ public abstract class BeanDeserializerBase
                 if (!(prop instanceof ManagedReferenceProperty)) {
                     prop = _resolvedObjectIdProperty(ctxt, prop);
                 }
+                String jsonPointer = ctxt.getAnnotationIntrospector()
+                        .findPropertyJsonPointer(ctxt.getConfig(), prop.getMember());
+                if (jsonPointer != null) {
+                    if (prop.isCreatorProperty()) {
+                        ctxt.reportBadDefinition(_beanType,
+                                "Cannot use @JsonPointer on Creator property '"+prop.getName()+"'");
+                    }
+                    if (_jsonPointerPropertyHandler == null) {
+                        _jsonPointerPropertyHandler = new JsonPointerPropertyHandler();
+                    }
+                    tools.jackson.core.JsonPointer compiledPointer;
+                    try {
+                        compiledPointer = tools.jackson.core.JsonPointer.compile(jsonPointer);
+                    } catch (IllegalArgumentException e) {
+                        compiledPointer = ctxt.reportBadDefinition(_beanType,
+                                "Invalid @JsonPointer value '"+jsonPointer+"' for property '"
+                                +prop.getName()+"': "+e.getMessage());
+                    }
+                    _jsonPointerPropertyHandler.addProperty(compiledPointer, prop);
+                    _beanProperties.remove(prop);
+                    continue;
+                }
                 // Support unwrapped values (via @JsonUnwrapped)
                 NameTransformer xform = _findPropertyUnwrapper(ctxt, prop);
                 if (xform != null) {
@@ -653,6 +687,10 @@ public abstract class BeanDeserializerBase
         }
         // [databind#1755]: mark that bean properties are fully contextualized
         _propertiesContextualized = true;
+
+        if (_jsonPointerPropertyHandler != null) {
+            _vanillaProcessing = false;
+        }
 
         // "any setter" may also need to be resolved now
         if (_anySetter != null) {

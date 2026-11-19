@@ -38,6 +38,10 @@ public class TypeFactory1604Test
 
     static class Left<V> extends Either<V, Void> { }
 
+    static class Right<V> extends Either<Void, V> { }
+
+    // [databind#6463]
+
     static class Outer<T> { }
 
     static class Inner<Y> { }
@@ -45,7 +49,6 @@ public class TypeFactory1604Test
     // raw `Inner` in the supertype
     @SuppressWarnings("rawtypes")
     static class RawInnerOuter<X> extends Outer<Inner> { }
-    static class Right<V> extends Either<Void, V> { }
 
     @Test
     public void testCustomTypesRefinedSimple()
@@ -162,14 +165,37 @@ public class TypeFactory1604Test
         assertEquals(Object.class, params[1].getRawClass());
     }
 
-    // Specializing to a subtype whose supertype has a raw nested type argument used to
-    // fail with IndexOutOfBoundsException when verifying the nested type parameters
+    // [databind#6463]: Specializing to a subtype whose supertype has a raw nested type
+    // argument used to fail with IndexOutOfBoundsException when verifying the nested
+    // type parameters: raw type should be handled as if bound to `Object`
     @Test
     public void testSpecializeWithRawNestedTypeArgument()
     {
         TypeFactory tf = newTypeFactory();
         JavaType base = tf.constructType(new TypeReference<Outer<Inner<String>>>() { });
-        JavaType spec = tf.constructSpecializedType(base, RawInnerOuter.class);
+
+        // Strict check: `Outer<Inner>` is not compatible with `Outer<Inner<String>>`
+        try {
+            tf.constructSpecializedType(base, RawInnerOuter.class);
+            fail("Should not pass");
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "Failed to specialize base type");
+            verifyException(e, "Type parameter #1/1 differs");
+        }
+
+        // But relaxed check allows it, with unbound `X` as `Object`
+        JavaType spec = tf.constructSpecializedType(base, RawInnerOuter.class, true);
         assertEquals(RawInnerOuter.class, spec.getRawClass());
+        assertEquals(1, spec.containedTypeCount());
+        assertEquals(Object.class, spec.containedType(0).getRawClass());
+
+        // And strict check passes if nested type parameter is `Object`
+        JavaType objBase = tf.constructType(new TypeReference<Outer<Inner<Object>>>() { });
+        spec = tf.constructSpecializedType(objBase, RawInnerOuter.class);
+        assertEquals(RawInnerOuter.class, spec.getRawClass());
+        assertEquals(1, spec.containedTypeCount());
+        assertEquals(Object.class, spec.containedType(0).getRawClass());
+        JavaType superType = spec.findSuperType(Outer.class);
+        assertEquals(Inner.class, superType.containedType(0).getRawClass());
     }
 }

@@ -17,7 +17,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class OptionalnclusionTest
+public class OptionalInclusionTest
     extends DatabindTestUtil
 {
     @JsonAutoDetect(fieldVisibility=Visibility.ANY)

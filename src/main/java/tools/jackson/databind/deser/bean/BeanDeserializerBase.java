@@ -638,7 +638,7 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
         if (unwrapped != null) { // we consider this non-standard, to offline handling
             _nonStandardCreation = true;
             // [databind#650]: Initialize unwrapped property names for hasUnwrappedProperty()
-            _unwrappedPropertyHandler = unwrapped.initializeUnwrappedPropertyNames();
+            _unwrappedPropertyHandler = unwrapped.initializeUnwrappedPropertyNames(ctxt.getLocale());
         } else {
             _unwrappedPropertyHandler = null;
         }

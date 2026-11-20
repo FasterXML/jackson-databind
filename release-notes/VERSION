@@ -53,6 +53,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6469: `POJONode.asDecimalOpt()` throws NPE for a wrapped NaN (and `asDecimal()`
   variants return `null`)
  (reported, fixed by @Marti2203)
+#6474: `POJONode.asBigInteger()` returns wrong values for wrapped NaN, infinities
+  and out-of-`long`-range doubles
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.3.1 (not yet released)
 

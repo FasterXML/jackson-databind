@@ -862,6 +862,9 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6463: `TypeFactory.constructSpecializedType()` throws
    `IndexOutOfBoundsException` for a raw nested type argument
   [3.3.1]
+ * Reported, fixed #6469: `POJONode.asDecimalOpt()` throws NPE for a wrapped NaN (and
+   `asDecimal()` variants return `null`)
+  [3.4.0]
 
 @essiembre
  * Reported #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer

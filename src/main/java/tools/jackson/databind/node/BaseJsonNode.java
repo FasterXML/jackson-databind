@@ -768,25 +768,25 @@ public abstract class BaseJsonNode
     // @since 3.1
     protected int _reportIntConversionNaNFail(String method) {
         return _reportConversionFail(method, Integer.TYPE,
-                "value non-Finite ('NaN')");
+                "value non-Finite");
     }
 
     // @since 3.1
     protected long _reportLongConversionNaNFail(String method) {
         return _reportConversionFail(method, Long.TYPE,
-                "value non-Finite ('NaN')");
+                "value non-Finite");
     }
 
     // @since 3.1
     protected BigInteger _reportBigIntegerConversionNaNFail(String method) {
         return _reportConversionFail(method, BigInteger.class,
-                "value non-Finite ('NaN')");
+                "value non-Finite");
     }
 
     // @since 3.1
     protected BigDecimal _reportBigDecimalConversionNaNFail(String method) {
         return _reportConversionFail(method, BigDecimal.class,
-                "value non-Finite ('NaN')");
+                "value non-Finite");
     }
 
     /**

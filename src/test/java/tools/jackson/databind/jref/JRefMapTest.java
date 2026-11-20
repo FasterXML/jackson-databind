@@ -50,8 +50,7 @@ public class JRefMapTest extends JRefAbstractTest {
         String k1 = new String("first");
         String v1 = new String("val1");
         String k2 = new String("second");
-        String v2 = new String("val1");
-        Map<String, String> mi = Map.of(k1, v1, k2, v2);
+        Map<String, String> mi = Map.of(k1, v1, k2, v1);
         String out = mapper.writeValueAsString(mi);
         assertJRefCount(out, 1);
         trace("testMapValueNoRef jrefserialized=", out);
@@ -65,9 +64,7 @@ public class JRefMapTest extends JRefAbstractTest {
         String k1 = new String("first");
         String v1 = new String("val1");
         String k2 = new String("second");
-        // second value refs first
-        String v2 = v1;
-        Map<String, String> mi = Map.of(k1, v1, k2, v2);
+        Map<String, String> mi = Map.of(k1, v1, k2, v1);
         String out = mapper.writeValueAsString(mi);
         assertJRefCount(out, 1);
         trace("testMapValueRef jrefserialized=", out);
@@ -136,8 +133,7 @@ public class JRefMapTest extends JRefAbstractTest {
         String k1 = new String("first");
         Object v1 = new String("val1");
         String k2 = new String("second");
-        Object v2 = new String("val1");
-        Map<String, Object> mi = Map.of(k1, v1, k2, v2);
+        Map<String, Object> mi = Map.of(k1, v1, k2, v1);
         String out = mapper.writeValueAsString(mi);
         assertJRefCount(out, 1);
         trace("testMapValueNoRefNoValueType jrefserialized=", out);

@@ -3,6 +3,7 @@ package tools.jackson.databind;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 import tools.jackson.core.JacksonException;
@@ -90,7 +91,7 @@ public class JRefModule extends SimpleModule {
                 Map<Object, JsonPointer> valueToPtrMap = (Map<Object, JsonPointer>) ctxt.getAttribute(PTR_MAP_ATTR);
                 // if it doesn't exist, then create and add as context attribute
                 if (valueToPtrMap == null) {
-                    valueToPtrMap = new HashMap<>();
+                    valueToPtrMap = new IdentityHashMap<>();
                     ctxt.setAttribute(PTR_MAP_ATTR, valueToPtrMap);
                 }
                 JsonPointer ptr = valueToPtrMap.get(value);

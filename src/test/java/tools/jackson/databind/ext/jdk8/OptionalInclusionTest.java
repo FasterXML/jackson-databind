@@ -1,6 +1,9 @@
 package tools.jackson.databind.ext.jdk8;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +17,7 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class OptionalnclusionTest
+public class OptionalInclusionTest
     extends DatabindTestUtil
 {
     @JsonAutoDetect(fieldVisibility=Visibility.ANY)
@@ -41,6 +44,22 @@ public class OptionalnclusionTest
             return ret;
         }
     }
+
+    // Optional-wrapped empty Collections/Maps: value inclusion only
+    // considers the Optional itself, not its contents
+    @JsonInclude(Include.NON_EMPTY)
+    record OptionalContainersValueOnly(Optional<List<String>> list,
+            Optional<Set<String>> set, Optional<Map<String, String>> map,
+            Optional<String> str) { }
+
+    @JsonInclude(value = Include.NON_EMPTY, content = Include.NON_EMPTY)
+    record OptionalContainersWithContent(Optional<List<String>> list,
+            Optional<Set<String>> set, Optional<Map<String, String>> map,
+            Optional<String> str) { }
+
+    record OptionalContainers(Optional<List<String>> list,
+            Optional<Set<String>> set, Optional<Map<String, String>> map,
+            Optional<String> str) { }
 
     /*
     /**********************************************************
@@ -138,5 +157,64 @@ public class OptionalnclusionTest
                 .build();
         assertEquals("{\"myData\":true}",
                 mapper.writeValueAsString(OptionalGenericData.construct(Boolean.TRUE)));
+    }
+
+    // Value inclusion of NON_EMPTY alone only excludes absent Optionals;
+    // Optionals with empty contents are still written
+    @Test
+    public void nonEmptyValueOnlyKeepsOptionalOfEmptyContainers() throws Exception
+    {
+        assertEquals("""
+                {"list":[],"set":[],"map":{},"str":""}""",
+                MAPPER.writeValueAsString(new OptionalContainersValueOnly(
+                        Optional.of(List.of()), Optional.of(Set.of()),
+                        Optional.of(Map.of()), Optional.of(""))));
+        assertEquals("{}",
+                MAPPER.writeValueAsString(new OptionalContainersValueOnly(
+                        Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())));
+    }
+
+    // Content inclusion of NON_EMPTY also excludes Optionals with empty contents
+    @Test
+    public void nonEmptyContentExcludesOptionalOfEmptyContainers() throws Exception
+    {
+        assertEquals("{}",
+                MAPPER.writeValueAsString(new OptionalContainersWithContent(
+                        Optional.of(List.of()), Optional.of(Set.of()),
+                        Optional.of(Map.of()), Optional.of(""))));
+        assertEquals("{}",
+                MAPPER.writeValueAsString(new OptionalContainersWithContent(
+                        Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())));
+        assertEquals("""
+                {"list":["a"],"set":["b"],"map":{"k":"v"},"str":"x"}""",
+                MAPPER.writeValueAsString(new OptionalContainersWithContent(
+                        Optional.of(List.of("a")), Optional.of(Set.of("b")),
+                        Optional.of(Map.of("k", "v")), Optional.of("x"))));
+    }
+
+    // Same as above but via mapper-wide default inclusion
+    @Test
+    public void defaultNonEmptyContentExcludesOptionalOfEmptyContainers() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl
+                        .withValueInclusion(Include.NON_EMPTY)
+                        .withContentInclusion(Include.NON_EMPTY))
+                .build();
+        assertEquals("{}",
+                mapper.writeValueAsString(new OptionalContainers(
+                        Optional.of(List.of()), Optional.of(Set.of()),
+                        Optional.of(Map.of()), Optional.of(""))));
+        assertEquals("""
+                {"list":["a"],"set":["b"],"map":{"k":"v"},"str":"x"}""",
+                mapper.writeValueAsString(new OptionalContainers(
+                        Optional.of(List.of("a")), Optional.of(Set.of("b")),
+                        Optional.of(Map.of("k", "v")), Optional.of("x"))));
+        // but class-level `@JsonInclude` overrides it: `content` defaults to ALWAYS
+        assertEquals("""
+                {"list":[],"set":[],"map":{},"str":""}""",
+                mapper.writeValueAsString(new OptionalContainersValueOnly(
+                        Optional.of(List.of()), Optional.of(Set.of()),
+                        Optional.of(Map.of()), Optional.of(""))));
     }
 }

@@ -4,8 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.atomic.DoubleAccumulator;
-import java.util.concurrent.atomic.DoubleAdder;
+import java.util.concurrent.atomic.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -593,5 +592,27 @@ public class POJONodeTest extends NodeTestBase
         // boxed so that NaN equals NaN (`Float.equals()`)
         assertThat(new POJONode(Float.NaN).asFloat()).isEqualTo(Float.valueOf(Float.NaN));
         assertThat(new FloatNode(Float.NaN).asFloat()).isEqualTo(Float.valueOf(Float.NaN));
+    }
+
+    // [databind#6476]: JDK integral `Number` types other than boxed primitives
+    // convert to BigDecimal exactly; used to go through `doubleValue()`
+    @Test
+    public void decimalAccessorsForAtomicIntegral()
+    {
+        final long big = (1L << 53) + 1; // not representable as double
+        LongAdder adder = new LongAdder();
+        adder.add(Long.MAX_VALUE);
+        LongAccumulator acc = new LongAccumulator(Long::sum, Long.MIN_VALUE);
+        for (Number n : new Number[] {
+                new AtomicLong(Long.MAX_VALUE), new AtomicLong(big), adder, acc,
+                new AtomicInteger(Integer.MAX_VALUE) }) {
+            final BigDecimal exp = BigDecimal.valueOf(n.longValue());
+            POJONode node = new POJONode(n);
+            assertThat(node.asDecimal()).isEqualTo(exp);
+            assertThat(node.asDecimal(BigDecimal.ONE)).isEqualTo(exp);
+            assertThat(node.asDecimalOpt()).hasValue(exp);
+            // same as for wrapped `Long`
+            assertThat(node.asDecimal()).isEqualTo(new POJONode(n.longValue()).asDecimal());
+        }
     }
 }

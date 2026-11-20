@@ -476,8 +476,7 @@ public class POJONode
         // NaN and infinities; fail for those as `DoubleNode` does
         BigDecimal dec = _extractAsBigDecimal();
         if (dec == null) {
-            return _reportConversionFail("asDecimal()", BigDecimal.class,
-                    "value non-Finite ('"+_value+"')");
+            return _reportBigDecimalConversionNaNFail("asDecimal()");
         }
         return dec;
     }

@@ -460,7 +460,7 @@ public class POJONodeTest extends NodeTestBase
             assertThat(n.asDecimal(BigDecimal.ONE)).isEqualTo(BigDecimal.ONE);
             assertThatThrownBy(() -> n.asDecimal())
                 .isInstanceOf(JsonNodeException.class)
-                .hasMessageContaining("value non-Finite ('"+nonFinite+"')");
+                .hasMessageContaining("value non-Finite");
         }
         assertThat(new POJONode(2.5).asDecimalOpt()).hasValue(BigDecimal.valueOf(2.5));
     }

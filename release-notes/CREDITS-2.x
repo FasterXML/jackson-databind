@@ -2159,6 +2159,9 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6461: `ReferenceTypeDeserializer` NPE when updating with a value
    deserializer whose `supportsUpdate()` returns `null` (the default)
   [2.24.0]
+ * Reported, fixed #6463: `TypeFactory.constructSpecializedType()` throws
+   `IndexOutOfBoundsException` for a raw nested type argument
+  [2.24.0]
 
 DongNyoung Lee (@Dongnyoung)
  * Contributed fix for #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected

@@ -19,6 +19,9 @@ Project: jackson-databind
 #6461: `ReferenceTypeDeserializer` NPE when updating with a value deserializer whose
   `supportsUpdate()` returns `null` (the default)
  (reported, fixed by @Marti2203)
+#6463: `TypeFactory.constructSpecializedType()` throws `IndexOutOfBoundsException`
+  for a raw nested type argument in the subtype's supertype
+ (reported, fixed by @Marti2203)
 
 2.23.1 (not yet released)
 

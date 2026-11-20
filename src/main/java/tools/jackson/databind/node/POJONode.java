@@ -4,8 +4,12 @@ import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.DoubleAccumulator;
 import java.util.concurrent.atomic.DoubleAdder;
+import java.util.concurrent.atomic.LongAccumulator;
+import java.util.concurrent.atomic.LongAdder;
 
 import tools.jackson.core.*;
 
@@ -570,6 +574,15 @@ public class POJONode
                 || (n instanceof DoubleAdder) || (n instanceof DoubleAccumulator);
     }
 
+    // [databind#6476]: JDK integral `Number` types, which must be converted via
+    // `longValue()` (not `doubleValue()`, which loses precision above 2^53)
+    private static boolean _isIntegral(Number n) {
+        return (n instanceof Long) || (n instanceof Integer)
+                || (n instanceof Short) || (n instanceof Byte)
+                || (n instanceof AtomicLong) || (n instanceof AtomicInteger)
+                || (n instanceof LongAdder) || (n instanceof LongAccumulator);
+    }
+
     // [databind#6214]: whether conversion to `BigInteger` is within scale limit;
     // called by non-throwing accessors, which need to return default/empty value
     // instead of failing.
@@ -619,10 +632,11 @@ public class POJONode
                 return dec;
             } else if (N instanceof BigInteger big) {
                 return new BigDecimal(big);
-            } else if (N instanceof Long || N instanceof Integer || N instanceof Short || N instanceof Byte) {
+            } else if (_isIntegral(N)) {
                 return BigDecimal.valueOf(N.longValue());
             }
-            // Use doubleValue() as a last resort for Float & Double
+            // Use doubleValue() as a last resort for Float & Double (and unknown
+            // `Number` types, which may have a fractional part)
             try {
                 return BigDecimal.valueOf(N.doubleValue());
             } catch (IllegalArgumentException e) {

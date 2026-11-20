@@ -4,8 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.atomic.DoubleAccumulator;
-import java.util.concurrent.atomic.DoubleAdder;
+import java.util.concurrent.atomic.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -593,5 +592,53 @@ public class POJONodeTest extends NodeTestBase
         // boxed so that NaN equals NaN (`Float.equals()`)
         assertThat(new POJONode(Float.NaN).asFloat()).isEqualTo(Float.valueOf(Float.NaN));
         assertThat(new FloatNode(Float.NaN).asFloat()).isEqualTo(Float.valueOf(Float.NaN));
+    }
+
+    // [databind#6476]: JDK integral `Number` types other than boxed primitives
+    // convert to BigDecimal exactly; used to go through `doubleValue()`
+    @Test
+    public void decimalAccessorsForAtomicIntegral()
+    {
+        final long big = (1L << 53) + 1; // not representable as double
+        LongAdder adder = new LongAdder();
+        adder.add(Long.MAX_VALUE);
+        LongAccumulator acc = new LongAccumulator(Long::sum, Long.MIN_VALUE);
+        LongAdder negAdder = new LongAdder();
+        negAdder.add(-big);
+        for (Number n : new Number[] {
+                new AtomicLong(Long.MAX_VALUE), new AtomicLong(big), new AtomicLong(-big),
+                new AtomicLong(Long.MIN_VALUE + 1), adder, negAdder, acc,
+                new AtomicInteger(Integer.MAX_VALUE), new AtomicInteger(Integer.MIN_VALUE) }) {
+            final BigDecimal exp = BigDecimal.valueOf(n.longValue());
+            POJONode node = new POJONode(n);
+            assertThat(node.asDecimal()).isEqualTo(exp);
+            assertThat(node.asDecimal(BigDecimal.ONE)).isEqualTo(exp);
+            assertThat(node.asDecimalOpt()).hasValue(exp);
+            // same as for wrapped `Long`
+            assertThat(node.asDecimal()).isEqualTo(new POJONode(n.longValue()).asDecimal());
+        }
+    }
+
+    // [databind#6476]: unknown `Number` types still convert via `doubleValue()`,
+    // so a fractional part is kept (not truncated by `longValue()`)
+    @SuppressWarnings("serial")
+    static class CustomNumber extends Number {
+        private final double _value;
+
+        CustomNumber(double v) { _value = v; }
+
+        @Override public int intValue() { return (int) _value; }
+        @Override public long longValue() { return (long) _value; }
+        @Override public float floatValue() { return (float) _value; }
+        @Override public double doubleValue() { return _value; }
+    }
+
+    @Test
+    public void decimalAccessorsForUnknownNumber()
+    {
+        POJONode node = new POJONode(new CustomNumber(2.5));
+        assertThat(node.asDecimal()).isEqualTo(BigDecimal.valueOf(2.5));
+        assertThat(node.asDecimal(BigDecimal.ONE)).isEqualTo(BigDecimal.valueOf(2.5));
+        assertThat(node.asDecimalOpt()).hasValue(BigDecimal.valueOf(2.5));
     }
 }

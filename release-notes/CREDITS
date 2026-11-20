@@ -847,6 +847,9 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6443: JDK deserialization of a `JsonNode` with a negative length prefix
    throws `NegativeArraySizeException` instead of an `IOException`
   [3.3.1]
+ * Reported, fixed #6461: `ReferenceTypeDeserializer` NPE when updating with a value
+   deserializer whose `supportsUpdate()` returns `null` (the default)
+  [3.3.1]
  * Reported, fixed #6463: `TypeFactory.constructSpecializedType()` throws
    `IndexOutOfBoundsException` for a raw nested type argument
   [3.3.1]

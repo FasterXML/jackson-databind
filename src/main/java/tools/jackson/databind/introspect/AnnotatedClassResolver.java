@@ -307,6 +307,13 @@ public class AnnotatedClassResolver
                     if (_intr.isAnnotationBundle(ann)) {
                         c = _addFromBundleIfNotPresent(c, ann);
                     }
+                } else {
+                    Class<? extends Annotation> type = ann.annotationType();
+                    Annotation existing = c.asAnnotations().get(type);
+                    Annotation merged = _intr.tryMergeClassAnnotation(existing, ann);
+                    if (merged != null && merged != existing) {
+                        c = c.addOrOverride(merged);
+                    }
                 }
             }
         }

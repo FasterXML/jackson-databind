@@ -472,10 +472,12 @@ public class POJONode
             super.asDecimal();
         }
 
-        // Then, extract from Number (`null` for NaN and infinities, as with `DoubleNode`)
+        // Then, extract from Number: `_extractAsBigDecimal()` returns `null` for
+        // NaN and infinities; fail for those as `DoubleNode` does
         BigDecimal dec = _extractAsBigDecimal();
         if (dec == null) {
-            return _reportBigDecimalConversionNaNFail("asDecimal()");
+            return _reportConversionFail("asDecimal()", BigDecimal.class,
+                    "value non-Finite ('"+_value+"')");
         }
         return dec;
     }

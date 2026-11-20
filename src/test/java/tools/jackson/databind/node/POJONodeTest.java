@@ -447,18 +447,21 @@ public class POJONodeTest extends NodeTestBase
         assertThat(new POJONode(new Data()).asDecimalOpt()).isNotPresent();
     }
 
-
     // NaN and infinities wrapped in a POJONode convert to BigDecimal as DoubleNode's do:
     // asDecimalOpt() used to throw NullPointerException
     @Test
-    public void testDecimalAccessorsForNonFinite()
+    public void decimalAccessorsForNonFinite()
     {
-        for (double d : new double[] { Double.NaN, Double.POSITIVE_INFINITY }) {
-            POJONode n = new POJONode(d);
-            assertEquals(Optional.empty(), n.asDecimalOpt());
-            assertEquals(BigDecimal.ONE, n.asDecimal(BigDecimal.ONE));
-            assertThrows(JsonNodeException.class, () -> n.asDecimal());
+        for (Number nonFinite : new Number[] {
+                Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
+                Float.NaN, Float.POSITIVE_INFINITY }) {
+            POJONode n = new POJONode(nonFinite);
+            assertThat(n.asDecimalOpt()).isNotPresent();
+            assertThat(n.asDecimal(BigDecimal.ONE)).isEqualTo(BigDecimal.ONE);
+            assertThatThrownBy(() -> n.asDecimal())
+                .isInstanceOf(JsonNodeException.class)
+                .hasMessageContaining("value non-Finite ('"+nonFinite+"')");
         }
-        assertEquals(Optional.of(BigDecimal.valueOf(2.5)), new POJONode(2.5).asDecimalOpt());
+        assertThat(new POJONode(2.5).asDecimalOpt()).hasValue(BigDecimal.valueOf(2.5));
     }
 }

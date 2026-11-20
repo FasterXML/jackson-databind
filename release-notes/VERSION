@@ -38,6 +38,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6430: `MapperBuilder.annotationIntrospector(null)` causes NPE on (de)serialization:
   now treated as "no annotation introspection"
  (fix by @cowtowncoder, w/ Claude code)
+#6445: `@JsonMerge` does not work properly for `EnumMap`
+ (reported by @shevek)
+ (fix by @caiocv18)
 #6447: `EnumSetSerializer` re-resolves enum serializer on every call when
   element type is not statically known
  (fix by @cowtowncoder, w/ Claude code)

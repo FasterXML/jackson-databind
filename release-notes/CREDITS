@@ -946,6 +946,8 @@ Caio Vinicius (@caiocv18)
  * Reported, fixed #6303: `IllegalArgumentException` thrown by a setter is reported
    as a type mismatch
   [3.4.0]
+ * Fixed #6445: `@JsonMerge` does not work properly for `EnumMap`
+  [3.4.0]
 
 @nu11Po1nter1
  * Fixed #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer

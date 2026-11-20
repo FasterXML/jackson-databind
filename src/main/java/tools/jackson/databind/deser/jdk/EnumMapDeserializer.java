@@ -80,6 +80,17 @@ public class EnumMapDeserializer
      */
     protected IgnorePropertiesUtil.Checker _inclusionChecker;
 
+    /**
+     * Flag that indicates whether existing values should be merged with
+     * (updated) when deserializing into an existing {@link EnumMap}, same
+     * as with {@link MapDeserializer}.
+     * Set to {@code false} when content type has ConfigOverride with
+     * {@code mergeable = false}.
+     *
+     * @since 3.4
+     */
+    protected final boolean _mergeValues;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -113,6 +124,7 @@ public class EnumMapDeserializer
         _ignorableProperties = (ignorable == null || ignorable.isEmpty()) ? null : ignorable;
         _includableProperties = includable;
         _inclusionChecker = IgnorePropertiesUtil.buildCheckerIfNeeded(_ignorableProperties, includable);
+        _mergeValues = true;
     }
 
     /**
@@ -148,6 +160,30 @@ public class EnumMapDeserializer
         _ignorableProperties = ignorable;
         _includableProperties = includable;
         _inclusionChecker = IgnorePropertiesUtil.buildCheckerIfNeeded(ignorable, includable);
+        _mergeValues = base._mergeValues;
+    }
+
+    /**
+     * Copy-constructor used to change the value merge setting.
+     *
+     * @since 3.4
+     */
+    protected EnumMapDeserializer(EnumMapDeserializer base, boolean mergeValues)
+    {
+        super(base, base._nullProvider, base._unwrapSingle);
+        _enumClass = base._enumClass;
+        _keyDeserializer = base._keyDeserializer;
+        _valueDeserializer = base._valueDeserializer;
+        _valueTypeDeserializer = base._valueTypeDeserializer;
+
+        _valueInstantiator = base._valueInstantiator;
+        _delegateDeserializer = base._delegateDeserializer;
+        _propertyBasedCreator = base._propertyBasedCreator;
+
+        _ignorableProperties = base._ignorableProperties;
+        _includableProperties = base._includableProperties;
+        _inclusionChecker = base._inclusionChecker;
+        _mergeValues = mergeValues;
     }
 
     /**
@@ -176,6 +212,16 @@ public class EnumMapDeserializer
         }
         return new EnumMapDeserializer(this,
                 keyDeserializer, valueDeserializer, valueTypeDeser, nuller, ignorable, includable);
+    }
+
+    /**
+     * @since 3.4
+     */
+    protected EnumMapDeserializer withMergeValues(boolean mergeValues) {
+        if (_mergeValues == mergeValues) {
+            return this;
+        }
+        return new EnumMapDeserializer(this, mergeValues);
     }
 
     /*
@@ -265,8 +311,15 @@ public class EnumMapDeserializer
                 }
             }
         }
-        return withResolved(keyDeser, valueDeser, vtd,
+        EnumMapDeserializer deser = withResolved(keyDeser, valueDeser, vtd,
                 findContentNullProvider(ctxt, property, valueDeser), ignored, included);
+        // [databind#6445]: same as `MapDeserializer` ([databind#3205]), do not merge
+        // values if content type has mergeable disabled
+        Boolean contentMergeable = ctxt.getConfig().getDefaultMergeable(vt.getRawClass());
+        if (Boolean.FALSE.equals(contentMergeable)) {
+            deser = deser.withMergeValues(false);
+        }
+        return deser;
     }
 
     /**
@@ -408,7 +461,18 @@ public class EnumMapDeserializer
                     }
                     value = null;
                 } else {
-                    value = _deserializeNoNullChecks(p, ctxt);
+                    // [databind#6445]: update existing value, if any, same as `MapDeserializer`
+                    final Object old = _mergeValues ? result.get(key) : null;
+                    if (old != null) {
+                        if (_valueTypeDeserializer == null) {
+                            value = _valueDeserializer.deserialize(p, ctxt, old);
+                        } else {
+                            value = _valueDeserializer.deserializeWithType(p, ctxt,
+                                    _valueTypeDeserializer, old);
+                        }
+                    } else {
+                        value = _deserializeNoNullChecks(p, ctxt);
+                    }
                 }
 
                 if (value == null) {

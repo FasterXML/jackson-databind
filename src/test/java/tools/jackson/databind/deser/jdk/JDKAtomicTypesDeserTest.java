@@ -16,12 +16,14 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
+import tools.jackson.databind.module.SimpleModule;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static tools.jackson.databind.testutil.DatabindTestUtil.q;
 
 public class JDKAtomicTypesDeserTest
 {
@@ -514,5 +516,27 @@ public class JDKAtomicTypesDeserTest
         assertEquals(2, bean.values.size());
         assertEquals(0, bean.values.get(0).get());
         assertNotSame(bean.values.get(0), bean.values.get(1));
+    }
+
+    // Value deserializer that keeps the default "don't know" (null) answer of supportsUpdate()
+    static class NoOpinionStringDeserializer extends StringDeserializer {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public Boolean supportsUpdate(DeserializationConfig config) {
+            return null;
+        }
+    }
+
+    @Test
+    public void testUpdateWithValueDeserializerWithoutUpdateOpinion() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule().addDeserializer(String.class, new NoOpinionStringDeserializer()))
+                .build();
+        AtomicReference<String> ref = new AtomicReference<>("a");
+        AtomicReference<String> result = mapper.readerForUpdating(ref).readValue(q("b"));
+        assertSame(ref, result);
+        assertEquals("b", result.get());
     }
 }

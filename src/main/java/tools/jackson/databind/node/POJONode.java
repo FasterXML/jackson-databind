@@ -599,8 +599,10 @@ public class POJONode
     // extract Double from Number, or return null if range check fails
     protected Double _extractAsDouble() {
         if (_value instanceof Number N) {
-            if (N instanceof Double D) {
-                return D;
+            // [databind#6475]: floating-point values widen to `double` without loss;
+            // keep NaN and infinities as-is, as `DoubleNode` and `FloatNode` do
+            if (_isFloatingPoint(N)) {
+                return N.doubleValue();
             }
             double d = N.doubleValue();
             if (Double.isFinite(d)) {

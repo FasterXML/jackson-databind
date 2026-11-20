@@ -543,4 +543,55 @@ public class POJONodeTest extends NodeTestBase
         assertThat(new POJONode(Math.nextDown(0x1p63)).asLong())
             .isEqualTo((long) Math.nextDown(0x1p63));
     }
+
+    // [databind#6475]: non-finite Float (and DoubleAdder etc) values convert to double
+    // as-is, as with Double (and DoubleNode/FloatNode); Float used to fail range check
+    @Test
+    public void doubleAccessorsForNonFinite()
+    {
+        DoubleAdder nanAdder = new DoubleAdder();
+        nanAdder.add(Double.NaN);
+        DoubleAccumulator infAccumulator = new DoubleAccumulator(Double::sum,
+                Double.POSITIVE_INFINITY);
+        for (Number nonFinite : new Number[] {
+                Float.NaN, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY,
+                Double.NaN, Double.POSITIVE_INFINITY, nanAdder, infAccumulator }) {
+            // boxed so that NaN equals NaN (`Double.equals()`)
+            final Double exp = nonFinite.doubleValue();
+            POJONode n = new POJONode(nonFinite);
+            assertThat(n.asDouble()).isEqualTo(exp);
+            assertThat(n.asDouble(42.0)).isEqualTo(exp);
+            assertThat(n.asDoubleOpt()).isPresent();
+            assertThat(n.asDoubleOpt().getAsDouble()).isEqualTo(exp);
+        }
+        // Float widens to double without loss
+        assertThat(new POJONode(0.1f).asDouble()).isEqualTo((double) 0.1f);
+        // but BigDecimal beyond `double` range still fails
+        POJONode huge = new POJONode(new BigDecimal("1e400"));
+        assertThat(huge.asDoubleOpt()).isNotPresent();
+        assertThatThrownBy(() -> huge.asDouble())
+            .isInstanceOf(JsonNodeException.class)
+            .hasMessageContaining("range");
+    }
+
+    // [databind#6475]: `asFloat()` intentionally differs: non-finite values other than
+    // `Float` fail, as `DoubleNode.asFloat()` does; `Float` NaN passes as `FloatNode`'s does
+    @Test
+    public void floatAccessorsForNonFinite()
+    {
+        for (Number nonFinite : new Number[] { Double.NaN, Double.POSITIVE_INFINITY }) {
+            POJONode n = new POJONode(nonFinite);
+            assertThat(n.asFloatOpt()).isNotPresent();
+            assertThat(n.asFloat(42.0f)).isEqualTo(42.0f);
+            assertThatThrownBy(() -> n.asFloat())
+                .isInstanceOf(JsonNodeException.class)
+                .hasMessageContaining("range");
+            assertThatThrownBy(() -> new DoubleNode(nonFinite.doubleValue()).asFloat())
+                .isInstanceOf(JsonNodeException.class)
+                .hasMessageContaining("range");
+        }
+        // boxed so that NaN equals NaN (`Float.equals()`)
+        assertThat(new POJONode(Float.NaN).asFloat()).isEqualTo(Float.valueOf(Float.NaN));
+        assertThat(new FloatNode(Float.NaN).asFloat()).isEqualTo(Float.valueOf(Float.NaN));
+    }
 }

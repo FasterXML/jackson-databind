@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.atomic.DoubleAccumulator;
+import java.util.concurrent.atomic.DoubleAdder;
 
 import org.junit.jupiter.api.Test;
 
@@ -492,8 +494,53 @@ public class POJONodeTest extends NodeTestBase
         assertThat(new POJONode(-1e20).asBigInteger()).isEqualTo(exp.negate());
         assertThat(new POJONode(1e20).asBigInteger(BigInteger.ONE)).isEqualTo(exp);
         assertThat(new POJONode(1e20).asBigIntegerOpt()).hasValue(exp);
-        // Float widened to double exactly, matching `FloatNode`
+        // Float converted via `BigDecimal.valueOf(double)`, matching `FloatNode`
         assertThat(new POJONode(1e20f).asBigInteger())
             .isEqualTo(new FloatNode(1e20f).asBigInteger());
+    }
+
+    // [databind#6474]: `DoubleAdder` / `DoubleAccumulator` are floating-point too:
+    // used to go through `longValue()` (NaN -> 0, clamped to `long` range)
+    @Test
+    public void bigIntegerAccessorsForDoubleAdder()
+    {
+        DoubleAdder big = new DoubleAdder();
+        big.add(1e20);
+        assertThat(new POJONode(big).asBigInteger())
+            .isEqualTo(new BigInteger("100000000000000000000"));
+        assertThat(new POJONode(big).asLongOpt()).isNotPresent();
+
+        DoubleAccumulator nan = new DoubleAccumulator(Double::sum, Double.NaN);
+        assertThat(new POJONode(nan).asBigIntegerOpt()).isNotPresent();
+        assertThatThrownBy(() -> new POJONode(nan).asBigInteger())
+            .isInstanceOf(JsonNodeException.class)
+            .hasMessageContaining("value non-Finite");
+        assertThat(new POJONode(nan).asLongOpt()).isNotPresent();
+
+        DoubleAdder small = new DoubleAdder();
+        small.add(99.5);
+        assertThat(new POJONode(small).asLong()).isEqualTo(99L);
+        assertThat(new POJONode(small).asBigInteger()).isEqualTo(BigInteger.valueOf(99));
+    }
+
+    // [databind#6474]: 2^63 (rounded from `Long.MAX_VALUE` as double) is outside `long` range
+    @Test
+    public void longAccessorsAtLongRangeBoundary()
+    {
+        final double twoTo63 = 0x1p63;
+        for (Number n : new Number[] { twoTo63, (float) twoTo63 }) {
+            POJONode node = new POJONode(n);
+            assertThat(node.asLongOpt()).isNotPresent();
+            assertThat(node.asLong(42L)).isEqualTo(42L);
+            assertThatThrownBy(() -> node.asLong())
+                .isInstanceOf(JsonNodeException.class)
+                .hasMessageContaining("range");
+        }
+        // -2^63 is exactly `Long.MIN_VALUE`, so in range
+        assertThat(new POJONode(-0x1p63).asLong()).isEqualTo(Long.MIN_VALUE);
+        assertThat(new POJONode(-0x1p63f).asLong()).isEqualTo(Long.MIN_VALUE);
+        // largest double below 2^63 is in range
+        assertThat(new POJONode(Math.nextDown(0x1p63)).asLong())
+            .isEqualTo((long) Math.nextDown(0x1p63));
     }
 }

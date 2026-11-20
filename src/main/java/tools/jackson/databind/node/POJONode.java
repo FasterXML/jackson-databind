@@ -4,6 +4,8 @@ import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.concurrent.atomic.DoubleAccumulator;
+import java.util.concurrent.atomic.DoubleAdder;
 
 import tools.jackson.core.*;
 
@@ -521,13 +523,13 @@ public class POJONode
                 if (dec.compareTo(BD_MIN_LONG) >= 0 && dec.compareTo(BD_MAX_LONG) <= 0) {
                     return dec.longValue();
                 }
-            } else if (N instanceof Double D) {
-                if (D >= Long.MIN_VALUE && D <= Long.MAX_VALUE) {
-                    return D.longValue();
-                }
-            } else if (N instanceof Float F) {
-                if (F >= Long.MIN_VALUE && F <= Long.MAX_VALUE) {
-                    return F.longValue();
+            } else if (_isFloatingPoint(N)) {
+                // [databind#6474]: compare against 2^63 directly: `Long.MAX_VALUE`
+                // rounds up to 2^63 as `double`, which would let 2^63 pass (and clamp).
+                // NaN fails both comparisons.
+                final double d = N.doubleValue();
+                if (d >= -0x1p63 && d < 0x1p63) {
+                    return (long) d;
                 }
             } else {
                 return N.longValue();
@@ -547,7 +549,7 @@ public class POJONode
                 // [databind#6214]: guard against excessive scale magnitude
                 StreamReadConstraints.defaults().validateBigIntegerScale(dec.scale());
                 return dec.toBigInteger();
-            } else if (N instanceof Double || N instanceof Float) {
+            } else if (_isFloatingPoint(N)) {
                 // [databind#6474]: no `longValue()` (clamps to `long` range, NaN -> 0)
                 final double d = N.doubleValue();
                 if (!Double.isFinite(d)) {
@@ -559,6 +561,13 @@ public class POJONode
             }
         }
         return null;
+    }
+
+    // [databind#6474]: JDK floating-point `Number` types, which must not be converted
+    // via `longValue()` (clamps to `long` range, NaN -> 0)
+    private static boolean _isFloatingPoint(Number n) {
+        return (n instanceof Double) || (n instanceof Float)
+                || (n instanceof DoubleAdder) || (n instanceof DoubleAccumulator);
     }
 
     // [databind#6214]: whether conversion to `BigInteger` is within scale limit;

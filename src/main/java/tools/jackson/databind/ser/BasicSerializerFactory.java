@@ -249,20 +249,35 @@ public abstract class BasicSerializerFactory
             return JacksonSerializableSerializer.instance;
         }
         // Second: @JsonValue for any type
-        AnnotatedMember valueAccessor = beanDescRef.get().findJsonValueAccessor();
-        if (valueAccessor != null) {
-            if (ctxt.canOverrideAccessModifiers()) {
-                ClassUtil.checkAndFixAccess(valueAccessor.getMember(),
-                        ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
-            }
-            ValueSerializer<Object> ser = findSerializerFromAnnotation(ctxt, valueAccessor);
-            JavaType valueType = valueAccessor.getType();
-            TypeSerializer vts = ctxt.findTypeSerializer(valueType);
-            return JsonValueSerializer.construct(ctxt.getConfig(), type, valueType,
-                    /* static typing */ false, vts, ser, valueAccessor);
+        return findJsonValueSerializer(ctxt, type, beanDescRef);
+    }
+
+    /**
+     * Helper method for constructing serializer for explicitly annotated
+     * {@code @JsonValue} accessor, if any.
+     *
+     * @since 3.4
+     */
+    private ValueSerializer<?> findJsonValueSerializer(SerializationContext ctxt,
+            JavaType type, BeanDescription.Supplier beanDescRef)
+    {
+        // `JacksonSerializable` still takes precedence, as before
+        if (type.isTypeOrSubTypeOf(JacksonSerializable.class)) {
+            return null;
         }
-        // No well-known annotations...
-        return null;
+        AnnotatedMember valueAccessor = beanDescRef.get().findJsonValueAccessor();
+        if (valueAccessor == null) {
+            return null;
+        }
+        if (ctxt.canOverrideAccessModifiers()) {
+            ClassUtil.checkAndFixAccess(valueAccessor.getMember(),
+                    ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+        }
+        ValueSerializer<Object> ser = findSerializerFromAnnotation(ctxt, valueAccessor);
+        JavaType valueType = valueAccessor.getType();
+        TypeSerializer vts = ctxt.findTypeSerializer(valueType);
+        return JsonValueSerializer.construct(ctxt.getConfig(), type, valueType,
+                /* static typing */ false, vts, ser, valueAccessor);
     }
 
     /**
@@ -498,14 +513,17 @@ public abstract class BasicSerializerFactory
                         keySerializer, elementTypeSerializer, elementValueSerializer);
             }
             // With Map-like, just 2 options: (1) Custom, (2) Annotations
-            ValueSerializer<?> ser = null;
+            // [databind#6341]: explicit `@JsonValue` has precedence over custom serializers
+            ValueSerializer<?> ser = findJsonValueSerializer(ctxt, type, beanDescRef);
             MapLikeType mlType = (MapLikeType) type;
-            for (Serializers serializers : customSerializers()) { // (1) Custom
-                ser = serializers.findMapLikeSerializer(config, mlType,
-                        beanDescRef, formatOverrides,
-                        keySerializer, elementTypeSerializer, elementValueSerializer);
-                if (ser != null) {
-                    break;
+            if (ser == null) {
+                for (Serializers serializers : customSerializers()) { // (1) Custom
+                    ser = serializers.findMapLikeSerializer(config, mlType,
+                            beanDescRef, formatOverrides,
+                            keySerializer, elementTypeSerializer, elementValueSerializer);
+                    if (ser != null) {
+                        break;
+                    }
                 }
             }
             if (ser == null) { // (2) Annotations-based ones:
@@ -528,14 +546,17 @@ public abstract class BasicSerializerFactory
                         elementTypeSerializer, elementValueSerializer);
             }
             // With Collection-like, just 2 options: (1) Custom, (2) Annotations
-            ValueSerializer<?> ser = null;
+            // [databind#6341]: explicit `@JsonValue` has precedence over custom serializers
+            ValueSerializer<?> ser = findJsonValueSerializer(ctxt, type, beanDescRef);
             CollectionLikeType clType = (CollectionLikeType) type;
-            for (Serializers serializers : customSerializers()) { // (1) Custom
-                ser = serializers.findCollectionLikeSerializer(config, clType,
-                        beanDescRef, formatOverrides,
-                        elementTypeSerializer, elementValueSerializer);
-                if (ser != null) {
-                    break;
+            if (ser == null) {
+                for (Serializers serializers : customSerializers()) { // (1) Custom
+                    ser = serializers.findCollectionLikeSerializer(config, clType,
+                            beanDescRef, formatOverrides,
+                            elementTypeSerializer, elementValueSerializer);
+                    if (ser != null) {
+                        break;
+                    }
                 }
             }
             if (ser == null) { // (2) Annotations-based ones:
@@ -568,16 +589,19 @@ public abstract class BasicSerializerFactory
             TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer)
     {
         SerializationConfig config = ctxt.getConfig();
-        ValueSerializer<?> ser = null;
+        // [databind#6341]: explicit `@JsonValue` has precedence over custom serializers
+        ValueSerializer<?> ser = findJsonValueSerializer(ctxt, type, beanDescRef);
         // Order of lookups:
         // 1. Custom serializers
         // 2. Annotations (@JsonValue, @JsonDeserialize)
         // 3. Defaults
-        for (Serializers serializers : customSerializers()) { // (1) Custom
-            ser = serializers.findCollectionSerializer(config, type, beanDescRef, formatOverrides,
-                    elementTypeSerializer, elementValueSerializer);
-            if (ser != null) {
-                break;
+        if (ser == null) {
+            for (Serializers serializers : customSerializers()) { // (1) Custom
+                ser = serializers.findCollectionSerializer(config, type, beanDescRef, formatOverrides,
+                        elementTypeSerializer, elementValueSerializer);
+                if (ser != null) {
+                    break;
+                }
             }
         }
 
@@ -673,7 +697,8 @@ public abstract class BasicSerializerFactory
             boolean staticTyping, ValueSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer)
     {
-        ValueSerializer<?> ser = null;
+        // [databind#6341]: explicit `@JsonValue` has precedence over custom serializers
+        ValueSerializer<?> ser = findJsonValueSerializer(ctxt, type, beanDescRef);
 
         // Order of lookups:
         // 1. Custom serializers
@@ -681,10 +706,12 @@ public abstract class BasicSerializerFactory
         // 3. Defaults
 
         final SerializationConfig config = ctxt.getConfig();
-        for (Serializers serializers : customSerializers()) { // (1) Custom
-            ser = serializers.findMapSerializer(config, type, beanDescRef, formatOverrides,
-                    keySerializer, elementTypeSerializer, elementValueSerializer);
-            if (ser != null) { break; }
+        if (ser == null) {
+            for (Serializers serializers : customSerializers()) { // (1) Custom
+                ser = serializers.findMapSerializer(config, type, beanDescRef, formatOverrides,
+                        keySerializer, elementTypeSerializer, elementValueSerializer);
+                if (ser != null) { break; }
+            }
         }
         if (ser == null) {
             ser = findSerializerByAnnotations(ctxt, type, beanDescRef); // (2) Annotations

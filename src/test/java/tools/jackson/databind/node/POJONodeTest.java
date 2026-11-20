@@ -464,4 +464,36 @@ public class POJONodeTest extends NodeTestBase
         }
         assertThat(new POJONode(2.5).asDecimalOpt()).hasValue(BigDecimal.valueOf(2.5));
     }
+
+    // [databind#6474]: NaN and infinities wrapped in a POJONode convert to BigInteger
+    // as DoubleNode's do; used to go through `longValue()` (NaN -> 0, infinity -> Long.MAX_VALUE)
+    @Test
+    public void bigIntegerAccessorsForNonFinite()
+    {
+        for (Number nonFinite : new Number[] {
+                Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
+                Float.NaN, Float.POSITIVE_INFINITY }) {
+            POJONode n = new POJONode(nonFinite);
+            assertThat(n.asBigIntegerOpt()).isNotPresent();
+            assertThat(n.asBigInteger(BigInteger.ONE)).isEqualTo(BigInteger.ONE);
+            assertThatThrownBy(() -> n.asBigInteger())
+                .isInstanceOf(JsonNodeException.class)
+                .hasMessageContaining("value non-Finite");
+        }
+    }
+
+    // [databind#6474]: finite Double/Float values outside `long` range used to be
+    // clamped to Long.MIN_VALUE/MAX_VALUE
+    @Test
+    public void bigIntegerAccessorsBeyondLongRange()
+    {
+        final BigInteger exp = new BigInteger("100000000000000000000");
+        assertThat(new POJONode(1e20).asBigInteger()).isEqualTo(exp);
+        assertThat(new POJONode(-1e20).asBigInteger()).isEqualTo(exp.negate());
+        assertThat(new POJONode(1e20).asBigInteger(BigInteger.ONE)).isEqualTo(exp);
+        assertThat(new POJONode(1e20).asBigIntegerOpt()).hasValue(exp);
+        // Float widened to double exactly, matching `FloatNode`
+        assertThat(new POJONode(1e20f).asBigInteger())
+            .isEqualTo(new FloatNode(1e20f).asBigInteger());
+    }
 }

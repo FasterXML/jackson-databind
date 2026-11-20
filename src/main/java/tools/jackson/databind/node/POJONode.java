@@ -323,8 +323,13 @@ public class POJONode
             super.asBigInteger();
         }
 
-        // Then, extract from Number
-        return _extractAsBigInteger();
+        // Then, extract from Number: `_extractAsBigInteger()` returns `null` for
+        // NaN and infinities; fail for those as `DoubleNode` does
+        BigInteger big = _extractAsBigInteger();
+        if (big == null) {
+            return _reportBigIntegerConversionNaNFail("asBigInteger()");
+        }
+        return big;
     }
 
     @Override
@@ -334,8 +339,9 @@ public class POJONode
             return defaultValue;
         }
 
-        // Then, extract from Number
-        return _extractAsBigInteger();
+        // Then, extract from Number; default for NaN and infinities
+        BigInteger big = _extractAsBigInteger();
+        return (big == null) ? defaultValue : big;
     }
 
     @Override
@@ -345,8 +351,8 @@ public class POJONode
             return Optional.empty();
         }
 
-        // Then, extract from Number
-        return Optional.of(_extractAsBigInteger());
+        // Then, extract from Number; empty for NaN and infinities
+        return Optional.ofNullable(_extractAsBigInteger());
     }
 
     // `floatValue()` (etc) fine as defaults (fail); but need to override `asFloat()`
@@ -530,8 +536,9 @@ public class POJONode
         return null;
     }
 
-    // extract BigInteger from Number, or return null if not a Number; throws
-    // `StreamConstraintsException` if `BigDecimal` scale magnitude exceeds limit
+    // extract BigInteger from Number, or return null if not a Number or if
+    // NaN/infinity; throws `StreamConstraintsException` if `BigDecimal` scale
+    // magnitude exceeds limit
     protected BigInteger _extractAsBigInteger() {
         if (_value instanceof Number N) {
             if (N instanceof BigInteger big) {
@@ -540,6 +547,13 @@ public class POJONode
                 // [databind#6214]: guard against excessive scale magnitude
                 StreamReadConstraints.defaults().validateBigIntegerScale(dec.scale());
                 return dec.toBigInteger();
+            } else if (N instanceof Double || N instanceof Float) {
+                // [databind#6474]: no `longValue()` (clamps to `long` range, NaN -> 0)
+                final double d = N.doubleValue();
+                if (!Double.isFinite(d)) {
+                    return null;
+                }
+                return BigDecimal.valueOf(d).toBigInteger();
             } else {
                 return BigInteger.valueOf(N.longValue());
             }

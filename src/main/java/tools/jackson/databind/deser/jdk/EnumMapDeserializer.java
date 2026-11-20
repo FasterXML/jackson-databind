@@ -147,6 +147,19 @@ public class EnumMapDeserializer
             NullValueProvider nuller,
             Set<String> ignorable, Set<String> includable)
     {
+        this(base, keyDeser, valueDeser, vtd, nuller, ignorable, includable,
+                base._mergeValues);
+    }
+
+    /**
+     * @since 3.4
+     */
+    protected EnumMapDeserializer(EnumMapDeserializer base,
+            KeyDeserializer keyDeser, ValueDeserializer<?> valueDeser, TypeDeserializer vtd,
+            NullValueProvider nuller,
+            Set<String> ignorable, Set<String> includable,
+            boolean mergeValues)
+    {
         super(base, nuller, base._unwrapSingle);
         _enumClass = base._enumClass;
         _keyDeserializer = keyDeser;
@@ -160,29 +173,6 @@ public class EnumMapDeserializer
         _ignorableProperties = ignorable;
         _includableProperties = includable;
         _inclusionChecker = IgnorePropertiesUtil.buildCheckerIfNeeded(ignorable, includable);
-        _mergeValues = base._mergeValues;
-    }
-
-    /**
-     * Copy-constructor used to change the value merge setting.
-     *
-     * @since 3.4
-     */
-    protected EnumMapDeserializer(EnumMapDeserializer base, boolean mergeValues)
-    {
-        super(base, base._nullProvider, base._unwrapSingle);
-        _enumClass = base._enumClass;
-        _keyDeserializer = base._keyDeserializer;
-        _valueDeserializer = base._valueDeserializer;
-        _valueTypeDeserializer = base._valueTypeDeserializer;
-
-        _valueInstantiator = base._valueInstantiator;
-        _delegateDeserializer = base._delegateDeserializer;
-        _propertyBasedCreator = base._propertyBasedCreator;
-
-        _ignorableProperties = base._ignorableProperties;
-        _includableProperties = base._includableProperties;
-        _inclusionChecker = base._inclusionChecker;
         _mergeValues = mergeValues;
     }
 
@@ -221,7 +211,9 @@ public class EnumMapDeserializer
         if (_mergeValues == mergeValues) {
             return this;
         }
-        return new EnumMapDeserializer(this, mergeValues);
+        return new EnumMapDeserializer(this, _keyDeserializer, _valueDeserializer,
+                _valueTypeDeserializer, _nullProvider,
+                _ignorableProperties, _includableProperties, mergeValues);
     }
 
     /*
@@ -384,7 +376,8 @@ public class EnumMapDeserializer
         case JsonTokenId.ID_START_OBJECT:
         case JsonTokenId.ID_END_OBJECT:
         case JsonTokenId.ID_PROPERTY_NAME:
-            return deserialize(p, ctxt, constructMap(ctxt));
+            // fresh EnumMap: duplicate keys must not be merged
+            return _readAndBind(p, ctxt, constructMap(ctxt), false);
         case JsonTokenId.ID_STRING:
             // (empty) String may be ok however; or single-String-arg ctor
             return _deserializeFromStringForContainer(p, ctxt);
@@ -399,6 +392,23 @@ public class EnumMapDeserializer
     @Override
     public EnumMap<?,?> deserialize(JsonParser p, DeserializationContext ctxt,
             EnumMap result)
+        throws JacksonException
+    {
+        // [databind#6445]: updating an existing EnumMap, so merge existing values
+        // (unless disabled for content type)
+        return _readAndBind(p, ctxt, result, _mergeValues);
+    }
+
+    /**
+     * @param mergeValues Whether existing values of {@code result} are to be
+     *    updated (merged) instead of replaced: {@code true} only when
+     *    updating an existing {@link EnumMap}, {@code false} for a fresh one
+     *    (so that duplicate keys in input do not merge)
+     *
+     * @since 3.4
+     */
+    protected EnumMap<?,?> _readAndBind(JsonParser p, DeserializationContext ctxt,
+            EnumMap result, boolean mergeValues)
         throws JacksonException
     {
         // [databind#631]: Assign current value, to be accessible by custom deserializers
@@ -427,6 +437,8 @@ public class EnumMapDeserializer
                     ? null
                     : new MapDeserializer.MapReferringAccumulator(
                             _containerType.getContentType().getRawClass(), result);
+        // Same as `MapDeserializer`: Object Id handling can't really work with merging
+        final boolean merge = mergeValues && (referringAccumulator == null);
 
         for (; keyStr != null; keyStr = p.nextName()) {
             // Check ignorals first: ignored name need not be a valid Enum name
@@ -453,6 +465,7 @@ public class EnumMapDeserializer
             // note: MUST check for nulls separately: deserializers will
             // not handle them (and maybe fail or return bogus data)
             Object value;
+            Object old = null;
 
             try {
                 if (t == JsonToken.VALUE_NULL) {
@@ -462,7 +475,7 @@ public class EnumMapDeserializer
                     value = null;
                 } else {
                     // [databind#6445]: update existing value, if any, same as `MapDeserializer`
-                    final Object old = _mergeValues ? result.get(key) : null;
+                    old = merge ? result.get(key) : null;
                     if (old != null) {
                         if (_valueTypeDeserializer == null) {
                             value = _valueDeserializer.deserialize(p, ctxt, old);
@@ -483,7 +496,10 @@ public class EnumMapDeserializer
                     }
                 }
                 if (referringAccumulator == null) {
-                    result.put(key, value);
+                    // no need to re-put an existing value that was updated in place
+                    if ((old == null) || (value != old)) {
+                        result.put(key, value);
+                    }
                 } else {
                     referringAccumulator.put(key, value);
                 }
@@ -557,7 +573,7 @@ public class EnumMapDeserializer
                     } catch (Exception e) {
                         return wrapAndThrow(ctxt, e, _containerType.getRawClass(), keyName);
                     }
-                    return deserialize(p, ctxt, result);
+                    return _readAndBind(p, ctxt, result, false);
                 }
                 continue;
             }

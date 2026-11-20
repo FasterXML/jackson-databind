@@ -2,6 +2,7 @@ package tools.jackson.databind.deser.merge;
 
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.OptBoolean;
 
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -108,7 +111,9 @@ public class EnumMapMerge6445Test
         PolymorphicHashMapBean mapBean = new PolymorphicHashMapBean();
         mapBean.map.put("A", shape("red", 1));
 
-        final String json = a2q("{'map':{'A':{'@type':'shape','size':5}}}");
+        final String json = """
+                {"map":{"A":{"@type":"shape","size":5}}}
+                """;
         Shape fromEnumMap = MAPPER.readerForUpdating(enumBean).<PolymorphicBean>readValue(json)
                 .map.get(Key.A);
         Shape fromMap = MAPPER.readerForUpdating(mapBean).<PolymorphicHashMapBean>readValue(json)
@@ -135,7 +140,9 @@ public class EnumMapMerge6445Test
         bean.map.put(Key.B, "b0");
 
         ScalarBean result = MAPPER.readerForUpdating(bean)
-                .readValue(a2q("{'map':{'A':'a1','C':'c1'}}"));
+                .readValue("""
+                        {"map":{"A":"a1","C":"c1"}}
+                        """);
 
         assertEquals("a1", result.map.get(Key.A));
         assertEquals("b0", result.map.get(Key.B));
@@ -149,7 +156,9 @@ public class EnumMapMerge6445Test
         Value oldA = bean.map.get(Key.A);
 
         EnumMapBean result = MAPPER.readerForUpdating(bean)
-                .readValue(a2q("{'map':{'A':{'count':3},'B':{'data':'b'}}}"));
+                .readValue("""
+                        {"map":{"A":{"count":3},"B":{"data":"b"}}}
+                        """);
 
         assertSame(bean, result);
         assertSame(oldA, result.map.get(Key.A));
@@ -163,7 +172,9 @@ public class EnumMapMerge6445Test
     void mergeIntoMapTypedEnumMap() throws Exception
     {
         MapTypedBean bean = MAPPER.readerForUpdating(new MapTypedBean())
-                .readValue(a2q("{'map':{'C':{'count':7}}}"));
+                .readValue("""
+                        {"map":{"C":{"count":7}}}
+                        """);
 
         assertEquals("init-C", bean.map.get(Key.C).data);
         assertEquals(7, bean.map.get(Key.C).count);
@@ -180,7 +191,9 @@ public class EnumMapMerge6445Test
         bean.map.put(Key.A, oldA);
 
         CreatableBean result = MAPPER.readerForUpdating(bean)
-                .readValue(a2q("{'map':{'A':{'b':'b1'},'B':{'a':'new'}}}"));
+                .readValue("""
+                        {"map":{"A":{"b":"b1"},"B":{"a":"new"}}}
+                        """);
 
         assertSame(oldA, result.map.get(Key.A));
         assertEquals("a0", oldA.a);
@@ -199,7 +212,9 @@ public class EnumMapMerge6445Test
         EnumMap<Key, Creatable> oldMap = bean.map;
 
         MergeDisabledBean result = MAPPER.readerForUpdating(bean)
-                .readValue(a2q("{'map':{'A':{'b':'b1'}}}"));
+                .readValue("""
+                        {"map":{"A":{"b":"b1"}}}
+                        """);
 
         assertNotSame(oldMap, result.map);
         assertNull(result.map.get(Key.A).a);
@@ -219,7 +234,9 @@ public class EnumMapMerge6445Test
         bean.map.put(Key.A, oldA);
 
         CreatableBean result = mapper.readerForUpdating(bean)
-                .readValue(a2q("{'map':{'A':{'b':'b1'}}}"));
+                .readValue("""
+                        {"map":{"A":{"b":"b1"}}}
+                        """);
 
         assertNotSame(oldA, result.map.get(Key.A));
         assertNull(result.map.get(Key.A).a);
@@ -229,9 +246,47 @@ public class EnumMapMerge6445Test
     @Test
     void plainReadIsUnchanged() throws Exception
     {
-        EnumMap<Key, Creatable> map = MAPPER.readValue(a2q("{'A':{'a':'x'}}"),
-                MAPPER.getTypeFactory().constructMapType(EnumMap.class, Key.class, Creatable.class));
+        EnumMap<Key, Creatable> map = MAPPER.readValue("""
+                {"A":{"a":"x"}}
+                """, enumMapType(Creatable.class));
         assertEquals(1, map.size());
         assertEquals("x", map.get(Key.A).a);
+    }
+
+    // Plain (non-update) reads must not merge values of duplicate keys:
+    // last value wins, same as with `HashMap`
+    @Test
+    void plainReadDuplicateKeysLastValueWins() throws Exception
+    {
+        EnumMap<Key, Creatable> pojos = MAPPER.readValue("""
+                {"A":{"a":"x"},"A":{"b":"y"}}
+                """, enumMapType(Creatable.class));
+        assertNull(pojos.get(Key.A).a);
+        assertEquals("y", pojos.get(Key.A).b);
+
+        EnumMap<Key, List<Integer>> lists = MAPPER.readValue("""
+                {"A":[1],"A":[2]}
+                """, MAPPER.getTypeFactory().constructMapType(EnumMap.class,
+                        MAPPER.constructType(Key.class),
+                        MAPPER.getTypeFactory().constructCollectionType(List.class, Integer.class)));
+        assertEquals(List.of(2), lists.get(Key.A));
+    }
+
+    // ... and must not fail for unmergeable values even if
+    // `IGNORE_MERGE_FOR_UNMERGEABLE` is disabled
+    @Test
+    void plainReadDuplicateScalarKeysWithoutIgnoreMerge() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
+                .build();
+        EnumMap<Key, String> map = mapper.readValue("""
+                {"A":"x","A":"y"}
+                """, enumMapType(String.class));
+        assertEquals("y", map.get(Key.A));
+    }
+
+    private JavaType enumMapType(Class<?> valueType) {
+        return MAPPER.getTypeFactory().constructMapType(EnumMap.class, Key.class, valueType);
     }
 }

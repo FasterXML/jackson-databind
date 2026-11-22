@@ -970,3 +970,7 @@ Mateusz Hubert Stefaniak (@EmhyrVarEmreis)
  * Fixed #6299: Malformed JSON (or failure) for a single-element container whose only
    element is filtered with `APPLY_JSON_INCLUDE_FOR_CONTAINERS` + `WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED`
   [3.4.0]
+
+@shevek
+ * Reported #6445: `@JsonMerge` does not work properly for `EnumMap`
+  [3.4.0]

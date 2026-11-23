@@ -1529,6 +1529,18 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     /**
      * Specialized method used for appending a structural start Object/Array marker
      */
+    /**
+     * Positions of start markers of currently open structures (Objects, Arrays),
+     * used for linking start of a structure to its end.
+     *
+     * @since 3.1.9
+     */
+    private Segment[] _startSegments = new Segment[8];
+
+    private int[] _startPtrs = new int[8];
+
+    private int _startCount;
+
     protected final void _appendStartMarker(JsonToken type)
     {
         _tokenWriteContext.writeValue();
@@ -1545,6 +1557,13 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             _last = next;
             _appendAt = 1; // since we added first at 0
         }
+        // Remember where structure starts, to be able to link it to its end
+        if (_startCount == _startSegments.length) {
+            _startSegments = Arrays.copyOf(_startSegments, _startCount * 2);
+            _startPtrs = Arrays.copyOf(_startPtrs, _startCount * 2);
+        }
+        _startSegments[_startCount] = _last;
+        _startPtrs[_startCount++] = _appendAt - 1;
     }
 
     /**
@@ -1559,6 +1578,15 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         } else {
             _last = next;
             _appendAt = 1;
+        }
+        // Link start of the structure to its end, unless both are in the same segment,
+        // so that readers can skip the structure without traversing it
+        if (_startCount > 0) {
+            final Segment startSeg = _startSegments[--_startCount];
+            _startSegments[_startCount] = null;
+            if (startSeg != _last) {
+                startSeg.setStructEnd(_startPtrs[_startCount], new StructEnd(_last, _appendAt - 1));
+            }
         }
 
         // but then we need to update context. One twist: do allow unbalanced content;
@@ -1746,46 +1774,62 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (_closed || (_segment == null) || (_currToken != JsonToken.PROPERTY_NAME)) {
                 return null;
             }
-            final Lookahead c = new Lookahead(_segment, _segmentPtr,
-                    (_skipCount > 0) ? _skipSegments[_skipCount-1] : null,
-                    (_skipCount > 0) ? _skipPtrs[_skipCount-1] : -1);
-            int index = 0;
+            final Segment skipSeg = (_skipCount > 0) ? _skipSegments[_skipCount-1] : null;
+            final int skipPtr = (_skipCount > 0) ? _skipPtrs[_skipCount-1] : -1;
+            Segment seg = _segment;
+            int ptr = _segmentPtr;
+            Segment nameSeg = null;
+            int namePtr = -1;
+            JsonToken t = JsonToken.PROPERTY_NAME;
+            boolean match = false;
+            int depth = 0;
+            int index = -1;
 
             while (true) {
-                // Pointing to property name at the level of the Object
-                final Segment nameSeg = c.seg;
-                final int namePtr = c.ptr;
-                Object ob = c.seg.get(c.ptr);
-                final String name = (ob instanceof String str) ? str : ClassUtil.nullOrToString(ob);
-                JsonToken t = c.next();
-                if (t == null) {
-                    return null;
-                }
-                if (propName.equals(name)
-                        || (ignoreCase && propName.equalsIgnoreCase(name))) {
-                    if (t == JsonToken.VALUE_STRING) {
-                        ob = c.seg.get(c.ptr);
-                        String value = (ob instanceof String str) ? str : ClassUtil.nullOrToString(ob);
-                        if (value != null) {
-                            return new PropertyLookahead(this, nameSeg, namePtr, value, index);
+                if (depth == 0) {
+                    if (t == JsonToken.PROPERTY_NAME) {
+                        ++index;
+                        Object ob = seg.get(ptr);
+                        String name = (ob instanceof String str) ? str : ClassUtil.nullOrToString(ob);
+                        match = propName.equals(name)
+                                || (ignoreCase && propName.equalsIgnoreCase(name));
+                        nameSeg = seg;
+                        namePtr = ptr;
+                    } else if (match) {
+                        if (t == JsonToken.VALUE_STRING) {
+                            Object ob = seg.get(ptr);
+                            String value = (ob instanceof String str) ? str : ClassUtil.nullOrToString(ob);
+                            if (value != null) {
+                                return new PropertyLookahead(this, nameSeg, namePtr, value, index);
+                            }
+                        } else if (t.isScalarValue() && (t != JsonToken.VALUE_NULL)) {
+                            // Other scalars converted to String by caller; not handled here
+                            return null;
                         }
-                    } else if (t.isScalarValue() && (t != JsonToken.VALUE_NULL)) {
-                        // Other scalars converted to String by caller; not handled here
+                        match = false;
+                    }
+                }
+                if (t.isStructStart()) {
+                    StructEnd end = seg.structEnd(ptr);
+                    if (end == null) {
+                        ++depth;
+                    } else { // jump to matching end marker
+                        seg = end.seg;
+                        ptr = end.ptr;
+                    }
+                } else if (t.isStructEnd() && (--depth < 0)) {
+                    return PropertyLookahead.NOT_FOUND;
+                }
+                if (++ptr >= Segment.TOKENS_PER_SEGMENT) {
+                    ptr = 0;
+                    if ((seg = seg.next()) == null) {
                         return null;
                     }
                 }
-                if (t.isStructStart() && !c.skipStructure()) {
+                // End of content, or pending skip, reached before end of Object?
+                if (((seg == skipSeg) && (ptr == skipPtr)) || ((t = seg.type(ptr)) == null)) {
                     return null;
                 }
-                // And then see what follows: another property, or end of Object?
-                t = c.next();
-                if (t == JsonToken.END_OBJECT) {
-                    return PropertyLookahead.NOT_FOUND;
-                }
-                if (t != JsonToken.PROPERTY_NAME) {
-                    return null;
-                }
-                ++index;
             }
         }
 
@@ -2390,123 +2434,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      * storage, slightly slower access)
      */
     /**
-     * Cursor used for looking ahead in buffered content without changing
-     * parser state; also memoizes end positions of large structures (in
-     * {@link Segment}s) so that nested lookaheads need not walk them again:
-     * this keeps the total cost of lookaheads linear to the buffered content.
+     * Position of the end marker of a structure (Object, Array)
      *
      * @since 3.1.9
      */
-    private final static class Lookahead
-    {
-        /**
-         * Minimum number of tokens a structure must span for its end position
-         * to be memoized
-         */
-        private final static int MIN_TOKENS_TO_MEMOIZE = 64;
-
-        Segment seg;
-        int ptr;
-        private long count;
-
-        private final Segment _skipSeg;
-        private final int _skipPtr;
-
-        // Stack of open structures: start position and token count at start
-        private Segment[] _startSegs = new Segment[8];
-        private int[] _startPtrs = new int[8];
-        private long[] _startCounts = new long[8];
-
-        Lookahead(Segment seg, int ptr, Segment skipSeg, int skipPtr) {
-            this.seg = seg;
-            this.ptr = ptr;
-            _skipSeg = skipSeg;
-            _skipPtr = skipPtr;
-        }
-
-        /**
-         * @return Next token; {@code null} if end of content (or pending skip) reached
-         */
-        JsonToken next() {
-            if (++ptr >= Segment.TOKENS_PER_SEGMENT) {
-                ptr = 0;
-                if ((seg = seg.next()) == null) {
-                    return null;
-                }
-            }
-            if ((seg == _skipSeg) && (ptr == _skipPtr)) {
-                return null;
-            }
-            ++count;
-            return seg.type(ptr);
-        }
-
-        /**
-         * Skips the structure (Object or Array) whose start marker cursor points to,
-         * leaving cursor at its end marker.
-         *
-         * @return {@code true} if successful; {@code false} if end of content reached
-         */
-        boolean skipStructure() {
-            int depth = 0;
-            while (true) {
-                // At start marker: either jump to known end, or push
-                StructEnd end = seg.structEnd(ptr);
-                if (end != null) {
-                    seg = end.seg;
-                    ptr = end.ptr;
-                    count += end.tokenCount;
-                    if (depth == 0) {
-                        return true;
-                    }
-                } else {
-                    _push(depth++);
-                }
-                // then advance until we either close the structure or find another start
-                while (true) {
-                    JsonToken t = next();
-                    if (t == null) {
-                        return false;
-                    }
-                    if (t.isStructStart()) {
-                        break;
-                    }
-                    if (t.isStructEnd()) {
-                        --depth;
-                        final long tokenCount = count - _startCounts[depth];
-                        if (tokenCount >= MIN_TOKENS_TO_MEMOIZE) {
-                            _startSegs[depth].setStructEnd(_startPtrs[depth],
-                                    new StructEnd(seg, ptr, tokenCount));
-                        }
-                        _startSegs[depth] = null;
-                        if (depth == 0) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-
-        private void _push(int depth) {
-            if (depth == _startSegs.length) {
-                int newLen = depth * 2;
-                _startSegs = Arrays.copyOf(_startSegs, newLen);
-                _startPtrs = Arrays.copyOf(_startPtrs, newLen);
-                _startCounts = Arrays.copyOf(_startCounts, newLen);
-            }
-            _startSegs[depth] = seg;
-            _startPtrs[depth] = ptr;
-            _startCounts[depth] = count;
-        }
-    }
-
-    /**
-     * Position of the end marker of a structure, along with number of tokens
-     * (after start marker, up to and including end marker) it spans
-     *
-     * @since 3.1.9
-     */
-    private record StructEnd(Segment seg, int ptr, long tokenCount) { }
+    private record StructEnd(Segment seg, int ptr) { }
 
     protected final static class Segment
     {
@@ -2548,8 +2480,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         protected TreeMap<Integer,Object> _nativeIds;
 
         /**
-         * Lazily constructed array of memoized end positions for structures
-         * starting in this segment (only populated by lookahead)
+         * Lazily constructed array of end positions for structures that start
+         * in this segment and end in another one
          *
          * @since 3.1.9
          */
@@ -2561,11 +2493,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         void setStructEnd(int index, StructEnd end) {
-            StructEnd[] ends = _structEnds;
-            if (ends == null) {
-                _structEnds = ends = new StructEnd[TOKENS_PER_SEGMENT];
+            if (_structEnds == null) {
+                _structEnds = new StructEnd[TOKENS_PER_SEGMENT];
             }
-            ends[index] = end;
+            _structEnds[index] = end;
         }
 
         public Segment() { }

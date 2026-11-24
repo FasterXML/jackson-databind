@@ -32,6 +32,15 @@ public class BigDecimalScaleLimitTest extends DatabindTestUtil
         }
     }
 
+    static class BigDecimalDelegatingWrapper {
+        final BigDecimal value;
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        BigDecimalDelegatingWrapper(BigDecimal value) {
+            this.value = value;
+        }
+    }
+
     private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
 
     private final ObjectMapper LIMITED_MAPPER = jsonMapperBuilder()
@@ -83,6 +92,9 @@ public class BigDecimalScaleLimitTest extends DatabindTestUtil
         _verifyLimited(() -> LIMITED_MAPPER.readValue(
                 "{\"value\":" + HUGE_SCALE_VALUE + "}",
                 BigDecimalCreatorWrapper.class));
+        _verifyLimited(() -> LIMITED_MAPPER.treeToValue(
+                JsonNodeFactory.instance.numberNode(new BigDecimal(HUGE_SCALE_VALUE)),
+                BigDecimalDelegatingWrapper.class));
     }
 
     @Test

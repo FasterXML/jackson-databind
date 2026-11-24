@@ -701,6 +701,7 @@ public class BeanSerializerFactory
         boolean includeByDefault = config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);
         final int propCount = props.size();
         int viewsFound = 0;
+        boolean hasDefaultViewOmissions = false;
         BeanPropertyWriter[] filtered = new BeanPropertyWriter[propCount];
         // [databind#6410]: Object Id property is metadata, not affected by Views
         final BeanPropertyWriter idProp = PropertyBasedObjectIdGenerator.findIdProperty(
@@ -718,6 +719,8 @@ public class BeanSerializerFactory
                     || views.length == 0) { // no view info? include or exclude by default?
                 if (includeByDefault) {
                     filtered[i] = bpw;
+                } else {
+                    hasDefaultViewOmissions = true;
                 }
             } else {
                 ++viewsFound;
@@ -728,7 +731,7 @@ public class BeanSerializerFactory
         if (includeByDefault && viewsFound == 0) {
             return;
         }
-        builder.setFilteredProperties(filtered);
+        builder.setDefaultViewProperties(filtered, hasDefaultViewOmissions);
     }
 
     /**

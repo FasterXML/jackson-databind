@@ -271,7 +271,7 @@ public class BeanAsArrayDeserializer
             SettableBeanProperty prop = props[i];
             ++i;
             if (prop != null) { // normal case
-                if (activeView == null || prop.visibleInView(activeView)) {
+                if (activeView == null || prop.visibleInView(activeView, ctxt)) {
                     try {
                         prop.deserializeAndSet(p, ctxt, bean);
                     } catch (Exception e) {
@@ -343,7 +343,7 @@ public class BeanAsArrayDeserializer
             SettableBeanProperty prop = props[i];
             ++i;
             if (prop != null) { // normal case
-                if (activeView == null || prop.visibleInView(activeView)) {
+                if (activeView == null || prop.visibleInView(activeView, ctxt)) {
                     try {
                         prop.deserializeAndSet(p, ctxt, bean);
                     } catch (Exception e) {
@@ -410,7 +410,7 @@ public class BeanAsArrayDeserializer
                 continue;
             }
             // [databind#6077]: view-hidden property: fail, or skip, as per feature
-            if ((activeView != null) && !prop.visibleInView(activeView)) {
+            if ((activeView != null) && !prop.visibleInView(activeView, ctxt)) {
                 handleUnexpectedView(p, ctxt, prop, activeView);
                 continue;
             }

@@ -248,7 +248,7 @@ public class BeanAsArraySerializer
     protected final void serializeFiltered(Object bean, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
-        final BeanPropertyWriter[] props = _filteredProps;
+        final BeanPropertyWriter[] props = viewProperties(ctxt);
         int i = 0;
         int left = props.length;
         BeanPropertyWriter prop = null;

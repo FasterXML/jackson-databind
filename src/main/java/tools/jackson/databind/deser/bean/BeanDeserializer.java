@@ -391,7 +391,7 @@ public class BeanDeserializer
             if (creatorProp != null) {
                 // [databind#5966] Honor @JsonView visibility, injection-only on creator parameters
                 // (also covers [databind#5971] view check on the record-update path)
-                if (activeView != null && !creatorProp.visibleInView(activeView)) {
+                if (activeView != null && !creatorProp.visibleInView(activeView, ctxt)) {
                     handleUnexpectedView(p, ctxt, creatorProp, activeView);
                     continue;
                 }
@@ -815,7 +815,7 @@ public class BeanDeserializer
 
             // Creator property?
             if (creatorProp != null) {
-                if (activeView != null && !creatorProp.visibleInView(activeView)) {
+                if (activeView != null && !creatorProp.visibleInView(activeView, ctxt)) {
                     handleUnexpectedView(p, ctxt, creatorProp, activeView);
                     continue;
                 }
@@ -852,7 +852,7 @@ public class BeanDeserializer
                 // [databind#5969]: must honor active view here too -- otherwise
                 // setterless/merging collection properties hidden by view can be
                 // populated via the buffering path below.
-                if (activeView != null && !prop.visibleInView(activeView)) {
+                if (activeView != null && !prop.visibleInView(activeView, ctxt)) {
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
@@ -1121,7 +1121,7 @@ public class BeanDeserializer
             if (ix >= 0) {
                 p.nextToken();
                 SettableBeanProperty prop = _propsByIndex[ix];
-                if (!prop.visibleInView(activeView)) {
+                if (!prop.visibleInView(activeView, ctxt)) {
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
@@ -1182,7 +1182,7 @@ public class BeanDeserializer
             if (ix >= 0) { // common case
                 p.nextToken();
                 SettableBeanProperty prop = _propsByIndex[ix];
-                if (activeView != null && !prop.visibleInView(activeView)) {
+                if (activeView != null && !prop.visibleInView(activeView, ctxt)) {
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
@@ -1257,7 +1257,7 @@ public class BeanDeserializer
             if (ix >= 0) { // common case
                 p.nextToken();
                 SettableBeanProperty prop = _propsByIndex[ix];
-                if (activeView != null && !prop.visibleInView(activeView)) {
+                if (activeView != null && !prop.visibleInView(activeView, ctxt)) {
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
@@ -1333,7 +1333,7 @@ public class BeanDeserializer
 
             if (creatorProp != null) {
                 // [databind#5971]: must honor active view here too
-                if (activeView != null && !creatorProp.visibleInView(activeView)) {
+                if (activeView != null && !creatorProp.visibleInView(activeView, ctxt)) {
                     handleUnexpectedView(p, ctxt, creatorProp, activeView);
                     continue;
                 }
@@ -1356,7 +1356,7 @@ public class BeanDeserializer
             if (ix >= 0) {
                 SettableBeanProperty prop = _propsByIndex[ix];
                 // [databind#5969]: must honor active view here too
-                if (activeView != null && !prop.visibleInView(activeView)) {
+                if (activeView != null && !prop.visibleInView(activeView, ctxt)) {
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
@@ -1485,7 +1485,7 @@ public class BeanDeserializer
                         && ext.handleTypePropertyValue(p, ctxt, p.currentName(), bean)) {
                     continue;
                 }
-                if (activeView != null && !prop.visibleInView(activeView)) {
+                if (activeView != null && !prop.visibleInView(activeView, ctxt)) {
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
@@ -1551,7 +1551,7 @@ public class BeanDeserializer
             }
             if (creatorProp != null) {
                 // [databind#5971]: must honor active view here too
-                if (activeView != null && !creatorProp.visibleInView(activeView)) {
+                if (activeView != null && !creatorProp.visibleInView(activeView, ctxt)) {
                     handleUnexpectedView(p, ctxt, creatorProp, activeView);
                     continue;
                 }
@@ -1579,7 +1579,7 @@ public class BeanDeserializer
                 SettableBeanProperty prop = _propsByIndex[ix];
                 // [databind#5958]: check view before storing external type ID so that a
                 // view-restricted type discriminator is not processed in other views.
-                if (activeView != null && !prop.visibleInView(activeView)) {
+                if (activeView != null && !prop.visibleInView(activeView, ctxt)) {
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }

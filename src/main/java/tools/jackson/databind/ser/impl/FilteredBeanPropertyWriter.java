@@ -2,6 +2,7 @@ package tools.jackson.databind.ser.impl;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.ser.BeanPropertyWriter;
@@ -62,8 +63,7 @@ public abstract class FilteredBeanPropertyWriter
         public void serializeAsProperty(Object bean, JsonGenerator gen, SerializationContext prov)
             throws Exception
         {
-            Class<?> activeView = prov.getActiveView();
-            if (activeView == null || _view.isAssignableFrom(activeView)) {
+            if (_inView(prov)) {
                 _delegate.serializeAsProperty(bean, gen, prov);
             } else {
                 _delegate.serializeAsOmittedProperty(bean, gen, prov);
@@ -77,8 +77,7 @@ public abstract class FilteredBeanPropertyWriter
                 SerializationContext prov, PropertyFilter filter)
             throws Exception
         {
-            Class<?> activeView = prov.getActiveView();
-            if (activeView == null || _view.isAssignableFrom(activeView)) {
+            if (_inView(prov)) {
                 _delegate.serializeFilteredAsProperty(bean, gen, prov, filter);
             } else {
                 _delegate.serializeAsOmittedProperty(bean, gen, prov);
@@ -89,8 +88,7 @@ public abstract class FilteredBeanPropertyWriter
         public void serializeAsElement(Object bean, JsonGenerator gen, SerializationContext prov)
             throws Exception
         {
-            Class<?> activeView = prov.getActiveView();
-            if (activeView == null || _view.isAssignableFrom(activeView)) {
+            if (_inView(prov)) {
                 _delegate.serializeAsElement(bean, gen, prov);
             } else {
                 _delegate.serializeAsOmittedElement(bean, gen, prov);
@@ -101,10 +99,15 @@ public abstract class FilteredBeanPropertyWriter
         public void depositSchemaProperty(JsonObjectFormatVisitor v,
                 SerializationContext provider)
         {
-            Class<?> activeView = provider.getActiveView();
-            if (activeView == null || _view.isAssignableFrom(activeView)) {
+            if (_inView(provider)) {
                 super.depositSchemaProperty(v, provider);
             }
+        }
+
+        private boolean _inView(SerializationContext ctxt) {
+            Class<?> activeView = ctxt.getActiveView();
+            return (activeView == null)
+                    || (_view.isAssignableFrom(activeView) != ctxt.isEnabled(SerializationFeature.EXCLUDE_VIEW_PROPERTIES));
         }
     }
 
@@ -140,7 +143,7 @@ public abstract class FilteredBeanPropertyWriter
         public void serializeAsProperty(Object bean, JsonGenerator gen, SerializationContext prov)
             throws Exception
         {
-            if (_inView(prov.getActiveView())) {
+            if (_inView(prov)) {
                 _delegate.serializeAsProperty(bean, gen, prov);
                 return;
             }
@@ -154,7 +157,7 @@ public abstract class FilteredBeanPropertyWriter
                 SerializationContext prov, PropertyFilter filter)
             throws Exception
         {
-            if (_inView(prov.getActiveView())) {
+            if (_inView(prov)) {
                 _delegate.serializeFilteredAsProperty(bean, gen, prov, filter);
                 return;
             }
@@ -165,7 +168,7 @@ public abstract class FilteredBeanPropertyWriter
         public void serializeAsElement(Object bean, JsonGenerator gen, SerializationContext prov)
             throws Exception
         {
-            if (_inView(prov.getActiveView())) {
+            if (_inView(prov)) {
                 _delegate.serializeAsElement(bean, gen, prov);
                 return;
             }
@@ -176,23 +179,23 @@ public abstract class FilteredBeanPropertyWriter
         public void depositSchemaProperty(JsonObjectFormatVisitor v,
                 SerializationContext provider)
         {
-            if (_inView(provider.getActiveView())) {
+            if (_inView(provider)) {
                 super.depositSchemaProperty(v, provider);
             }
         }
 
-        private final boolean _inView(Class<?> activeView)
-        {
+        private boolean _inView(SerializationContext ctxt) {
+            Class<?> activeView = ctxt.getActiveView();
             if (activeView == null) {
                 return true;
             }
             final int len = _views.length;
             for (int i = 0; i < len; ++i) {
                 if (_views[i].isAssignableFrom(activeView)) {
-                    return true;
+                    return !ctxt.isEnabled(SerializationFeature.EXCLUDE_VIEW_PROPERTIES);
                 }
             }
-            return false;
+            return ctxt.isEnabled(SerializationFeature.EXCLUDE_VIEW_PROPERTIES);
         }
     }
 }

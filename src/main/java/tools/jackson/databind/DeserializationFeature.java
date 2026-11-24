@@ -480,8 +480,20 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default.
      */
-    EAGER_DESERIALIZER_FETCH(true)
+    EAGER_DESERIALIZER_FETCH(true),
 
+    /**
+     * When an active view is selected, exclude properties belonging to that view.
+     * Such inputs follow the usual {@link #FAIL_ON_UNEXPECTED_VIEW_PROPERTIES} handling.
+     * Properties in other views and properties with no view are included,
+     * regardless of {@link MapperFeature#DEFAULT_VIEW_INCLUSION}. View inheritance
+     * and class-level default views are resolved as usual.
+     * This feature is disabled by default and has no effect without an active view.
+     *
+     * @see SerializationFeature#EXCLUDE_VIEW_PROPERTIES
+     * @since 3.4
+     */
+    EXCLUDE_VIEW_PROPERTIES(false)
     ;
 
     private final boolean _defaultState;

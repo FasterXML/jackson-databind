@@ -219,7 +219,7 @@ public class ExternalTypeHandler
     private boolean _isFilteredByView(DeserializationContext ctxt, int index) {
         final Class<?> activeView = ctxt.getActiveView();
         return (activeView != null)
-                && !_properties[index].getProperty().visibleInView(activeView);
+                && !_properties[index].getProperty().visibleInView(activeView, ctxt);
     }
 
     /**
@@ -237,7 +237,7 @@ public class ExternalTypeHandler
             // [databind#6055]: if the value property is filtered out by the active
             // JsonView, skip it entirely -- both any buffered value and the external
             // type id -- instead of trying to bind it (or reporting it as missing).
-            if ((activeView != null) && !extProp.getProperty().visibleInView(activeView)) {
+            if ((activeView != null) && !extProp.getProperty().visibleInView(activeView, ctxt)) {
                 continue;
             }
             if (typeId == null) {
@@ -307,7 +307,7 @@ public class ExternalTypeHandler
             // [databind#6055]: if the value property is filtered out by the active
             // JsonView, skip it entirely -- leave value null instead of binding the
             // buffered value or reporting the external type id as missing.
-            if ((activeView != null) && !extProp.getProperty().visibleInView(activeView)) {
+            if ((activeView != null) && !extProp.getProperty().visibleInView(activeView, ctxt)) {
                 continue;
             }
             if (typeId == null) {

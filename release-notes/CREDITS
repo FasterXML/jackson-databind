@@ -939,6 +939,8 @@ Kayokoi (@wozhenbang2004)
   [3.4.0]
  * Implemented #1591: Add `ObjectReader.convertValue(Object, ObjectWriter)`
   [3.4.0]
+ * Implemented #456: Allow an active view to exclude matching properties
+  [3.4.0]
 
 Okan Tiktas (@OKAN-SOFTWARE)
  * Fixed #6357: `BeanDeserializer` and `BuilderBasedDeserializer` silently stop on

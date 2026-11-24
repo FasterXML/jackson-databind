@@ -160,8 +160,8 @@ public class BeanSerializer
             gen.writeEndObject();
             return;
         }
-        BeanPropertyWriter[] fProps = _filteredProps;
-        if ((fProps != null) && (provider.getActiveView() != null)) {
+        BeanPropertyWriter[] fProps = viewProperties(provider);
+        if (fProps != null) {
             gen.writeStartObject(bean);
             _serializePropertiesMaybeView(bean, gen, provider, fProps);
             gen.writeEndObject();

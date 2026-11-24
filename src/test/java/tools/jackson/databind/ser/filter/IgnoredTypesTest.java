@@ -78,6 +78,28 @@ public class IgnoredTypesTest extends DatabindTestUtil
         public int x = 13;
     }
 
+    // Ignored type as Creator property
+    @JsonIgnoreType
+    static class Credentials {
+        public String role;
+    }
+
+    static class CreatorWithIgnoredType {
+        final String name;
+        final Credentials creds;
+
+        @JsonCreator
+        CreatorWithIgnoredType(@JsonProperty("name") String name,
+                @JsonProperty("creds") Credentials creds) {
+            this.name = name;
+            this.creds = creds;
+        }
+    }
+
+    record RecordWithIgnoredType(String name, Credentials creds) { }
+
+    record RecordWithOverriddenType(String name, Wrapped wrapped) { }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -141,6 +163,73 @@ public class IgnoredTypesTest extends DatabindTestUtil
         Wrapper result = mapper.readValue(a2q("{'value':5,'wrapped':false}"),
                 Wrapper.class);
         assertEquals(5, result.value);
+    }
+
+    @Test
+    public void ignoredTypeAsCreatorProperty() throws Exception
+    {
+        CreatorWithIgnoredType result = MAPPER.readValue("""
+                {"name":"bob","creds":{"role":"admin"}}
+                """, CreatorWithIgnoredType.class);
+        assertEquals("bob", result.name);
+        assertNull(result.creds);
+    }
+
+    @Test
+    public void ignoredTypeAsRecordComponent() throws Exception
+    {
+        // serialization drops the component...
+        assertEquals("""
+                {"name":"bob"}""",
+                MAPPER.writeValueAsString(new RecordWithIgnoredType("bob", new Credentials())));
+
+        // ... and so must deserialization
+        RecordWithIgnoredType result = MAPPER.readValue("""
+                {"name":"bob","creds":{"role":"admin"}}
+                """, RecordWithIgnoredType.class);
+        assertEquals("bob", result.name());
+        assertNull(result.creds());
+    }
+
+    // Ignored-type Creator properties are never bound, so must not count as missing
+    @Test
+    public void ignoredTypeAsCreatorPropertyWithFailOnMissing() throws Exception
+    {
+        final ObjectReader r = MAPPER.readerFor(RecordWithIgnoredType.class)
+                .with(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES);
+        RecordWithIgnoredType result = r.readValue("""
+                {"name":"bob","creds":{"role":"admin"}}
+                """);
+        assertEquals("bob", result.name());
+        assertNull(result.creds());
+
+        result = r.readValue("""
+                {"name":"bob"}
+                """);
+        assertEquals("bob", result.name());
+        assertNull(result.creds());
+
+        CreatorWithIgnoredType pojo = MAPPER.readerFor(CreatorWithIgnoredType.class)
+                .with(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES)
+                .readValue("""
+                {"name":"bob","creds":{"role":"admin"}}
+                """);
+        assertEquals("bob", pojo.name);
+        assertNull(pojo.creds);
+    }
+
+    @Test
+    public void ignoredTypeAsRecordComponentViaConfigOverride() throws Exception
+    {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(Wrapped.class,
+                        o -> o.setIsIgnoredType(true))
+                .build();
+        RecordWithOverriddenType result = mapper.readValue("""
+                {"name":"bob","wrapped":{"x":1}}
+                """, RecordWithOverriddenType.class);
+        assertEquals("bob", result.name());
+        assertNull(result.wrapped());
     }
 
     // [databind#2893]

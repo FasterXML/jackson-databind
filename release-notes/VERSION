@@ -7,6 +7,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.4.0 (not yet released)
 
+#1591: Add `ObjectReader.convertValue(Object, ObjectWriter)`
+ (requested by @apjoseph)
+ (implemented by @wozhenbang2004)
 #6164: `@JsonCreator` on Enum with single `int` parameter fails with
   `ClassCastException` if parameter name matches a getter
   (NOTE: such Creators are now delegating, not properties-based, so they no

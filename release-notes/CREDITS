@@ -937,6 +937,8 @@ Kayokoi (@wozhenbang2004)
  * Contributed #6413: Consolidate "effective input names" for `@JsonUnwrapped` properties
    (include polymorphic type id) instead of special-casing in `UnwrappedPropertyHandler`
   [3.4.0]
+ * Implemented #1591: Add `ObjectReader.convertValue(Object, ObjectWriter)`
+  [3.4.0]
 
 Okan Tiktas (@OKAN-SOFTWARE)
  * Fixed #6357: `BeanDeserializer` and `BuilderBasedDeserializer` silently stop on

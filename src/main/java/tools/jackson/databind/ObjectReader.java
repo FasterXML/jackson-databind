@@ -1792,6 +1792,44 @@ public class ObjectReader
     /**********************************************************************
      */
 
+    /**
+     * Convenience method for converting a Java value using this reader's target type
+     * and deserialization configuration, and the given writer's serialization
+     * configuration. An intermediate {@link TokenBuffer} is used instead of
+     * serializing to text or constructing a tree.
+     *<p>
+     * Functionally equivalent to calling
+     * {@code readValue(writer.writeValueIntoBuffer(fromValue))}.
+     *<p>
+     * NOTE: this method is NOT equivalent to {@link ObjectMapper#convertValue(Object, Class)},
+     * which adjusts some settings specifically for conversion. Differences include:
+     *<ul>
+     * <li>Root wrapping ({@link SerializationFeature#WRAP_ROOT_VALUE}) and unwrapping
+     *   ({@link DeserializationFeature#UNWRAP_ROOT_VALUE}) settings are honored, so
+     *   writer and reader settings must match
+     *  </li>
+     * <li>{@link DeserializationFeature#USE_BIG_DECIMAL_FOR_FLOATS} of this reader is
+     *   not applied to the intermediate buffer
+     *  </li>
+     * <li>A {@link TokenBuffer} passed as {@code fromValue} is serialized like any other
+     *   value, instead of being read directly
+     *  </li>
+     *</ul>
+     *
+     * @param fromValue Java value to convert; may be {@code null}
+     * @param writer Writer to use for serialization; must not be {@code null}
+     * @param <T> Result type, as configured for this reader
+     *
+     * @return Converted value, or the value configured with {@link #withValueToUpdate(Object)}
+     *
+     * @since 3.4
+     */
+    public <T> T convertValue(Object fromValue, ObjectWriter writer) throws JacksonException
+    {
+        _assertNotNull("writer", writer);
+        return readValue(writer.writeValueIntoBuffer(fromValue));
+    }
+
     public <T> T treeToValue(JsonNode n, Class<T> valueType) throws JacksonException
     {
         if (n == null) {

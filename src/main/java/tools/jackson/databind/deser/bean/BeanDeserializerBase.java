@@ -1855,7 +1855,8 @@ ClassUtil.getTypeDescription(ct));
                 }
             }
 
-            return _valueInstantiator.createFromBigDecimal(ctxt, p.getDecimalValue());
+            return _valueInstantiator.createFromBigDecimal(ctxt,
+                    ctxt.validateBigDecimalScale(p.getDecimalValue()));
         }
 
         return ctxt.handleMissingInstantiator(handledType(), getValueInstantiator(), p,

@@ -51,6 +51,25 @@ public enum DeserializationFeature implements ConfigFeature
     USE_BIG_DECIMAL_FOR_FLOATS(false),
 
     /**
+     * Feature that determines whether a {@link java.math.BigDecimal} with an
+     * excessive scale magnitude may be deserialized. If enabled, values whose
+     * scale magnitude exceeds the limit used when converting a
+     * {@link java.math.BigDecimal} to a {@link java.math.BigInteger}
+     * (see {@link tools.jackson.core.StreamReadConstraints#getMaxBigIntegerScale()})
+     * will result in a
+     * {@link tools.jackson.core.exc.StreamConstraintsException}.
+     *<p>
+     * This feature applies when binding JSON numbers to {@link java.math.BigDecimal},
+     * as well as when untyped values or tree values are materialized as
+     * {@link java.math.BigDecimal}s.
+     *<p>
+     * Feature is disabled by default to retain existing behavior.
+     *
+     * @since 3.4
+     */
+    FAIL_ON_BIG_DECIMAL_SCALE_OVERFLOW(false),
+
+    /**
      * Feature that determines whether JSON integral (non-floating-point)
      * numbers are to be deserialized into {@link java.math.BigInteger}s
      * if only generic type description (either {@link Object} or

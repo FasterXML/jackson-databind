@@ -1,5 +1,6 @@
 package tools.jackson.databind;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.*;
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
 
 import tools.jackson.core.*;
+import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.tree.ArrayTreeNode;
 import tools.jackson.core.tree.ObjectTreeNode;
 import tools.jackson.core.type.ResolvedType;
@@ -314,6 +316,29 @@ public abstract class DeserializationContext
     @Override
     public StreamReadConstraints streamReadConstraints() {
         return _streamFactory.streamReadConstraints();
+    }
+
+    /**
+     * Method for validating the scale magnitude of a {@link BigDecimal}
+     * materialized during deserialization when
+     * {@link DeserializationFeature#FAIL_ON_BIG_DECIMAL_SCALE_OVERFLOW} is enabled.
+     *
+     * @param value BigDecimal value to validate
+     *
+     * @return Same value as {@code value}, for convenient use in deserializers
+     *
+     * @throws StreamConstraintsException If the scale magnitude exceeds
+     *    {@link StreamReadConstraints#getMaxBigIntegerScale()}
+     *
+     * @since 3.4
+     */
+    public BigDecimal validateBigDecimalScale(BigDecimal value)
+        throws StreamConstraintsException
+    {
+        if (isEnabled(DeserializationFeature.FAIL_ON_BIG_DECIMAL_SCALE_OVERFLOW)) {
+            streamReadConstraints().validateBigIntegerScale(value.scale());
+        }
+        return value;
     }
 
     @Override

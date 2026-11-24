@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.21.9 (not yet released)
+2.21.9 (24-Nov-2026)
 
 #6315: Map key deserializers should apply same type checks as bean deserializers
  (reported by @ab310013)

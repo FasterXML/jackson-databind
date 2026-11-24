@@ -192,7 +192,8 @@ public abstract class SerializationContext
         _config = config;
         _generatorConfig = generatorConfig;
 
-        _serializerCache = cache;
+        _serializerCache = config.isEnabled(SerializationFeature.EXCLUDE_VIEW_PROPERTIES)
+                ? cache.forViewExclusion() : cache;
 
         // Default null key, value serializers configured via SerializerFactory
         {
@@ -221,14 +222,16 @@ public abstract class SerializationContext
         _config = src._config;
         _generatorConfig = src._generatorConfig;
 
-        _serializerCache = serializerCache;
+        _serializerCache = _config.isEnabled(SerializationFeature.EXCLUDE_VIEW_PROPERTIES)
+                ? serializerCache.forViewExclusion() : serializerCache;
 
         _stdNullValueSerializer = src._stdNullValueSerializer;
         _nullValueSerializer = src._nullValueSerializer;
         _activeView = src._activeView;
         _attributes = src._attributes;
 
-        _knownSerializers = src._knownSerializers;
+        _knownSerializers = (_serializerCache == src._serializerCache) ? src._knownSerializers
+                : _serializerCache.getReadOnlyLookupMap();
     }
 
     /*

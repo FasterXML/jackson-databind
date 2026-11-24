@@ -134,8 +134,8 @@ public class UnwrappingBeanSerializer
             _serializePropertiesFiltered(bean, gen, ctxt, _propertyFilterId);
             return;
         }
-        BeanPropertyWriter[] fProps = viewProperties(ctxt);
-        if (fProps != null) {
+        BeanPropertyWriter[] fProps = _filteredProps;
+        if ((fProps != null) && (ctxt.getActiveView() != null)) {
             _serializePropertiesMaybeView(bean, gen, ctxt, fProps);
             return;
         }
@@ -160,8 +160,8 @@ public class UnwrappingBeanSerializer
             _serializePropertiesFiltered(bean, gen, ctxt, _propertyFilterId);
             return;
         }
-        BeanPropertyWriter[] fProps = viewProperties(ctxt);
-        if (fProps != null) {
+        BeanPropertyWriter[] fProps = _filteredProps;
+        if ((fProps != null) && (ctxt.getActiveView() != null)) {
             _serializePropertiesMaybeView(bean, gen, ctxt, fProps);
             return;
         }

@@ -45,9 +45,6 @@ public class BeanSerializerBuilder
      */
     protected BeanPropertyWriter[] _filteredProperties;
 
-    // Only null slots left by the standard view filter represent properties with no view.
-    private boolean _hasDefaultViewOmissions;
-
     /**
      * Writer used for "any getter" properties, if any.
      */
@@ -90,7 +87,6 @@ public class BeanSerializerBuilder
         _config = src._config;
         _properties = src._properties;
         _filteredProperties = src._filteredProperties;
-        _hasDefaultViewOmissions = src._hasDefaultViewOmissions;
         _anyGetter = src._anyGetter;
         _filterId = src._filterId;
         _typeId = src._typeId;
@@ -115,21 +111,6 @@ public class BeanSerializerBuilder
             }
         }
         _filteredProperties = properties;
-        _hasDefaultViewOmissions = false;
-    }
-
-    void setDefaultViewProperties(BeanPropertyWriter[] properties, boolean hasDefaultViewOmissions) {
-        setFilteredProperties(properties);
-        _hasDefaultViewOmissions = hasDefaultViewOmissions && (_filteredProperties == properties);
-    }
-
-    /**
-     * Whether the standard view filter omitted properties without a declared view.
-     *
-     * @since 3.4
-     */
-    public boolean hasDefaultViewOmissions() {
-        return _hasDefaultViewOmissions;
     }
 
     public void setAnyGetter(AnyGetterWriter anyGetter) {

@@ -157,7 +157,12 @@ public class ObjectWriter
         _generatorFactory = base._generatorFactory;
 
         _generatorSettings = genSettings;
-        _prefetch = prefetch;
+        if (prefetch.declaredRootType != null && config.isEnabled(SerializationFeature.EXCLUDE_VIEW_PROPERTIES)
+                != base._config.isEnabled(SerializationFeature.EXCLUDE_VIEW_PROPERTIES)) {
+            _prefetch = Prefetch.empty.forRootType(this, prefetch.declaredRootType);
+        } else {
+            _prefetch = prefetch;
+        }
     }
 
     /**
@@ -165,13 +170,7 @@ public class ObjectWriter
      */
     protected ObjectWriter(ObjectWriter base, SerializationConfig config)
     {
-        _config = config;
-
-        _serializationContexts = base._serializationContexts;
-        _generatorFactory = base._generatorFactory;
-
-        _generatorSettings = base._generatorSettings;
-        _prefetch = base._prefetch;
+        this(base, config, base._generatorSettings, base._prefetch);
     }
 
     /**
@@ -1366,6 +1365,9 @@ public class ObjectWriter
          */
         private final JavaType rootType;
 
+        // An explicit Object root may prefetch a type serializer while leaving value lookup dynamic.
+        private final JavaType declaredRootType;
+
         /**
          * We may pre-fetch serializer if {@link #rootType}
          * is known, and if so, reuse it afterwards.
@@ -1383,7 +1385,8 @@ public class ObjectWriter
         private Prefetch(JavaType rootT,
                 ValueSerializer<Object> ser, TypeSerializer typeSer)
         {
-            rootType = rootT;
+            declaredRootType = rootT;
+            rootType = (rootT != null && rootT.isJavaLangObject()) ? null : rootT;
             valueSerializer = ser;
             typeSerializer = typeSer;
         }
@@ -1407,7 +1410,7 @@ public class ObjectWriter
             if (newType.isJavaLangObject()) {
                 SerializationContextExt ctxt = parent._serializationContext();
                 TypeSerializer typeSer = ctxt.findTypeSerializer(newType);
-                return new Prefetch(null, null, typeSer);
+                return new Prefetch(newType, null, typeSer);
             }
 
             if (parent.isEnabled(SerializationFeature.EAGER_SERIALIZER_FETCH)) {

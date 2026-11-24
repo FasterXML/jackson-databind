@@ -13,6 +13,7 @@ import tools.jackson.databind.ser.*;
 import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
 import tools.jackson.databind.ser.std.SimpleFilterProvider;
 import tools.jackson.databind.testutil.DatabindTestUtil;
+import tools.jackson.databind.util.NameTransformer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -118,5 +119,26 @@ class ExcludeViewProperties456Test extends DatabindTestUtil
         ObjectWriter writer = mapper.writerWithView(Audit.class)
                 .with(SerializationFeature.EXCLUDE_VIEW_PROPERTIES);
         assertEquals(a2q("{'section':'Maps'}"), writer.writeValueAsString(book));
+    }
+
+    @Test
+    void decoratingAViewWriterKeepsUnannotatedProperties() throws Exception {
+        SimpleModule module = new SimpleModule().setSerializerModifier(new ValueSerializerModifier() {
+            @Override
+            public BeanSerializerBuilder updateBuilder(SerializationConfig config,
+                    BeanDescription.Supplier beanDesc, BeanSerializerBuilder builder) {
+                BeanPropertyWriter[] properties = builder.getFilteredProperties().clone();
+                properties[2] = properties[2].rename(NameTransformer.simpleTransformer("catalog_", null));
+                builder.setFilteredProperties(properties);
+                return builder;
+            }
+        });
+        ObjectMapper mapper = jsonMapperBuilder().addModule(module).build();
+        ObjectWriter writer = mapper.writerFor(Book.class).withView(Audit.class);
+        ObjectWriter excluding = writer.with(SerializationFeature.EXCLUDE_VIEW_PROPERTIES);
+        assertEquals(a2q("{'title':'New','catalog_section':'Maps'}"),
+                excluding.writeValueAsString(book));
+        assertEquals(a2q("{'oldTitle':'Old','note':'Draft'}"),
+                excluding.without(SerializationFeature.EXCLUDE_VIEW_PROPERTIES).writeValueAsString(book));
     }
 }

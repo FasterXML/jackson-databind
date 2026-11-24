@@ -57,9 +57,6 @@ public abstract class BeanSerializerBase
      */
     final protected BeanPropertyWriter[] _filteredProps;
 
-    private final boolean _hasDefaultViewOmissions;
-    private transient volatile BeanPropertyWriter[] _excludedViewProps;
-
     /**
      * Id of the bean property filter to use, if any; null if none.
      */
@@ -103,7 +100,6 @@ public abstract class BeanSerializerBase
         _beanType = type;
         _props = properties;
         _filteredProps = filteredProperties;
-        _hasDefaultViewOmissions = (builder != null) && builder.hasDefaultViewOmissions();
         if (builder == null) { // mostly for testing
             // 20-Sep-2019, tatu: Actually not just that but also "dummy" serializer for
             //     case of no bean properties, too
@@ -136,7 +132,6 @@ public abstract class BeanSerializerBase
         _beanType = src._beanType;
         _props = properties;
         _filteredProps = filteredProperties;
-        _hasDefaultViewOmissions = src._hasDefaultViewOmissions;
 
         _typeId = src._typeId;
         _objectIdWriter = src._objectIdWriter;
@@ -157,7 +152,6 @@ public abstract class BeanSerializerBase
         _beanType = src._beanType;
         _props = src._props;
         _filteredProps = src._filteredProps;
-        _hasDefaultViewOmissions = src._hasDefaultViewOmissions;
 
         _typeId = src._typeId;
         _objectIdWriter = objectIdWriter;
@@ -190,7 +184,6 @@ public abstract class BeanSerializerBase
         }
         _props = propsOut.toArray(NO_PROPS);
         _filteredProps = (fpropsOut == null) ? null : fpropsOut.toArray(NO_PROPS);
-        _hasDefaultViewOmissions = src._hasDefaultViewOmissions;
 
         _typeId = src._typeId;
         _objectIdWriter = src._objectIdWriter;
@@ -999,36 +992,6 @@ public abstract class BeanSerializerBase
     /**********************************************************************
      */
 
-    /**
-     * Select view writers for this call. The exclusion variant restores properties
-     * omitted by default inclusion; an explicit filter supplied by a module keeps
-     * its own null slots. Both modes share the writers for annotated properties.
-     *
-     * @since 3.4
-     */
-    protected final BeanPropertyWriter[] viewProperties(SerializationContext ctxt) {
-        if ((_filteredProps == null) || (ctxt.getActiveView() == null)) {
-            return null;
-        }
-        if (!_hasDefaultViewOmissions || !ctxt.isEnabled(SerializationFeature.EXCLUDE_VIEW_PROPERTIES)) {
-            return _filteredProps;
-        }
-        BeanPropertyWriter[] props = _excludedViewProps;
-        if (props == null) {
-            props = _filteredProps.clone();
-            for (int i = 0; i < props.length; ++i) {
-                if (props[i] == null) {
-                    Class<?>[] views = _props[i].getViews();
-                    if (views == null || views.length == 0) {
-                        props[i] = _props[i];
-                    }
-                }
-            }
-            _excludedViewProps = props;
-        }
-        return props;
-    }
-
     // 28-Oct-2017, tatu: Not yet optimized. Could be, if it seems
     //    commonly useful wrt JsonView filtering
     /**
@@ -1040,9 +1003,10 @@ public abstract class BeanSerializerBase
             SerializationContext ctxt, Object filterId)
         throws JacksonException
     {
-        BeanPropertyWriter[] props = viewProperties(ctxt);
+        final BeanPropertyWriter[] props;
         final PropertyFilter filter = findPropertyFilter(ctxt, filterId, bean);
-        if (props != null) {
+        if (_filteredProps != null && ctxt.getActiveView() != null) {
+            props = _filteredProps;
             // better also allow missing filter actually.. Falls down
             if (filter == null) {
                 _serializePropertiesMaybeView(bean, g, ctxt, props);
@@ -1090,9 +1054,8 @@ public abstract class BeanSerializerBase
         throws JacksonException
     {
         // NOTE: only called from places where FilterId (JsonView) already checked.
-        BeanPropertyWriter[] props = viewProperties(ctxt);
-        if (props != null) {
-            _serializePropertiesMaybeView(bean, g, ctxt, props);
+        if (_filteredProps != null && ctxt.getActiveView() != null) {
+            _serializePropertiesMaybeView(bean, g, ctxt, _filteredProps);
         } else {
             _serializePropertiesNoView(bean, g, ctxt, _props);
         }
@@ -1121,11 +1084,9 @@ public abstract class BeanSerializerBase
         final PropertyFilter filter = (_propertyFilterId == null) ? null
                 : findPropertyFilter(ctxt, _propertyFilterId, null);
         BeanPropertyWriter[] props = _props;
-        if ((ctxt != null) && ((filter == null) || ctxt.isEnabled(SerializationFeature.EXCLUDE_VIEW_PROPERTIES))) {
-            BeanPropertyWriter[] viewProps = viewProperties(ctxt);
-            if (viewProps != null) {
-                props = viewProps;
-            }
+        if ((_filteredProps != null) && (ctxt != null) && (ctxt.getActiveView() != null)
+                && ((filter == null) || ctxt.isEnabled(SerializationFeature.EXCLUDE_VIEW_PROPERTIES))) {
+            props = _filteredProps;
         }
         // [databind#6410]: Object Id property is metadata, not to be filtered
         final BeanPropertyWriter idProp = PropertyBasedObjectIdGenerator.findIdProperty(_objectIdWriter);

@@ -907,8 +907,6 @@ Anna Breeva (@ab310013)
   [3.2.5]
 
 Kayokoi (@wozhenbang2004)
- * Implemented #1591: Add `ObjectReader.convertValue(Object, ObjectWriter)`
-  [3.4.0]
  * Fixed #6363: `@JsonFormat(shape = ARRAY)` Builder loses property values when not using
    vanilla processing (e.g. with active View): `deserializeSetAndReturn()` result ignored
   [3.3.0]
@@ -938,6 +936,8 @@ Kayokoi (@wozhenbang2004)
   [3.3.0]
  * Contributed #6413: Consolidate "effective input names" for `@JsonUnwrapped` properties
    (include polymorphic type id) instead of special-casing in `UnwrappedPropertyHandler`
+  [3.4.0]
+ * Implemented #1591: Add `ObjectReader.convertValue(Object, ObjectWriter)`
   [3.4.0]
 
 Okan Tiktas (@OKAN-SOFTWARE)

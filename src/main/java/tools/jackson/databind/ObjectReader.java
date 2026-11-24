@@ -1800,8 +1800,21 @@ public class ObjectReader
      *<p>
      * Functionally equivalent to calling
      * {@code readValue(writer.writeValueIntoBuffer(fromValue))}.
-     * Unlike {@link ObjectMapper#convertValue(Object, Class)}, root wrapping and
-     * unwrapping settings are honored, as are other reader and writer settings.
+     *<p>
+     * NOTE: this method is NOT equivalent to {@link ObjectMapper#convertValue(Object, Class)},
+     * which adjusts some settings specifically for conversion. Differences include:
+     *<ul>
+     * <li>Root wrapping ({@link SerializationFeature#WRAP_ROOT_VALUE}) and unwrapping
+     *   ({@link DeserializationFeature#UNWRAP_ROOT_VALUE}) settings are honored, so
+     *   writer and reader settings must match
+     *  </li>
+     * <li>{@link DeserializationFeature#USE_BIG_DECIMAL_FOR_FLOATS} of this reader is
+     *   not applied to the intermediate buffer
+     *  </li>
+     * <li>A {@link TokenBuffer} passed as {@code fromValue} is serialized like any other
+     *   value, instead of being read directly
+     *  </li>
+     *</ul>
      *
      * @param fromValue Java value to convert; may be {@code null}
      * @param writer Writer to use for serialization; must not be {@code null}

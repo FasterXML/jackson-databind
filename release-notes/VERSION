@@ -668,8 +668,12 @@ Versions: 3.x (for earlier see VERSION-2.x)
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
 
-3.1.9 (not yet released)
+3.1.9 (24-Nov-2026)
 
+#6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties
+  (nor with Builders, `@JsonUnwrapped`, external type ids or `Shape.ARRAY`)
+ (reported by João G)
+ (fix by João G and @cowtowncoder, w/ Claude code)
 #6210: `@JsonAlias` ignored on Enum values if `@JsonValue` is present
  (reported by @bugada)
  (fix by @pjfanning, w/ Claude code)

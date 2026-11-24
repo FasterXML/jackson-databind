@@ -821,6 +821,16 @@ public class TypeFactoryTest extends DatabindTestUtil
     static class Left<V> extends Either<V, Void> { }
     static class Right<V> extends Either<Void, V> { }
 
+    // [databind#6463]
+
+    static class Outer6463<T> { }
+
+    static class Inner6463<Y> { }
+
+    // raw `Inner6463` in the supertype
+    @SuppressWarnings("rawtypes")
+    static class RawInnerOuter6463<X> extends Outer6463<Inner6463> { }
+
     @Test
     public void testCustomTypesRefinedSimple()
     {
@@ -934,6 +944,40 @@ public class TypeFactoryTest extends DatabindTestUtil
         assertEquals(2, params.length);
         assertEquals(Void.class, params[0].getRawClass());
         assertEquals(Object.class, params[1].getRawClass());
+    }
+
+    // [databind#6463]: Specializing to a subtype whose supertype has a raw nested type
+    // argument used to fail with IndexOutOfBoundsException when verifying the nested
+    // type parameters: raw type should be handled as if bound to `Object`
+    @Test
+    public void testSpecializeWithRawNestedTypeArgument()
+    {
+        TypeFactory tf = newTypeFactory();
+        JavaType base = tf.constructType(new TypeReference<Outer6463<Inner6463<String>>>() { });
+
+        // Strict check: `Outer<Inner>` is not compatible with `Outer<Inner<String>>`
+        try {
+            tf.constructSpecializedType(base, RawInnerOuter6463.class);
+            fail("Should not pass");
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "Failed to specialize base type");
+            verifyException(e, "Type parameter #1/1 differs");
+        }
+
+        // But relaxed check allows it, with unbound `X` as `Object`
+        JavaType spec = tf.constructSpecializedType(base, RawInnerOuter6463.class, true);
+        assertEquals(RawInnerOuter6463.class, spec.getRawClass());
+        assertEquals(1, spec.containedTypeCount());
+        assertEquals(Object.class, spec.containedType(0).getRawClass());
+
+        // And strict check passes if nested type parameter is `Object`
+        JavaType objBase = tf.constructType(new TypeReference<Outer6463<Inner6463<Object>>>() { });
+        spec = tf.constructSpecializedType(objBase, RawInnerOuter6463.class);
+        assertEquals(RawInnerOuter6463.class, spec.getRawClass());
+        assertEquals(1, spec.containedTypeCount());
+        assertEquals(Object.class, spec.containedType(0).getRawClass());
+        JavaType superType = spec.findSuperType(Outer6463.class);
+        assertEquals(Inner6463.class, superType.containedType(0).getRawClass());
     }
 
     /*

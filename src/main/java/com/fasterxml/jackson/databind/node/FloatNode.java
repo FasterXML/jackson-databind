@@ -64,8 +64,9 @@ public class FloatNode extends NumericNode
 
     @Override // since 2.12
     public boolean canConvertToExactIntegral() {
+        // [databind#6493]: must not use `Math.round(float)`, which clamps to `int` range
         return !Float.isNaN(_value) && !Float.isInfinite(_value)
-                && (_value == Math.round(_value));
+                && (_value == Math.rint(_value));
     }
 
     @Override

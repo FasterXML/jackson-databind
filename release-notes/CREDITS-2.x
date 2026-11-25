@@ -2185,3 +2185,8 @@ Mohammed Abdessetar Elyagoubi (@abdessattar23)
 @nu11Po1nter1
  * Fixed #6326: NPE when a custom `SerializerFactory` returns `null` for a key serializer
   [2.24.0]
+
+@sagarrsharmaa
+ * Reported, fixed #6493: `FloatNode.canConvertToExactIntegral()` returns `false` for
+   integral values outside of `int` range
+  [2.24.0]

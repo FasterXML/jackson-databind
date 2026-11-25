@@ -26,6 +26,28 @@ public class NumberToIntegralConversionTest extends DatabindTestUtil
         assertFalse(NODES.numberNode(0.25f).canConvertToExactIntegral());
     }
 
+    // [databind#6493]: `float` values outside of `int` range have no fractional
+    // part, and should be reported the same way as matching `double` values
+    @Test
+    public void testLargeFloatToIntegrals() throws Exception
+    {
+        final float[] integralValues = new float[] {
+                2.0e9f, 3.0e9f, -3.0e9f, 1.0e10f, -1.0e10f,
+                (float) Long.MAX_VALUE, (float) Long.MIN_VALUE,
+                Float.MAX_VALUE, -Float.MAX_VALUE
+        };
+        for (float f : integralValues) {
+            assertTrue(NODES.numberNode(f).canConvertToExactIntegral(),
+                    "FloatNode with value "+f+" should be exact integral");
+            assertTrue(NODES.numberNode((double) f).canConvertToExactIntegral(),
+                    "DoubleNode with value "+((double) f)+" should be exact integral");
+        }
+
+        // Largest `float` magnitude that still has a fractional part (2^23 - 0.5)
+        assertFalse(NODES.numberNode(8388607.5f).canConvertToExactIntegral());
+        assertFalse(NODES.numberNode(-8388607.5f).canConvertToExactIntegral());
+    }
+
     @Test
     public void testDoubleToIntegrals() throws Exception
     {

@@ -498,7 +498,7 @@ public abstract class ValueDeserializer<T>
     public Boolean supportsUpdate(DeserializationConfig config) {
         return null;
     }
-    
+
     /**
      * Method to collect all property names including nested unwrapped properties.
      *<p>
@@ -512,7 +512,7 @@ public abstract class ValueDeserializer<T>
      * @since 3.2
      */
     public void collectAllPropertyNamesTo(Set<String> names) { }
-    
+
     /**
      * Method to check whether deserializer has "any-setter" style matching
      * of any and all properties for an Object value.

@@ -31,7 +31,7 @@ public final class AnnotatedMethod
      * {@code volatile} so a racy first use is safely published (duplicate
      * resolution is harmless, handles are equivalent).
      */
-    protected volatile MethodHandle _invokerFixedArity;
+    protected volatile MethodHandle _invokerWithArgs;
     protected volatile MethodHandle _invokerNullary;
     protected volatile MethodHandle _invokerUnary;
 
@@ -111,7 +111,7 @@ public final class AnnotatedMethod
     @Override
     public final Object call(Object[] args) throws Exception {
         try {
-            return _invokerFixedArityHandle().invokeWithArguments(args);
+            return _invokerWithArgsHandle().invokeWithArguments(args);
         } catch (final Throwable e) {
             throw sneakyThrow(e);
         }
@@ -136,7 +136,7 @@ public final class AnnotatedMethod
 
     public final Object callOnWith(Object pojo, Object... args) throws Exception {
         try {
-            MethodHandle invoker = _invokerFixedArityHandle();
+            MethodHandle invoker = _invokerWithArgsHandle();
             if (!Modifier.isStatic(_method.getModifiers())) {
                 invoker = invoker.bindTo(pojo);
             }
@@ -164,11 +164,11 @@ public final class AnnotatedMethod
         return h;
     }
 
-    private MethodHandle _invokerFixedArityHandle() throws IllegalAccessException {
-        MethodHandle h = _invokerFixedArity;
+    private MethodHandle _invokerWithArgsHandle() throws IllegalAccessException {
+        MethodHandle h = _invokerWithArgs;
         if (h == null) {
-            h = _unreflect().asFixedArity();
-            _invokerFixedArity = h;
+            h = _unreflect();
+            _invokerWithArgs = h;
         }
         return h;
     }
@@ -178,7 +178,11 @@ public final class AnnotatedMethod
      * already; access checks are suppressed for an accessible {@link Method}.
      */
     private MethodHandle _unreflect() throws IllegalAccessException {
-        return MethodHandles.lookup().unreflect(_method);
+        // [databind#5231], [databind#6426] A varargs member unreflects to a variable-arity
+        // handle, which would collect the (already array-valued) trailing argument into
+        // another array. That applies both to `asType()` and to callers using
+        // `invokeWithArguments()`: so all handles must be fixed-arity
+        return MethodHandles.lookup().unreflect(_method).asFixedArity();
     }
 
     /*

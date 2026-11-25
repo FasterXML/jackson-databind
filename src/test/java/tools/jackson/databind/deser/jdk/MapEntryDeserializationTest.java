@@ -9,9 +9,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link MapEntryDeserializer} and its POJOWrapped variant.
@@ -28,6 +30,28 @@ public class MapEntryDeserializationTest extends DatabindTestUtil
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
+
+    /*
+    /**********************************************************
+    /* Tests for internal state of POJOWrapped variant
+    /**********************************************************
+     */
+
+    @Test
+    public void pojoWrappedWithResolvedKeepsTypeDeserializersApart()
+    {
+        JavaType type = MAPPER.getTypeFactory().constructType(
+                new TypeReference<Map.Entry<String, Integer>>() { });
+        TypeDeserializer keyTypeDeser = mock(TypeDeserializer.class);
+        TypeDeserializer valueTypeDeser = mock(TypeDeserializer.class);
+
+        MapEntryDeserializer.POJOWrappedDeserializer resolved =
+                new MapEntryDeserializer.POJOWrappedDeserializer(type)
+                    .withResolved(null, keyTypeDeser, null, valueTypeDeser);
+
+        assertSame(keyTypeDeser, resolved._keyTypeDeserializer);
+        assertSame(valueTypeDeser, resolved._valueTypeDeserializer);
+    }
 
     /*
     /**********************************************************

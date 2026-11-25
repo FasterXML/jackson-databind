@@ -268,7 +268,7 @@ public class BuilderBasedDeserializer
     {
         // common case first:
         if (p.isExpectedStartObjectToken()) {
-            if (_vanillaProcessing) {
+            if (_useVanillaProcessing(ctxt)) {
                 return finishBuild(ctxt, _vanillaDeserialize(p, ctxt));
             }
             p.nextToken();
@@ -352,11 +352,12 @@ public class BuilderBasedDeserializer
             int ix = p.nextNameMatch(_propertyNameMatcher);
             if (ix >= 0) {
                 p.nextToken();
-                SettableBeanProperty prop = _propertiesByIndex[ix];
+                // Report name as found in input (may be alias), same as `deserializeFromObject()`
+                final String currentName = p.currentName();
                 try {
-                    builder = prop.deserializeSetAndReturn(p, ctxt, builder);
+                    builder = _propertiesByIndex[ix].deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, builder, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, builder, _failedPropertyName(currentName, _propertiesByIndex[ix]), ctxt);
                 }
                 continue;
             }
@@ -415,7 +416,7 @@ public class BuilderBasedDeserializer
                 try {
                     bean = _propertiesByIndex[ix].deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, currentName, ctxt);
+                    throw wrapAndThrow(e, bean, _failedPropertyName(currentName, _propertiesByIndex[ix]), ctxt);
                 }
                 continue;
             }
@@ -496,7 +497,7 @@ public class BuilderBasedDeserializer
                     p.nextToken(); // to move to following PROPERTY_NAME/END_OBJECT
                     Object builder;
                     try {
-                        builder = creator.build(ctxt, buffer);
+                        builder = creator.build(ctxt, buffer, true);
                     } catch (Exception e) {
                         throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                     }
@@ -549,10 +550,16 @@ public class BuilderBasedDeserializer
             unknown.copyCurrentStructure(p);
         }
 
+        // [databind#6357]: loop also ends on unexpected token; builder only to be
+        // constructed after actual END_OBJECT
+        if (t != JsonToken.END_OBJECT) {
+            return _handleUnexpectedWithin(p, ctxt, null);
+        }
+
         // We hit END_OBJECT, so:
         Object builder;
         try {
-            builder = creator.build(ctxt, buffer);
+            builder = creator.build(ctxt, buffer, true);
         } catch (Exception e) {
             builder = wrapInstantiationProblem(ctxt, e);
         }
@@ -579,7 +586,7 @@ public class BuilderBasedDeserializer
             }
             TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
             tokens.writeStartObject();
-            return deserializeWithUnwrapped(p, ctxt, builder, tokens);
+            return deserializeWithUnwrapped(p, ctxt, builder, tokens, false);
         }
         if (_externalTypeIdHandler != null) {
             return deserializeWithExternalTypeId(p, ctxt, builder);
@@ -596,10 +603,11 @@ public class BuilderBasedDeserializer
             if (ix >= 0) {
                 p.nextToken();
                 SettableBeanProperty prop = _propertiesByIndex[ix];
+                final String currentName = p.currentName();
                 try {
                     builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, builder, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, builder, _failedPropertyName(currentName, prop), ctxt);
                 }
                 continue;
             }
@@ -673,10 +681,11 @@ public class BuilderBasedDeserializer
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
+                final String currentName = p.currentName();
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, bean, _failedPropertyName(currentName, prop), ctxt);
                 }
                 continue;
             }
@@ -731,10 +740,11 @@ public class BuilderBasedDeserializer
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
+                final String currentName = p.currentName();
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, bean, _failedPropertyName(currentName, prop), ctxt);
                 }
                 continue;
             }
@@ -772,15 +782,33 @@ public class BuilderBasedDeserializer
             }
         }
         tokens.writeEndObject();
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens, hasUnwrappedContent);
+        return _unwrappedPropertyHandler.processUnwrappedForBuilder(p, ctxt, bean, tokens, hasUnwrappedContent);
     }
 
+    /**
+     * @deprecated Since 3.3 use
+     *    {@link #deserializeWithUnwrapped(JsonParser, DeserializationContext, Object, TokenBuffer, boolean)}
+     */
+    @Deprecated // since 3.3
     protected Object deserializeWithUnwrapped(JsonParser p,
             DeserializationContext ctxt, Object builder, TokenBuffer tokens)
         throws JacksonException
     {
+        return deserializeWithUnwrapped(p, ctxt, builder, tokens, false);
+    }
+
+    /**
+     * @param hasUnwrappedContent Whether {@code tokens} already contains unwrapped
+     *    content (buffered before the Creator completed)
+     *
+     * @since 3.3
+     */
+    protected Object deserializeWithUnwrapped(JsonParser p,
+            DeserializationContext ctxt, Object builder, TokenBuffer tokens,
+            boolean hasUnwrappedContent)
+        throws JacksonException
+    {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        boolean hasUnwrappedContent = false;
 
         for (int ix = p.currentNameMatch(_propertyNameMatcher); ; ix = p.nextNameMatch(_propertyNameMatcher)) {
             if (ix >= 0) { // common case
@@ -790,10 +818,11 @@ public class BuilderBasedDeserializer
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
+                final String currentName = p.currentName();
                 try {
                     builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
-                    wrapAndThrow(e, builder, prop.getName(), ctxt);
+                    wrapAndThrow(e, builder, _failedPropertyName(currentName, prop), ctxt);
                 }
                 continue;
             }
@@ -824,7 +853,7 @@ public class BuilderBasedDeserializer
             _anySetter.deserializeAndSet(p, ctxt, builder, propName);
         }
         tokens.writeEndObject();
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens, hasUnwrappedContent);
+        return _unwrappedPropertyHandler.processUnwrappedForBuilder(p, ctxt, builder, tokens, hasUnwrappedContent);
     }
 
     @SuppressWarnings("resource")
@@ -869,14 +898,14 @@ public class BuilderBasedDeserializer
                     t = p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                     Object builder = null;
                     try {
-                        builder = creator.build(ctxt, buffer);
+                        builder = creator.build(ctxt, buffer, true);
                     } catch (Exception e) {
                         throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                     }
                     if (builder.getClass() != _beanType.getRawClass()) {
                         return handlePolymorphic(p, ctxt, builder, tokens);
                     }
-                    return deserializeWithUnwrapped(p, ctxt, builder, tokens);
+                    return deserializeWithUnwrapped(p, ctxt, builder, tokens, hasUnwrappedContent);
                 }
                 continue;
             }
@@ -915,17 +944,23 @@ public class BuilderBasedDeserializer
             }
             buffer.bufferAnyProperty(_anySetter, propName, p, ctxt);
         }
+        // [databind#6357]: loop also ends on unexpected token; must not finalize
+        // buffered properties
+        if (t != JsonToken.END_OBJECT) {
+            return _handleUnexpectedWithin(p, ctxt, null);
+        }
+
         tokens.writeEndObject();
 
         // We hit END_OBJECT, so:
         Object builder = null;
         try {
-            builder = creator.build(ctxt, buffer);
+            builder = creator.build(ctxt, buffer, true);
         } catch (Exception e) {
             return wrapInstantiationProblem(ctxt, e);
 
         }
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens, hasUnwrappedContent);
+        return _unwrappedPropertyHandler.processUnwrappedForBuilder(p, ctxt, builder, tokens, hasUnwrappedContent);
     }
 
     /*
@@ -955,17 +990,18 @@ public class BuilderBasedDeserializer
                 SettableBeanProperty prop = _propertiesByIndex[ix];
                 JsonToken t = p.nextToken();
                 // May have property AND be used as external type id:
-                if (t.isScalarValue()) {
+                if ((t != null) && t.isScalarValue()) {
                     ext.handleTypePropertyValue(p, ctxt, p.currentName(), bean);
                 }
                 if (activeView != null && !prop.visibleInView(activeView)) {
                     handleUnexpectedView(p, ctxt, prop, activeView);
                     continue;
                 }
+                final String currentName = p.currentName();
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, bean, _failedPropertyName(currentName, prop), ctxt);
                 }
                 continue;
             }
@@ -1023,13 +1059,15 @@ public class BuilderBasedDeserializer
 
     /**
      * Method called if an unexpected token (other then <code>FIELD_NAME</code>)
-     * is found after POJO has been instantiated and partially bound.
+     * is found after POJO has been instantiated and partially bound; or,
+     * with Creator-based construction, before instantiation
+     * (in which case {@code beanOrBuilder} is {@code null}).
      *
      * @since 3.0
      */
     protected Object _handleUnexpectedWithin(JsonParser p,
             DeserializationContext ctxt, Object beanOrBuilder) throws JacksonException
     {
-        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        return _reportUnexpectedWithinObject(p, ctxt);
     }
 }

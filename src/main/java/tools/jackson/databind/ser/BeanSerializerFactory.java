@@ -133,17 +133,13 @@ public class BeanSerializerFactory
         final SerializationConfig config = ctxt.getConfig();
         boolean staticTyping;
         // Next: we may have annotations that further indicate actual type to use (a super type)
-        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         JavaType type;
 
-        if (intr == null) {
-            type = origType;
-        } else {
-            try {
-                type = intr.refineSerializationType(config, beanDescRef.getClassInfo(), origType);
-            } catch (JacksonException e) {
-                return ctxt.reportBadTypeDefinition(beanDescRef, e.getMessage());
-            }
+        try {
+            type = config.getAnnotationIntrospector()
+                    .refineSerializationType(config, beanDescRef.getClassInfo(), origType);
+        } catch (JacksonException e) {
+            return ctxt.reportBadTypeDefinition(beanDescRef, e.getMessage());
         }
         if (type == origType) { // no changes, won't force static typing
             staticTyping = false;
@@ -390,6 +386,11 @@ public class BeanSerializerFactory
             PropertyName name = PropertyName.construct(anyGetter.getName());
             BeanProperty.Std anyProp = new BeanProperty.Std(name, valueType, null,
                     anyGetter, PropertyMetadata.STD_OPTIONAL);
+            // Built for all any-getters, not just `JsonNode`-typed ones: values are checked
+            // for `ObjectNode` at runtime (also with a custom `@JsonSerialize`), and
+            // their entries are written directly, applying these rules
+            final IgnorePropertiesUtil.Checker anyChecker = IgnorePropertiesUtil.buildCheckerFor(
+                    config, anyGetter, true);
 
             // Check if there is an accessor exposed for the anyGetter.
             final int propCount = props.size();
@@ -420,7 +421,8 @@ public class BeanSerializerFactory
             if (anyGetterIndex >= 0) {
                 BeanPropertyWriter anyGetterProp = props.get(anyGetterIndex);
                 // There is prop already in place, just need to replace it
-                props.set(anyGetterIndex, new AnyGetterWriter(anyGetterProp, anyProp, anyGetter, anySer));
+                props.set(anyGetterIndex, new AnyGetterWriter(anyGetterProp, anyProp, anyGetter, anySer,
+                        anyChecker));
             } else {
                 // Otherwise just add it at the end, but won't be sorted...
                 // This is case where JsonAnyGetter is private/protected,
@@ -428,7 +430,8 @@ public class BeanSerializerFactory
                 BeanPropertyWriter anyPropWriter = _constructWriter(ctxt,
                         anyGetterPropDef, new PropertyBuilder(config, beanDescRef.get()),
                         staticTyping, anyGetter);
-                props.add(new AnyGetterWriter(anyPropWriter, anyProp, anyGetter, anySer));
+                props.add(new AnyGetterWriter(anyPropWriter, anyProp, anyGetter, anySer,
+                        anyChecker));
             }
         }
         // Next: need to gather view information, if any:
@@ -699,9 +702,16 @@ public class BeanSerializerFactory
         final int propCount = props.size();
         int viewsFound = 0;
         BeanPropertyWriter[] filtered = new BeanPropertyWriter[propCount];
+        // [databind#6410]: Object Id property is metadata, not affected by Views
+        final BeanPropertyWriter idProp = PropertyBasedObjectIdGenerator.findIdProperty(
+                builder.getObjectIdWriter());
         // Simple: view information is stored within individual writers, need to combine:
         for (int i = 0; i < propCount; ++i) {
             BeanPropertyWriter bpw = props.get(i);
+            if (bpw == idProp) {
+                filtered[i] = bpw;
+                continue;
+            }
             Class<?>[] views = bpw.getViews();
             if (views == null
                     // [databind#2311]: sometimes we add empty array

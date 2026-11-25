@@ -80,6 +80,17 @@ public class EnumMapDeserializer
      */
     protected IgnorePropertiesUtil.Checker _inclusionChecker;
 
+    /**
+     * Flag that indicates whether existing values should be merged with
+     * (updated) when deserializing into an existing {@link EnumMap}, same
+     * as with {@link MapDeserializer}.
+     * Set to {@code false} when content type has ConfigOverride with
+     * {@code mergeable = false}.
+     *
+     * @since 3.4
+     */
+    protected final boolean _mergeValues;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -113,6 +124,7 @@ public class EnumMapDeserializer
         _ignorableProperties = (ignorable == null || ignorable.isEmpty()) ? null : ignorable;
         _includableProperties = includable;
         _inclusionChecker = IgnorePropertiesUtil.buildCheckerIfNeeded(_ignorableProperties, includable);
+        _mergeValues = true;
     }
 
     /**
@@ -135,6 +147,19 @@ public class EnumMapDeserializer
             NullValueProvider nuller,
             Set<String> ignorable, Set<String> includable)
     {
+        this(base, keyDeser, valueDeser, vtd, nuller, ignorable, includable,
+                base._mergeValues);
+    }
+
+    /**
+     * @since 3.4
+     */
+    protected EnumMapDeserializer(EnumMapDeserializer base,
+            KeyDeserializer keyDeser, ValueDeserializer<?> valueDeser, TypeDeserializer vtd,
+            NullValueProvider nuller,
+            Set<String> ignorable, Set<String> includable,
+            boolean mergeValues)
+    {
         super(base, nuller, base._unwrapSingle);
         _enumClass = base._enumClass;
         _keyDeserializer = keyDeser;
@@ -148,6 +173,7 @@ public class EnumMapDeserializer
         _ignorableProperties = ignorable;
         _includableProperties = includable;
         _inclusionChecker = IgnorePropertiesUtil.buildCheckerIfNeeded(ignorable, includable);
+        _mergeValues = mergeValues;
     }
 
     /**
@@ -176,6 +202,18 @@ public class EnumMapDeserializer
         }
         return new EnumMapDeserializer(this,
                 keyDeserializer, valueDeserializer, valueTypeDeser, nuller, ignorable, includable);
+    }
+
+    /**
+     * @since 3.4
+     */
+    protected EnumMapDeserializer withMergeValues(boolean mergeValues) {
+        if (_mergeValues == mergeValues) {
+            return this;
+        }
+        return new EnumMapDeserializer(this, _keyDeserializer, _valueDeserializer,
+                _valueTypeDeserializer, _nullProvider,
+                _ignorableProperties, _includableProperties, mergeValues);
     }
 
     /*
@@ -250,7 +288,7 @@ public class EnumMapDeserializer
         Set<String> ignored = _ignorableProperties;
         Set<String> included = _includableProperties;
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (_neitherNull(intr, property)) {
+        if (property != null) {
             AnnotatedMember member = property.getMember();
             if (member != null) {
                 final DeserializationConfig config = ctxt.getConfig();
@@ -265,8 +303,15 @@ public class EnumMapDeserializer
                 }
             }
         }
-        return withResolved(keyDeser, valueDeser, vtd,
+        EnumMapDeserializer deser = withResolved(keyDeser, valueDeser, vtd,
                 findContentNullProvider(ctxt, property, valueDeser), ignored, included);
+        // [databind#6445]: same as `MapDeserializer` ([databind#3205]), do not merge
+        // values if content type has mergeable disabled
+        Boolean contentMergeable = ctxt.getConfig().getDefaultMergeable(vt.getRawClass());
+        if (Boolean.FALSE.equals(contentMergeable)) {
+            deser = deser.withMergeValues(false);
+        }
+        return deser;
     }
 
     /**
@@ -331,7 +376,8 @@ public class EnumMapDeserializer
         case JsonTokenId.ID_START_OBJECT:
         case JsonTokenId.ID_END_OBJECT:
         case JsonTokenId.ID_PROPERTY_NAME:
-            return deserialize(p, ctxt, constructMap(ctxt));
+            // fresh EnumMap: duplicate keys must not be merged
+            return _readAndBind(p, ctxt, constructMap(ctxt), false);
         case JsonTokenId.ID_STRING:
             // (empty) String may be ok however; or single-String-arg ctor
             return _deserializeFromStringForContainer(p, ctxt);
@@ -346,6 +392,23 @@ public class EnumMapDeserializer
     @Override
     public EnumMap<?,?> deserialize(JsonParser p, DeserializationContext ctxt,
             EnumMap result)
+        throws JacksonException
+    {
+        // [databind#6445]: updating an existing EnumMap, so merge existing values
+        // (unless disabled for content type)
+        return _readAndBind(p, ctxt, result, _mergeValues);
+    }
+
+    /**
+     * @param mergeValues Whether existing values of {@code result} are to be
+     *    updated (merged) instead of replaced: {@code true} only when
+     *    updating an existing {@link EnumMap}, {@code false} for a fresh one
+     *    (so that duplicate keys in input do not merge)
+     *
+     * @since 3.4
+     */
+    protected EnumMap<?,?> _readAndBind(JsonParser p, DeserializationContext ctxt,
+            EnumMap result, boolean mergeValues)
         throws JacksonException
     {
         // [databind#631]: Assign current value, to be accessible by custom deserializers
@@ -374,6 +437,8 @@ public class EnumMapDeserializer
                     ? null
                     : new MapDeserializer.MapReferringAccumulator(
                             _containerType.getContentType().getRawClass(), result);
+        // Same as `MapDeserializer`: Object Id handling can't really work with merging
+        final boolean merge = mergeValues && (referringAccumulator == null);
 
         for (; keyStr != null; keyStr = p.nextName()) {
             // Check ignorals first: ignored name need not be a valid Enum name
@@ -400,6 +465,7 @@ public class EnumMapDeserializer
             // note: MUST check for nulls separately: deserializers will
             // not handle them (and maybe fail or return bogus data)
             Object value;
+            Object old = null;
 
             try {
                 if (t == JsonToken.VALUE_NULL) {
@@ -408,7 +474,18 @@ public class EnumMapDeserializer
                     }
                     value = null;
                 } else {
-                    value = _deserializeNoNullChecks(p, ctxt);
+                    // [databind#6445]: update existing value, if any, same as `MapDeserializer`
+                    old = merge ? result.get(key) : null;
+                    if (old != null) {
+                        if (_valueTypeDeserializer == null) {
+                            value = _valueDeserializer.deserialize(p, ctxt, old);
+                        } else {
+                            value = _valueDeserializer.deserializeWithType(p, ctxt,
+                                    _valueTypeDeserializer, old);
+                        }
+                    } else {
+                        value = _deserializeNoNullChecks(p, ctxt);
+                    }
                 }
 
                 if (value == null) {
@@ -419,7 +496,10 @@ public class EnumMapDeserializer
                     }
                 }
                 if (referringAccumulator == null) {
-                    result.put(key, value);
+                    // no need to re-put an existing value that was updated in place
+                    if ((old == null) || (value != old)) {
+                        result.put(key, value);
+                    }
                 } else {
                     referringAccumulator.put(key, value);
                 }
@@ -493,7 +573,7 @@ public class EnumMapDeserializer
                     } catch (Exception e) {
                         return wrapAndThrow(ctxt, e, _containerType.getRawClass(), keyName);
                     }
-                    return deserialize(p, ctxt, result);
+                    return _readAndBind(p, ctxt, result, false);
                 }
                 continue;
             }

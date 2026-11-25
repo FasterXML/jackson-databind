@@ -25,6 +25,7 @@ public final class AnnotatedMethod
     final protected MethodHolder _invokerWithArgs = new MethodHolder(null);
     final protected MethodHolder _invokerNullary = new MethodHolder(methodType(Object.class));
     final protected MethodHolder _invokerUnary = new MethodHolder(methodType(Object.class, Object.class));
+    final protected MethodHolder _invokerOnWith = new OnWithMethodHolder();
 
     // // Simple lazy-caching:
 
@@ -123,11 +124,7 @@ public final class AnnotatedMethod
 
     public final Object callOnWith(Object pojo, Object... args) throws Exception {
         try {
-            MethodHandle invoker = _invokerWithArgs.get();
-            if (!Modifier.isStatic(_method.getModifiers())) {
-                invoker = invoker.bindTo(pojo);
-            }
-            return invoker.invokeWithArguments(args);
+            return _invokerOnWith.get().invokeExact(pojo, args);
         } catch (Throwable e) {
             throw sneakyThrow(e);
         }
@@ -258,6 +255,24 @@ public final class AnnotatedMethod
         @Override
         protected MethodHandle unreflect() throws IllegalAccessException {
             return MethodHandles.lookup().unreflect(_method);
+        }
+    }
+
+    // For `callOnWith()`: adapted once to `(Object pojo, Object[] args)Object` (pojo
+    // ignored if static) so that calls need neither `bindTo()` nor `invokeWithArguments()`:
+    // both create and adapt a new handle on every call
+    class OnWithMethodHolder extends MethodHolder {
+        OnWithMethodHolder() {
+            super(null);
+        }
+
+        @Override
+        protected MethodHandle postprocess(MethodHandle mh) {
+            mh = super.postprocess(mh).asSpreader(Object[].class, _method.getParameterCount());
+            if (Modifier.isStatic(_method.getModifiers())) {
+                mh = MethodHandles.dropArguments(mh, 0, Object.class);
+            }
+            return mh.asType(methodType(Object.class, Object.class, Object[].class));
         }
     }
 }

@@ -690,8 +690,8 @@ Aysha Afrah Ziya (@aysha-afrah26)
  * Reported, fixed #6276: `@JsonApplyView` not honored for `@JsonUnwrapped` and
    `@JsonAnyGetter` properties
   [3.4.0]
- * Fixed #6288: `JsonProperty.Access.WRITE_ONLY` not honored for serialization on
-   renamed accessors
+ * Reported, fixed #6492: `JsonProperty.Access.WRITE_ONLY` not honored for
+   serialization when the annotated accessor is renamed
   [3.4.0]
 
 @waydeshi

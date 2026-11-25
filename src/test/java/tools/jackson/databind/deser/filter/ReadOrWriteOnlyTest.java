@@ -175,6 +175,66 @@ public class ReadOrWriteOnlyTest extends DatabindTestUtil
         public String getPassword() { return pwd; }
     }
 
+    // ... and the same cases, but where the property that owns the name already has
+    // an accessor of the kind being merged in
+    static class WriteOnlyRenamedSetterWithSetter {
+        private String pwd = "secret";
+
+        @JsonProperty(value = "password", access = JsonProperty.Access.WRITE_ONLY)
+        public void setPwd(String pwd) { this.pwd = pwd; }
+
+        public void setPassword(String pwd) { this.pwd = pwd; }
+
+        public String getPassword() { return pwd; }
+    }
+
+    static class WriteOnlyRenamedFieldWithField {
+        @JsonProperty(value = "password", access = JsonProperty.Access.WRITE_ONLY)
+        private String pwd = "secret";
+
+        private String password = "other";
+
+        public String getPassword() { return password; }
+    }
+
+    // Multiple explicit names next to an implicit getter: access has to resolve
+    // before renaming, or this reaches `explode()` as a name conflict
+    static class WriteOnlyNameConflict {
+        @JsonProperty(value = "a", access = JsonProperty.Access.WRITE_ONLY)
+        public String pwd = "p";
+
+        @JsonProperty("b")
+        public void setPwd(String v) { pwd = v; }
+
+        public String getPwd() { return pwd; }
+    }
+
+    static class WriteOnlySplitNames {
+        @JsonProperty(value = "x", access = JsonProperty.Access.WRITE_ONLY)
+        public String a = "fa";
+
+        @JsonProperty("z")
+        public String getA() { return "ga"; }
+    }
+
+    // `WRITE_ONLY` that declares no name of its own: it does not reach the getter
+    // renamed onto its implicit name (behavior predates [databind#6492])
+    static class WriteOnlyFieldRenamedGetter {
+        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+        public String password = "s";
+
+        @JsonProperty("password")
+        public String getSecret() { return password; }
+    }
+
+    static class ReadOnlyGetterOverRenamedWriteOnly {
+        @JsonProperty(value = "secret", access = JsonProperty.Access.WRITE_ONLY)
+        private String pwd = "w";
+
+        @JsonProperty(value = "secret", access = JsonProperty.Access.READ_ONLY)
+        public String getOther() { return "r"; }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -300,5 +360,51 @@ public class ReadOrWriteOnlyTest extends DatabindTestUtil
         WriteOnlyRenamedSetter result = MAPPER.readValue("""
                 {"password":"other"}""", WriteOnlyRenamedSetter.class);
         assertEquals("other", result.getPassword());
+    }
+
+    @Test
+    public void writeOnlyRenamedSetterWithExistingSetter() throws Exception
+    {
+        assertEquals("{}",
+                MAPPER.writeValueAsString(new WriteOnlyRenamedSetterWithSetter()));
+
+        WriteOnlyRenamedSetterWithSetter result = MAPPER.readValue("""
+                {"password":"other"}""", WriteOnlyRenamedSetterWithSetter.class);
+        assertEquals("other", result.getPassword());
+    }
+
+    @Test
+    public void writeOnlyRenamedFieldWithExistingField() throws Exception
+    {
+        assertEquals("{}",
+                MAPPER.writeValueAsString(new WriteOnlyRenamedFieldWithField()));
+    }
+
+    @Test
+    public void writeOnlyWithConflictingNames() throws Exception
+    {
+        assertEquals("{}", MAPPER.writeValueAsString(new WriteOnlyNameConflict()));
+    }
+
+    @Test
+    public void writeOnlyWithSplitNames() throws Exception
+    {
+        assertEquals("{}", MAPPER.writeValueAsString(new WriteOnlySplitNames()));
+    }
+
+    @Test
+    public void writeOnlyFieldWithRenamedGetter() throws Exception
+    {
+        assertEquals("""
+                {"password":"s"}""",
+                MAPPER.writeValueAsString(new WriteOnlyFieldRenamedGetter()));
+    }
+
+    @Test
+    public void readOnlyGetterOverRenamedWriteOnly() throws Exception
+    {
+        assertEquals("""
+                {"secret":"r"}""",
+                MAPPER.writeValueAsString(new ReadOnlyGetterOverRenamedWriteOnly()));
     }
 }

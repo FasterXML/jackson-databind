@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.ConstructorDetector;
@@ -161,6 +162,19 @@ public class POJOPropertiesCollector
      * @since 3.2
      */
     protected HashSet<String> _nonRescuedIgnoredPropertyNames;
+
+    /**
+     * Names declared by accessors resolved as {@code JsonProperty.Access.WRITE_ONLY},
+     * collected (for serialization only) by {@link #_removeUnwantedAccessors} before
+     * {@link #_renameProperties} merges such an accessor into the property that owns
+     * the name. Consumed by {@link #_removeWriteOnlyRenames}; see
+     * {@code [databind#6492]}.
+     *<p>
+     * Null until the first such name is seen, which is the common case.
+     *
+     * @since 3.4
+     */
+    protected HashSet<String> _writeOnlyNames;
 
     /**
      * Class-level ignorals (annotation plus config overrides), computed once during
@@ -539,6 +553,13 @@ public class POJOPropertiesCollector
 
         // Rename remaining properties
         _renameProperties(props);
+
+        // [databind#6492]: renaming may have merged a `WRITE_ONLY` accessor into the
+        // property that owns its explicit name (a getter, typically); that property
+        // only becomes write-only now, so it has to be trimmed here
+        if (_writeOnlyNames != null) {
+            _removeWriteOnlyRenames(props);
+        }
 
         // and now add injectables, but taking care to avoid overlapping ones
         // via creator and regular properties
@@ -1623,10 +1644,69 @@ ctor.creator()));
 
         while (it.hasNext()) {
             POJOPropertyBuilder prop = it.next();
+            // [databind#6492]: explicit names must be read before trimming, since
+            //    `WRITE_ONLY` may remove the very accessor that declares one.
+            //    Serialization only; `findExplicitNames()` is cheap when there are none
+            final Collection<PropertyName> explNames = _forSerialization
+                    ? prop.findExplicitNames() : null;
             // 26-Jan-2017, tatu: [databind#935]: need to denote removal of
             // 16-May-2020, tatu: [databind#2719]: need to pass `this` to allow
             //    addition of ignorals wrt explicit name
-            prop.removeNonVisible(inferMutators, _forSerialization ? null : this);
+            JsonProperty.Access acc = prop.removeNonVisible(inferMutators,
+                    _forSerialization ? null : this);
+            if ((explNames != null) && (acc == JsonProperty.Access.WRITE_ONLY)) {
+                for (PropertyName pn : explNames) {
+                    _collectWriteOnlyName(pn.getSimpleName());
+                }
+            }
+        }
+    }
+
+    /**
+     * Method called after {@link #_renameProperties} to finish applying
+     * {@code WRITE_ONLY} for serialization: access is resolved per accessor group,
+     * keyed by implicit (Java) name, so an accessor like a Creator parameter
+     * {@code pwd} declared as
+     * {@code @JsonProperty(value="password", access=WRITE_ONLY)} is trimmed on its
+     * own, and the {@code getPassword()} it is only merged with afterwards would
+     * otherwise still be serialized ({@code [databind#6492]}).
+     *<p>
+     * Access resolution itself stays where it was, before renaming and merging, so
+     * ignoral bookkeeping ({@code [databind#2719]}, {@code [databind#2001]}) and
+     * {@link POJOPropertyBuilder#explode} see exactly what they saw before.
+     *
+     * @since 3.4
+     */
+    protected void _removeWriteOnlyRenames(Map<String, POJOPropertyBuilder> props)
+    {
+        for (POJOPropertyBuilder prop : props.values()) {
+            if (!_writeOnlyNames.contains(prop.getName())) {
+                continue;
+            }
+            // An explicit `READ_ONLY` on the merged property's own accessors wins,
+            // same as it does when the accessors already share the implicit name
+            // (keeps [databind#5975] split-accessor cases working)
+            if (prop.findAccess() == JsonProperty.Access.READ_ONLY) {
+                continue;
+            }
+            prop.removeGetters();
+            prop.removeFields();
+        }
+    }
+
+    /**
+     * Helper method called to record a name declared by a {@code WRITE_ONLY} accessor,
+     * for {@link #_removeWriteOnlyRenames} to apply once renaming is done.
+     *
+     * @since 3.4
+     */
+    protected void _collectWriteOnlyName(String name)
+    {
+        if (name != null) {
+            if (_writeOnlyNames == null) {
+                _writeOnlyNames = new HashSet<>();
+            }
+            _writeOnlyNames.add(name);
         }
     }
 

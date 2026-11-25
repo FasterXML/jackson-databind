@@ -1036,8 +1036,13 @@ ctor.creator()));
         }
         if (ctor.paramCount() == 1) {
             // One more possibility: implicit name that maps to implied
-            // property with at least one visible accessor
-            PropertyName paramName = ctor.implicitName(0);
+            // property with at least one visible accessor.
+            // [databind#6164]: but not for Enums, unless serialized as Objects:
+            //   their accessors do not imply properties.
+            //   NOTE: only class-level `@JsonFormat` (and config overrides) considered;
+            //   property-level `@JsonFormat(shape = OBJECT)` cannot be detected here,
+            //   so Enums serialized that way need explicit Creator mode or names
+            PropertyName paramName = _isEnumAsScalar() ? null : ctor.implicitName(0);
             if (paramName != null) {
                 POJOPropertyBuilder prop = props.get(paramName.getSimpleName());
                 if (prop != null) {
@@ -1865,7 +1870,7 @@ ctor.creator()));
         //  as OBJECT format
         // 06-Mar-2024, tatu: Should move format override introspection to this
         //   class, from [Basic]BeanDescription
-        if (_type.isEnumType() && (_findFormatShape() != JsonFormat.Shape.OBJECT)) {
+        if (_isEnumAsScalar()) {
             return;
         }
 
@@ -1920,6 +1925,15 @@ ctor.creator()));
             // replace the creatorProperty too, if there is one
             _replaceCreatorProperty(_creatorProperties, prop);
         }
+    }
+
+    /**
+     * Helper method for checking whether type being introspected is an Enum
+     * type that is NOT serialized as JSON Object (that is, not using
+     * {@code @JsonFormat(shape = JsonFormat.Shape.OBJECT)}).
+     */
+    private boolean _isEnumAsScalar() {
+        return _type.isEnumType() && (_findFormatShape() != JsonFormat.Shape.OBJECT);
     }
 
     /**

@@ -96,7 +96,10 @@ public class IterableSerializer
         if (((_unwrapSingle == null) &&
                 ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                 || (_unwrapSingle == Boolean.TRUE)) {
-            if (hasSingleElement(value)) {
+            // [databind#6299]: do not unwrap if the only element is filtered out
+            // (check filtering first: `isEmpty()` always iterates)
+            if (hasSingleElement(value)
+                    && !(_needToCheckFiltering(ctxt) && isEmpty(ctxt, value))) {
                 serializeContents(value, g, ctxt);
                 return;
             }
@@ -129,14 +132,7 @@ public class IterableSerializer
                 ValueSerializer<Object> serializer = _elementSerializer;
                 if (serializer == null) {
                     Class<?> cc = elem.getClass();
-                    serializer = _dynamicValueSerializers.serializerFor(cc);
-                    if (serializer == null) {
-                        if (_elementType.hasGenericTypes()) {
-                            serializer = _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(_elementType, cc));
-                        } else {
-                            serializer = _findAndAddDynamic(ctxt, cc);
-                        }
-                    }
+                    serializer = _findCachedOrAddDynamic(ctxt, _elementType, cc);
                 }
                 // [databind#5369] Support `@JsonInclude` in `Collection`
                 //                Let's do filtering before serialization

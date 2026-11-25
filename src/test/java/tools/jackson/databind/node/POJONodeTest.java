@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.atomic.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -447,4 +448,197 @@ public class POJONodeTest extends NodeTestBase
         assertThat(new POJONode(new Data()).asDecimalOpt()).isNotPresent();
     }
 
+    // NaN and infinities wrapped in a POJONode convert to BigDecimal as DoubleNode's do:
+    // asDecimalOpt() used to throw NullPointerException
+    @Test
+    public void decimalAccessorsForNonFinite()
+    {
+        for (Number nonFinite : new Number[] {
+                Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
+                Float.NaN, Float.POSITIVE_INFINITY }) {
+            POJONode n = new POJONode(nonFinite);
+            assertThat(n.asDecimalOpt()).isNotPresent();
+            assertThat(n.asDecimal(BigDecimal.ONE)).isEqualTo(BigDecimal.ONE);
+            assertThatThrownBy(() -> n.asDecimal())
+                .isInstanceOf(JsonNodeException.class)
+                .hasMessageContaining("value non-Finite");
+        }
+        assertThat(new POJONode(2.5).asDecimalOpt()).hasValue(BigDecimal.valueOf(2.5));
+    }
+
+    // [databind#6474]: NaN and infinities wrapped in a POJONode convert to BigInteger
+    // as DoubleNode's do; used to go through `longValue()` (NaN -> 0, infinity -> Long.MAX_VALUE)
+    @Test
+    public void bigIntegerAccessorsForNonFinite()
+    {
+        for (Number nonFinite : new Number[] {
+                Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
+                Float.NaN, Float.POSITIVE_INFINITY }) {
+            POJONode n = new POJONode(nonFinite);
+            assertThat(n.asBigIntegerOpt()).isNotPresent();
+            assertThat(n.asBigInteger(BigInteger.ONE)).isEqualTo(BigInteger.ONE);
+            assertThatThrownBy(() -> n.asBigInteger())
+                .isInstanceOf(JsonNodeException.class)
+                .hasMessageContaining("value non-Finite");
+        }
+    }
+
+    // [databind#6474]: finite Double/Float values outside `long` range used to be
+    // clamped to Long.MIN_VALUE/MAX_VALUE
+    @Test
+    public void bigIntegerAccessorsBeyondLongRange()
+    {
+        final BigInteger exp = new BigInteger("100000000000000000000");
+        assertThat(new POJONode(1e20).asBigInteger()).isEqualTo(exp);
+        assertThat(new POJONode(-1e20).asBigInteger()).isEqualTo(exp.negate());
+        assertThat(new POJONode(1e20).asBigInteger(BigInteger.ONE)).isEqualTo(exp);
+        assertThat(new POJONode(1e20).asBigIntegerOpt()).hasValue(exp);
+        // Float converted via `BigDecimal.valueOf(double)`, matching `FloatNode`
+        assertThat(new POJONode(1e20f).asBigInteger())
+            .isEqualTo(new FloatNode(1e20f).asBigInteger());
+    }
+
+    // [databind#6474]: `DoubleAdder` / `DoubleAccumulator` are floating-point too:
+    // used to go through `longValue()` (NaN -> 0, clamped to `long` range)
+    @Test
+    public void bigIntegerAccessorsForDoubleAdder()
+    {
+        DoubleAdder big = new DoubleAdder();
+        big.add(1e20);
+        assertThat(new POJONode(big).asBigInteger())
+            .isEqualTo(new BigInteger("100000000000000000000"));
+        assertThat(new POJONode(big).asLongOpt()).isNotPresent();
+
+        DoubleAccumulator nan = new DoubleAccumulator(Double::sum, Double.NaN);
+        assertThat(new POJONode(nan).asBigIntegerOpt()).isNotPresent();
+        assertThatThrownBy(() -> new POJONode(nan).asBigInteger())
+            .isInstanceOf(JsonNodeException.class)
+            .hasMessageContaining("value non-Finite");
+        assertThat(new POJONode(nan).asLongOpt()).isNotPresent();
+
+        DoubleAdder small = new DoubleAdder();
+        small.add(99.5);
+        assertThat(new POJONode(small).asLong()).isEqualTo(99L);
+        assertThat(new POJONode(small).asBigInteger()).isEqualTo(BigInteger.valueOf(99));
+    }
+
+    // [databind#6474]: 2^63 (rounded from `Long.MAX_VALUE` as double) is outside `long` range
+    @Test
+    public void longAccessorsAtLongRangeBoundary()
+    {
+        final double twoTo63 = 0x1p63;
+        for (Number n : new Number[] { twoTo63, (float) twoTo63 }) {
+            POJONode node = new POJONode(n);
+            assertThat(node.asLongOpt()).isNotPresent();
+            assertThat(node.asLong(42L)).isEqualTo(42L);
+            assertThatThrownBy(() -> node.asLong())
+                .isInstanceOf(JsonNodeException.class)
+                .hasMessageContaining("range");
+        }
+        // -2^63 is exactly `Long.MIN_VALUE`, so in range
+        assertThat(new POJONode(-0x1p63).asLong()).isEqualTo(Long.MIN_VALUE);
+        assertThat(new POJONode(-0x1p63f).asLong()).isEqualTo(Long.MIN_VALUE);
+        // largest double below 2^63 is in range
+        assertThat(new POJONode(Math.nextDown(0x1p63)).asLong())
+            .isEqualTo((long) Math.nextDown(0x1p63));
+    }
+
+    // [databind#6475]: non-finite Float (and DoubleAdder etc) values convert to double
+    // as-is, as with Double (and DoubleNode/FloatNode); Float used to fail range check
+    @Test
+    public void doubleAccessorsForNonFinite()
+    {
+        DoubleAdder nanAdder = new DoubleAdder();
+        nanAdder.add(Double.NaN);
+        DoubleAccumulator infAccumulator = new DoubleAccumulator(Double::sum,
+                Double.POSITIVE_INFINITY);
+        for (Number nonFinite : new Number[] {
+                Float.NaN, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY,
+                Double.NaN, Double.POSITIVE_INFINITY, nanAdder, infAccumulator }) {
+            // boxed so that NaN equals NaN (`Double.equals()`)
+            final Double exp = nonFinite.doubleValue();
+            POJONode n = new POJONode(nonFinite);
+            assertThat(n.asDouble()).isEqualTo(exp);
+            assertThat(n.asDouble(42.0)).isEqualTo(exp);
+            assertThat(n.asDoubleOpt()).isPresent();
+            assertThat(n.asDoubleOpt().getAsDouble()).isEqualTo(exp);
+        }
+        // Float widens to double without loss
+        assertThat(new POJONode(0.1f).asDouble()).isEqualTo((double) 0.1f);
+        // but BigDecimal beyond `double` range still fails
+        POJONode huge = new POJONode(new BigDecimal("1e400"));
+        assertThat(huge.asDoubleOpt()).isNotPresent();
+        assertThatThrownBy(() -> huge.asDouble())
+            .isInstanceOf(JsonNodeException.class)
+            .hasMessageContaining("range");
+    }
+
+    // [databind#6475]: `asFloat()` intentionally differs: non-finite values other than
+    // `Float` fail, as `DoubleNode.asFloat()` does; `Float` NaN passes as `FloatNode`'s does
+    @Test
+    public void floatAccessorsForNonFinite()
+    {
+        for (Number nonFinite : new Number[] { Double.NaN, Double.POSITIVE_INFINITY }) {
+            POJONode n = new POJONode(nonFinite);
+            assertThat(n.asFloatOpt()).isNotPresent();
+            assertThat(n.asFloat(42.0f)).isEqualTo(42.0f);
+            assertThatThrownBy(() -> n.asFloat())
+                .isInstanceOf(JsonNodeException.class)
+                .hasMessageContaining("range");
+            assertThatThrownBy(() -> new DoubleNode(nonFinite.doubleValue()).asFloat())
+                .isInstanceOf(JsonNodeException.class)
+                .hasMessageContaining("range");
+        }
+        // boxed so that NaN equals NaN (`Float.equals()`)
+        assertThat(new POJONode(Float.NaN).asFloat()).isEqualTo(Float.valueOf(Float.NaN));
+        assertThat(new FloatNode(Float.NaN).asFloat()).isEqualTo(Float.valueOf(Float.NaN));
+    }
+
+    // [databind#6476]: JDK integral `Number` types other than boxed primitives
+    // convert to BigDecimal exactly; used to go through `doubleValue()`
+    @Test
+    public void decimalAccessorsForAtomicIntegral()
+    {
+        final long big = (1L << 53) + 1; // not representable as double
+        LongAdder adder = new LongAdder();
+        adder.add(Long.MAX_VALUE);
+        LongAccumulator acc = new LongAccumulator(Long::sum, Long.MIN_VALUE);
+        LongAdder negAdder = new LongAdder();
+        negAdder.add(-big);
+        for (Number n : new Number[] {
+                new AtomicLong(Long.MAX_VALUE), new AtomicLong(big), new AtomicLong(-big),
+                new AtomicLong(Long.MIN_VALUE + 1), adder, negAdder, acc,
+                new AtomicInteger(Integer.MAX_VALUE), new AtomicInteger(Integer.MIN_VALUE) }) {
+            final BigDecimal exp = BigDecimal.valueOf(n.longValue());
+            POJONode node = new POJONode(n);
+            assertThat(node.asDecimal()).isEqualTo(exp);
+            assertThat(node.asDecimal(BigDecimal.ONE)).isEqualTo(exp);
+            assertThat(node.asDecimalOpt()).hasValue(exp);
+            // same as for wrapped `Long`
+            assertThat(node.asDecimal()).isEqualTo(new POJONode(n.longValue()).asDecimal());
+        }
+    }
+
+    // [databind#6476]: unknown `Number` types still convert via `doubleValue()`,
+    // so a fractional part is kept (not truncated by `longValue()`)
+    @SuppressWarnings("serial")
+    static class CustomNumber extends Number {
+        private final double _value;
+
+        CustomNumber(double v) { _value = v; }
+
+        @Override public int intValue() { return (int) _value; }
+        @Override public long longValue() { return (long) _value; }
+        @Override public float floatValue() { return (float) _value; }
+        @Override public double doubleValue() { return _value; }
+    }
+
+    @Test
+    public void decimalAccessorsForUnknownNumber()
+    {
+        POJONode node = new POJONode(new CustomNumber(2.5));
+        assertThat(node.asDecimal()).isEqualTo(BigDecimal.valueOf(2.5));
+        assertThat(node.asDecimal(BigDecimal.ONE)).isEqualTo(BigDecimal.valueOf(2.5));
+        assertThat(node.asDecimalOpt()).hasValue(BigDecimal.valueOf(2.5));
+    }
 }

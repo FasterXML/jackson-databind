@@ -16,12 +16,14 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
+import tools.jackson.databind.module.SimpleModule;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static tools.jackson.databind.testutil.DatabindTestUtil.q;
 
 public class JDKAtomicTypesDeserTest
 {
@@ -154,6 +156,20 @@ public class JDKAtomicTypesDeserTest
         public AtomicRefWithNodeBean(@JsonProperty("atomic") AtomicReference<JsonNode> ref) {
             _atomicNode = ref;
         }
+    }
+
+    static class AtomicScalarsAsEmptyBean {
+        @JsonSetter(nulls = Nulls.AS_EMPTY)
+        public AtomicInteger i;
+        @JsonSetter(nulls = Nulls.AS_EMPTY)
+        public AtomicLong l;
+        @JsonSetter(nulls = Nulls.AS_EMPTY)
+        public AtomicBoolean b;
+    }
+
+    static class AtomicContentAsEmptyBean {
+        @JsonSetter(contentNulls = Nulls.AS_EMPTY)
+        public List<AtomicInteger> values;
     }
 
     /*
@@ -468,5 +484,59 @@ public class JDKAtomicTypesDeserTest
                 .with(DeserializationFeature.USE_NULL_FOR_MISSING_REFERENCE_VALUES)
                 .readValue("{}");
         assertNull(bean._atomicNode);
+    }
+
+    // [databind#6437]: "empty" Atomic values are mutable, so must not be shared
+    @Test
+    public void atomicScalarsAsEmptyNotShared() throws Exception
+    {
+        final String json = """
+                {"i":null,"l":null,"b":null}
+                """;
+        ObjectReader r = MAPPER.readerFor(AtomicScalarsAsEmptyBean.class);
+        AtomicScalarsAsEmptyBean first = r.readValue(json);
+        AtomicScalarsAsEmptyBean second = r.readValue(json);
+
+        assertEquals(0, first.i.get());
+        assertEquals(0L, first.l.get());
+        assertFalse(first.b.get());
+
+        assertNotSame(first.i, second.i);
+        assertNotSame(first.l, second.l);
+        assertNotSame(first.b, second.b);
+    }
+
+    // [databind#6437]: same for content nulls
+    @Test
+    public void atomicContentAsEmptyNotShared() throws Exception
+    {
+        AtomicContentAsEmptyBean bean = MAPPER.readValue("""
+                {"values":[null,null]}
+                """, AtomicContentAsEmptyBean.class);
+        assertEquals(2, bean.values.size());
+        assertEquals(0, bean.values.get(0).get());
+        assertNotSame(bean.values.get(0), bean.values.get(1));
+    }
+
+    // Value deserializer that keeps the default "don't know" (null) answer of supportsUpdate()
+    static class NoOpinionStringDeserializer extends StringDeserializer {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public Boolean supportsUpdate(DeserializationConfig config) {
+            return null;
+        }
+    }
+
+    @Test
+    public void testUpdateWithValueDeserializerWithoutUpdateOpinion() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule().addDeserializer(String.class, new NoOpinionStringDeserializer()))
+                .build();
+        AtomicReference<String> ref = new AtomicReference<>("a");
+        AtomicReference<String> result = mapper.readerForUpdating(ref).readValue(q("b"));
+        assertSame(ref, result);
+        assertEquals("b", result.get());
     }
 }

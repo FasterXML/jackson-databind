@@ -296,6 +296,7 @@ public interface BeanProperty extends FullyNamed
 
         @Override public String getName() { return _delegate.getName(); }
         @Override public PropertyName getFullName() { return _delegate.getFullName(); }
+        @Override public boolean hasName(PropertyName name) { return _delegate.hasName(name); }
         @Override public JavaType getType() { return _delegate.getType(); }
         @Override public PropertyName getWrapperName() { return _delegate.getWrapperName(); }
         @Override public PropertyMetadata getMetadata() { return _delegate.getMetadata(); }

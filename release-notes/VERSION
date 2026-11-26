@@ -9,6 +9,12 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 No changes since 3.1
 
+3.1.10 (not yet released)
+
+#6490: `@JsonAnySetter` on a method creates and adapts a new `MethodHandle` per call
+  (`AnnotatedMethod.callOnWith`)
+ (reported, fixed by Francesco N)
+
 3.1.9 (24-Nov-2026)
 
 #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties

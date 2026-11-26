@@ -8,9 +8,11 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.fasterxml.jackson.databind.deser.std.StdValueInstantiator;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
@@ -262,6 +264,19 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
             assertEquals(Collections.emptyMap(),
                     mapper.readValue(json, ObjectWrapper.class).value);
         }, mapType);
+    }
+
+    // Description of value type (for error messages) is constructed lazily, since
+    // constructing it for every level of nested types takes quadratic time
+    @Test
+    public void valueInstantiatorTypeDescLazy() throws Exception
+    {
+        ObjectMapper mapper = newJsonMapper();
+        JavaType type = mapper.getTypeFactory().constructFromCanonical(
+                MyMultiMap.class.getName() + "<java.lang.String,java.lang.Integer>");
+        StdValueInstantiator inst = new StdValueInstantiator(mapper.getDeserializationConfig(), type);
+        assertEquals(type.toString(), inst.getValueTypeDesc());
+        assertEquals(type.toString(), new StdValueInstantiator(inst) { }.getValueTypeDesc());
     }
 
     // Content type that comes from type parameter bound to declared type parameter

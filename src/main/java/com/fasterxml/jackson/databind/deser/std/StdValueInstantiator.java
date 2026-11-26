@@ -26,8 +26,20 @@ public class StdValueInstantiator
     /**
      * Type of values that are instantiated; used
      * for error reporting purposes.
+     *<p>
+     * NOTE: since 2.18.13 not final, and constructed lazily (see {@link #getValueTypeDesc()})
+     * when constructed with {@link JavaType}: description of deeply nested types
+     * is costly to construct, and only needed for error messages.
      */
-    protected final String _valueTypeDesc;
+    protected String _valueTypeDesc;
+
+    /**
+     * Type of values that are instantiated, if known; used for constructing
+     * {@link #_valueTypeDesc} lazily.
+     *
+     * @since 2.18.13
+     */
+    private final JavaType _valueType;
 
     /**
      * @since 2.8
@@ -82,11 +94,16 @@ public class StdValueInstantiator
     public StdValueInstantiator(DeserializationConfig config, Class<?> valueType) {
         _valueTypeDesc = ClassUtil.nameOf(valueType);
         _valueClass = (valueType == null) ? Object.class : valueType;
+        _valueType = null;
     }
 
     public StdValueInstantiator(DeserializationConfig config, JavaType valueType) {
-        _valueTypeDesc = (valueType == null) ? "UNKNOWN TYPE" : valueType.toString();
+        // 25-Nov-2026: [databind#6496] Construct description lazily: for nested
+        //   container types it is as long as the type id, and constructing one for
+        //   each level takes quadratic time wrt nesting depth
+        _valueTypeDesc = (valueType == null) ? "UNKNOWN TYPE" : null;
         _valueClass = (valueType == null) ? Object.class : valueType.getRawClass();
+        _valueType = valueType;
     }
 
     /**
@@ -97,6 +114,7 @@ public class StdValueInstantiator
     {
         _valueTypeDesc = src._valueTypeDesc;
         _valueClass = src._valueClass;
+        _valueType = src._valueType;
 
         _defaultCreator = src._defaultCreator;
 
@@ -179,7 +197,12 @@ public class StdValueInstantiator
 
     @Override
     public String getValueTypeDesc() {
-        return _valueTypeDesc;
+        String desc = _valueTypeDesc;
+        if ((desc == null) && (_valueType != null)) {
+            // (benign race: may get constructed more than once)
+            _valueTypeDesc = desc = _valueType.toString();
+        }
+        return desc;
     }
 
     @Override

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
@@ -55,6 +56,15 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
     public static class MyStringList extends ArrayList<String> { }
     public static class MyAnimalList extends ArrayList<Animal> { }
     public static class MyDogList extends ArrayList<Dog> { }
+    // Well-known value types
+    public static class MyDateList extends ArrayList<Date> { }
+    public static class MyLocaleMap extends HashMap<Locale, Currency> { }
+    public static class MyNodeList extends ArrayList<JsonNode> { }
+    public static class MyUriList extends ArrayList<java.net.URI> { }
+    public static class MyLocalDateList extends ArrayList<java.time.LocalDate> { }
+    // ... but not types in sub-packages of `java.time`
+    public static class MyFormatterList extends ArrayList<java.time.format.DateTimeFormatter> { }
+
     // Recursive type: must not cause infinite recursion
     public static class MyNode extends ArrayList<MyNode> { }
 
@@ -97,6 +107,8 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
                 "[[{}]]"));
         // as element type of explicitly approved array type
         _verifyRejected(mapper, json("[L" + MyGadgetList.class.getName() + ";", "[[{}]]"));
+        // not a well-known value type
+        _verifyRejected(mapper, json(MyFormatterList.class, "[]"));
     }
 
     // Approval of base type does not cover content type either
@@ -121,6 +133,21 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
                 json("[L" + MyStringList.class.getName() + ";", "[['a']]"), ObjectWrapper.class)
                 .value.getClass());
         assertEquals(MyNode.class, _read(mapper, MyNode.class, "[]").getClass());
+    }
+
+    @Test
+    public void valueContentTypesAccepted() throws Exception
+    {
+        ObjectMapper mapper = containerMapper();
+        assertEquals(Arrays.asList(new Date(0L)), _read(mapper, MyDateList.class, "[0]"));
+        assertEquals(Collections.singletonMap(Locale.CANADA, Currency.getInstance("CAD")),
+                _read(mapper, MyLocaleMap.class, "{'en_CA':'CAD'}"));
+        assertEquals(Arrays.asList(mapper.readTree(a2q("{'a':1}"))),
+                _read(mapper, MyNodeList.class, "[{'a':1}]"));
+        assertEquals(Arrays.asList(java.net.URI.create("urn:x")),
+                _read(mapper, MyUriList.class, "['urn:x']"));
+        // (no Java 8 date/time module here: just verify type id is accepted)
+        assertEquals(Collections.emptyList(), _read(mapper, MyLocalDateList.class, "[]"));
     }
 
     @Test

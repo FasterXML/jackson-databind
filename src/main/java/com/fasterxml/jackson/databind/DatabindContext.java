@@ -3,6 +3,11 @@ package com.fasterxml.jackson.databind;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URI;
+import java.util.Calendar;
+import java.util.Currency;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -584,6 +589,15 @@ public abstract class DatabindContext
      * as scalars (subtypes of {@code Number} other than these need type ids); and arrays
      * and {@code java.util} container (Collection, Map, reference) types are JDK types
      * whose contained types are validated separately.
+     *<p>
+     * [databind#6496]: also value types read from scalars by standard deserializers:
+     * {@code java.time} types (from {@code java.time} package itself, not sub-packages),
+     * {@code Date}, {@code Calendar}, {@code GregorianCalendar}, {@code Locale},
+     * {@code Currency} and {@code TimeZone} (but not all of {@code java.util}:
+     * some types there have side effects on construction, like {@code Timer});
+     * {@code java.net.URI}; and {@link JsonNode} types, read by tree model deserializers.
+     * NOTE: not {@code java.net.URL} or {@code java.net.InetAddress}, use of which may
+     * cause DNS lookups.
      */
     private static boolean _isSafeTypeParameter(JavaType param)
     {
@@ -595,8 +609,18 @@ public abstract class DatabindContext
                 && raw.getName().startsWith("java.util.")) {
             return true;
         }
-        return (raw == String.class) || (ClassUtil.primitiveType(raw) != null)
-                || (raw == Number.class) || (raw == BigDecimal.class) || (raw == BigInteger.class) || (raw == UUID.class);
+        if ((raw == String.class) || (ClassUtil.primitiveType(raw) != null)
+                || (raw == Number.class) || (raw == BigDecimal.class) || (raw == BigInteger.class) || (raw == UUID.class)) {
+            return true;
+        }
+        // [databind#6496]: well-known value types
+        if ((raw == Date.class) || (raw == Calendar.class) || (raw == GregorianCalendar.class)
+                || (raw == Locale.class) || (raw == Currency.class) || (raw == TimeZone.class)
+                || (raw == URI.class) || JsonNode.class.isAssignableFrom(raw)) {
+            return true;
+        }
+        final String name = raw.getName();
+        return name.startsWith("java.time.") && (name.indexOf('.', "java.time.".length()) < 0);
     }
 
     protected <T> T _throwNotASubtype(JavaType baseType, String subType) throws JsonMappingException {

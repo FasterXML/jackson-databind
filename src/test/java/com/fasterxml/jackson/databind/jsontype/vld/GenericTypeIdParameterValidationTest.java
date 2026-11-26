@@ -874,10 +874,10 @@ public class GenericTypeIdParameterValidationTest extends DatabindTestUtil
                     .polymorphicTypeValidator(b.build())
                     .build();
             InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
-                    () -> mapper.readValue(a2q("{'value':['[Ljava.util.Date;',[0]]}"),
+                    () -> mapper.readValue(a2q("{'value':['[Ljava.lang.StringBuilder;',['x']]}"),
                             ObjectValueWrapper.class), String.valueOf(rule));
             verifyException(e, "denied resolution of contained type");
-            verifyException(e, "java.util.Date");
+            verifyException(e, "java.lang.StringBuilder");
         }
     }
 

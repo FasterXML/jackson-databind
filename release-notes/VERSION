@@ -433,6 +433,12 @@ No changes since 3.2
 - Remove project-specific Android SDK compatibility level, use shared;
   no change level itself (stillAndroid SDK 34)
 
+3.1.10 (not yet released)
+
+#6490: `@JsonAnySetter` on a method creates and adapts a new `MethodHandle` per call
+  (`AnnotatedMethod.callOnWith`)
+ (reported, fixed by Francesco N)
+
 3.1.9 (24-Nov-2026)
 
 #6077: `FAIL_ON_UNEXPECTED_VIEW_PROPERTIES` not being respected with constructor-backed properties

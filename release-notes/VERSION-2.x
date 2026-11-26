@@ -18,11 +18,7 @@ Project: jackson-databind
  (reported by @abdessattar23)
  (fix by @cowtowncoder, w/ Claude code)
 #6496: Polymorphic type validation should use resolved content types if possible (not raw)
-  NOTE: resolved key and content types of Collection, Map and reference types
-  named by type id (like `Bar` for `class BarList extends ArrayList<Bar>`) are now
-  validated like type parameters, unless same as those of the declared base type;
-  well-known value types (`java.time` types, `Date`, `Calendar`, `Locale`, `Currency`,
-  `TimeZone`, `URI`, `JsonNode`) are not validated, as key/content types or type parameters
+  [GHSA-268j-6pjg-73vh]
  (fix by @cowtowncoder, w/ Claude code)
 
 2.18.12 (17-Oct-2026)

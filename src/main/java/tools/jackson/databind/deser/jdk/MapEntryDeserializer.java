@@ -63,6 +63,10 @@ public class MapEntryDeserializer
         _valueTypeDeserializer = valueTypeDeser;
     }
 
+    /**
+     * @deprecated Since 3.4 use constructor that takes {@link NullValueProvider} instead
+     */
+    @Deprecated // since 3.4
     protected MapEntryDeserializer(MapEntryDeserializer src,
             KeyDeserializer keyDeser, ValueDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser)
@@ -227,27 +231,25 @@ public class MapEntryDeserializer
         if (vtd != null) {
             vtd = vtd.forProperty(property);
         }
-        return withResolved(kd, vtd, vd,
-                _valueNullProvider(property, contentType, findContentNullStyle(ctxt, property),
-                        findContentNullProvider(ctxt, property, vd)));
+        final NullValueProvider nuller = (findContentNullStyle(ctxt, property) == Nulls.FAIL)
+                ? _failingValueNullProvider(property, contentType)
+                : findContentNullProvider(ctxt, property, vd);
+        return withResolved(kd, vtd, vd, nuller);
     }
 
     /**
-     * Helper method for finding handler for {@code null} entry value, based on
-     * "content nulls" settings: needed to get target type right for "fail" case,
-     * since {@code Map.Entry} type itself has no "content type".
+     * Helper method for constructing handler for {@code null} entry value, for
+     * "fail" case: needed to get target type right, since {@code Map.Entry}
+     * type itself has no "content type".
      *
      * @since 3.4
      */
-    protected static NullValueProvider _valueNullProvider(BeanProperty property,
-            JavaType valueType, Nulls nulls, NullValueProvider nuller)
+    protected static NullValueProvider _failingValueNullProvider(BeanProperty property,
+            JavaType valueType)
     {
-        if (nulls == Nulls.FAIL) {
-            return (property == null)
-                    ? NullsFailProvider.constructForRootValue(valueType)
-                    : NullsFailProvider.constructForProperty(property, valueType);
-        }
-        return nuller;
+        return (property == null)
+                ? NullsFailProvider.constructForRootValue(valueType)
+                : NullsFailProvider.constructForProperty(property, valueType);
     }
 
     /**
@@ -429,6 +431,10 @@ public class MapEntryDeserializer
             _valueNullProvider = null;
         }
     
+        /**
+         * @deprecated Since 3.4 use constructor that takes {@link NullValueProvider} instead
+         */
+        @Deprecated // since 3.4
         protected POJOWrappedDeserializer(POJOWrappedDeserializer src,
                 ValueDeserializer<Object> keyDeser, TypeDeserializer keyTypeDeser,
                 ValueDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser)
@@ -547,9 +553,10 @@ public class MapEntryDeserializer
             if (vtd != null) {
                 vtd = vtd.forProperty(property);
             }
-            return withResolved(kd, ktd, vd, vtd,
-                    _valueNullProvider(property, valueType, findContentNullStyle(ctxt, property),
-                            findContentNullProvider(ctxt, property, vd)));
+            final NullValueProvider nuller = (findContentNullStyle(ctxt, property) == Nulls.FAIL)
+                    ? _failingValueNullProvider(property, valueType)
+                    : findContentNullProvider(ctxt, property, vd);
+            return withResolved(kd, ktd, vd, vtd, nuller);
         }
 
         /*

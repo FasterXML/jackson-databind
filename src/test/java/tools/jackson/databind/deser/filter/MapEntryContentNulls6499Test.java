@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.InvalidNullException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -35,6 +36,18 @@ public class MapEntryContentNulls6499Test extends DatabindTestUtil
 
     static class PojoEntryFail {
         @JsonSetter(contentNulls = Nulls.FAIL)
+        @JsonFormat(shape = JsonFormat.Shape.POJO)
+        public Map.Entry<String, List<String>> v;
+    }
+
+    static class PojoEntrySkip {
+        @JsonSetter(contentNulls = Nulls.SKIP)
+        @JsonFormat(shape = JsonFormat.Shape.POJO)
+        public Map.Entry<String, List<String>> v;
+    }
+
+    static class PojoEntryAsEmpty {
+        @JsonSetter(contentNulls = Nulls.AS_EMPTY)
         @JsonFormat(shape = JsonFormat.Shape.POJO)
         public Map.Entry<String, List<String>> v;
     }
@@ -121,5 +134,46 @@ public class MapEntryContentNulls6499Test extends DatabindTestUtil
                 """, PojoEntryListKeyFail.class);
         assertEquals(Collections.singletonList(null), result.v.getKey());
         assertEquals("x", result.v.getValue());
+    }
+
+    @Test
+    public void pojoShapeSkipForNullEntryValue() throws Exception
+    {
+        PojoEntrySkip result = MAPPER.readValue("""
+                {"v":{"key":"a","value":null}}
+                """, PojoEntrySkip.class);
+        assertEquals("a", result.v.getKey());
+        assertNull(result.v.getValue());
+
+        result = MAPPER.readValue("""
+                {"v":{"key":"a","value":[null]}}
+                """, PojoEntrySkip.class);
+        assertEquals(Collections.singletonList(null), result.v.getValue());
+    }
+
+    @Test
+    public void pojoShapeAsEmptyForNullEntryValue() throws Exception
+    {
+        PojoEntryAsEmpty result = MAPPER.readValue("""
+                {"v":{"key":"a","value":null}}
+                """, PojoEntryAsEmpty.class);
+        assertEquals("a", result.v.getKey());
+        assertEquals(Collections.emptyList(), result.v.getValue());
+    }
+
+    // Root value: global default "content nulls" applies to entry value
+    @Test
+    public void rootValueGlobalDefaultFail() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultNullHandling(n -> n.withContentNulls(Nulls.FAIL))
+                .build();
+        final TypeReference<Map.Entry<String, List<String>>> ref = new TypeReference<>() { };
+        InvalidNullException e = assertThrows(InvalidNullException.class,
+                () -> mapper.readValue("""
+                        {"a":null}
+                        """, ref));
+        verifyException(e, "Invalid `null` value");
+        assertEquals(List.class, e.getTargetType());
     }
 }

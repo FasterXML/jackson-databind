@@ -15,8 +15,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
   (NOTE: setting now only applies to immediate content of the property value;
   nested containers use Config Override of nested type, if any, then global default)
   (NOTE: also adds `BeanProperty.Delegating` as base for delegating implementations)
-  (reported by @k163377)
-  (fix by @dlwldnjs1009, @cowtowncoder w/ Claude code)
+ (reported by @k163377)
+ (fix by @dlwldnjs1009, @cowtowncoder w/ Claude code)
 #6164: `@JsonCreator` on Enum with single `int` parameter fails with
   `ClassCastException` if parameter name matches a getter
   (NOTE: such Creators are now delegating, not properties-based, so they no
@@ -76,7 +76,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (fix by @cowtowncoder, w/ Claude code)
 #6499: `@JsonSetter(contentNulls)` on `Map.Entry` property not applied to entry value,
   but propagates into nested container value
-  (fix by @cowtowncoder, w/ Claude code)
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.3.1 (not yet released)
 

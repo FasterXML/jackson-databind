@@ -27,19 +27,26 @@ public class StdValueInstantiator
      * Type of values that are instantiated; used
      * for error reporting purposes.
      *<p>
-     * NOTE: since 2.18.13 not final, and constructed lazily (see {@link #getValueTypeDesc()})
-     * when constructed with {@link JavaType}: description of deeply nested types
-     * is costly to construct, and only needed for error messages.
+     * NOTE: since 2.18.13, when constructed with {@link JavaType}, only class name:
+     * full description (see {@link #getValueTypeDesc()}) of deeply nested types is
+     * costly to construct, and only needed for error messages.
      */
-    protected String _valueTypeDesc;
+    protected final String _valueTypeDesc;
 
     /**
      * Type of values that are instantiated, if known; used for constructing
-     * {@link #_valueTypeDesc} lazily.
+     * full description ({@link #_fullValueTypeDesc}) lazily.
      *
      * @since 2.18.13
      */
     private final JavaType _valueType;
+
+    /**
+     * Lazily constructed full description of {@link #_valueType}.
+     *
+     * @since 2.18.13
+     */
+    private transient String _fullValueTypeDesc;
 
     /**
      * @since 2.8
@@ -98,10 +105,10 @@ public class StdValueInstantiator
     }
 
     public StdValueInstantiator(DeserializationConfig config, JavaType valueType) {
-        // 25-Nov-2026: [databind#6496] Construct description lazily: for nested
+        // 25-Nov-2026: [databind#6496] Construct full description lazily: for nested
         //   container types it is as long as the type id, and constructing one for
         //   each level takes quadratic time wrt nesting depth
-        _valueTypeDesc = (valueType == null) ? "UNKNOWN TYPE" : null;
+        _valueTypeDesc = (valueType == null) ? "UNKNOWN TYPE" : ClassUtil.nameOf(valueType.getRawClass());
         _valueClass = (valueType == null) ? Object.class : valueType.getRawClass();
         _valueType = valueType;
     }
@@ -197,10 +204,13 @@ public class StdValueInstantiator
 
     @Override
     public String getValueTypeDesc() {
-        String desc = _valueTypeDesc;
-        if ((desc == null) && (_valueType != null)) {
+        if (_valueType == null) {
+            return _valueTypeDesc;
+        }
+        String desc = _fullValueTypeDesc;
+        if (desc == null) {
             // (benign race: may get constructed more than once)
-            _valueTypeDesc = desc = _valueType.toString();
+            _fullValueTypeDesc = desc = _valueType.toString();
         }
         return desc;
     }

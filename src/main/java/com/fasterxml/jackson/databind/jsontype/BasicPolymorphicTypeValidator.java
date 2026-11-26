@@ -117,6 +117,15 @@ public class BasicPolymorphicTypeValidator
          */
         protected Set<Class<?>> _explicitArrayTypes;
 
+        /**
+         * Non-array types passed to {@link #allowIfSubType(Class)}, approval of which
+         * covers key and content types their classes declare (see
+         * {@link PolymorphicTypeValidator#isContainerTypeAllowedExplicitly}).
+         *
+         * @since 2.18.13
+         */
+        protected Set<Class<?>> _explicitSubTypes;
+
         protected Builder() { }
 
         // // Methods for checking solely by base type (before subtype even considered)
@@ -241,6 +250,11 @@ public class BasicPolymorphicTypeValidator
                     _explicitArrayTypes = new HashSet<>();
                 }
                 _explicitArrayTypes.add(subTypeBase);
+            } else {
+                if (_explicitSubTypes == null) {
+                    _explicitSubTypes = new HashSet<>();
+                }
+                _explicitSubTypes.add(subTypeBase);
             }
             return _appendSubClassMatcher(new TypeMatcher() {
                 @Override
@@ -383,7 +397,8 @@ public class BasicPolymorphicTypeValidator
                     (_subTypeClassMatchers == null) ? null : _subTypeClassMatchers.toArray(new TypeMatcher[0]),
                     _acceptArrayTypes, // [databind#5981]
                     // (copied: the builder may go on being used)
-                    (_explicitArrayTypes == null) ? null : new HashSet<>(_explicitArrayTypes)
+                    (_explicitArrayTypes == null) ? null : new HashSet<>(_explicitArrayTypes),
+                    (_explicitSubTypes == null) ? null : new HashSet<>(_explicitSubTypes)
             );
         }
 
@@ -469,6 +484,14 @@ public class BasicPolymorphicTypeValidator
      */
     private final List<Class<?>> _explicitArrayTypesToMatch;
 
+    /**
+     * Non-array types approval of which covers key and content types their
+     * classes declare, see {@link #isContainerTypeAllowedExplicitly}; {@code null} if none.
+     *
+     * @since 2.18.13
+     */
+    protected final Set<Class<?>> _explicitSubTypes;
+
     protected BasicPolymorphicTypeValidator(Set<Class<?>> invalidBaseTypes,
             TypeMatcher[] baseTypeMatchers,
             NameMatcher[] subTypeNameMatchers, TypeMatcher[] subClassMatchers) {
@@ -494,6 +517,18 @@ public class BasicPolymorphicTypeValidator
             TypeMatcher[] baseTypeMatchers,
             NameMatcher[] subTypeNameMatchers, TypeMatcher[] subClassMatchers,
             boolean acceptArrayTypes, Set<Class<?>> explicitArrayTypes) {
+        this(invalidBaseTypes, baseTypeMatchers, subTypeNameMatchers, subClassMatchers,
+                acceptArrayTypes, explicitArrayTypes, null);
+    }
+
+    /**
+     * @since 2.18.13
+     */
+    protected BasicPolymorphicTypeValidator(Set<Class<?>> invalidBaseTypes,
+            TypeMatcher[] baseTypeMatchers,
+            NameMatcher[] subTypeNameMatchers, TypeMatcher[] subClassMatchers,
+            boolean acceptArrayTypes, Set<Class<?>> explicitArrayTypes,
+            Set<Class<?>> explicitSubTypes) {
         _invalidBaseTypes = invalidBaseTypes;
         _baseTypeMatchers = baseTypeMatchers;
         _subTypeNameMatchers = subTypeNameMatchers;
@@ -501,6 +536,7 @@ public class BasicPolymorphicTypeValidator
         _acceptArrayTypes = acceptArrayTypes;
         _explicitArrayTypes = explicitArrayTypes;
         _explicitArrayTypesToMatch = _explicitArrayTypesToMatch(explicitArrayTypes);
+        _explicitSubTypes = explicitSubTypes;
     }
 
     private static List<Class<?>> _explicitArrayTypesToMatch(Set<Class<?>> arrayTypes)
@@ -548,6 +584,19 @@ public class BasicPolymorphicTypeValidator
             }
         }
         return false;
+    }
+
+    /**
+     * A (non-array) type counts as allowed explicitly if exactly its class was passed
+     * to {@link Builder#allowIfSubType(Class)} (subclasses do not count: they may
+     * declare different key and content types). Name-based rules do not count.
+     *
+     * @since 2.18.13
+     */
+    @Override
+    public boolean isContainerTypeAllowedExplicitly(MapperConfig<?> config, JavaType baseType,
+            JavaType containerType) {
+        return (_explicitSubTypes != null) && _explicitSubTypes.contains(containerType.getRawClass());
     }
 
     public static Builder builder() {

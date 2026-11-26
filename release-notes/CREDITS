@@ -947,3 +947,12 @@ Jared Jacobs (@2is10)
  * Reported, fixed #6426: Varargs delegating `@JsonCreator` fails with "Cannot cast
    [Ljava.lang.String; to java.lang.String" (3.x regression)
   [3.3.1]
+
+@Mengxi-Xu
+ * Reported #6484: `configureForJackson2()` forgets `MapperFeature.DEFAULT_VIEW_INCLUSION`
+  [3.3.1]
+
+Tiefang Hu (@hutiefang76)
+ * Contributed fix for #6484: `configureForJackson2()` forgets
+   `MapperFeature.DEFAULT_VIEW_INCLUSION`
+  [3.3.1]

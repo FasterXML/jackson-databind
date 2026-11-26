@@ -2,6 +2,8 @@ package tools.jackson.databind.json;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 import tools.jackson.core.StreamReadFeature;
 import tools.jackson.core.StreamWriteFeature;
 import tools.jackson.core.json.*;
@@ -34,6 +36,8 @@ public class JsonMapperBuilderTest extends DatabindTestUtil
         assertFalse(mapper.isEnabled(EnumFeature.READ_ENUMS_USING_TO_STRING));
         assertTrue(mapper.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
         assertTrue(mapper.isEnabled(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS));
+        // [databind#6484]
+        assertTrue(mapper.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION));
         assertFalse(mapper.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
         // [databind#6011]
         assertFalse(mapper.isEnabled(MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX));
@@ -153,5 +157,55 @@ public class JsonMapperBuilderTest extends DatabindTestUtil
         // But should have same configuration
         assertEquals(mapper1.isEnabled(SerializationFeature.INDENT_OUTPUT),
                      mapper2.isEnabled(SerializationFeature.INDENT_OUTPUT));
+    }
+
+    @Test
+    void configureForJackson2IncludesUnannotatedByDefault() throws Exception {
+        _assertViewBehavior(JsonMapper.builder().configureForJackson2().build(), true);
+    }
+
+    @Test
+    void builderWithJackson2DefaultsIncludesUnannotatedByDefault() throws Exception {
+        _assertViewBehavior(JsonMapper.builderWithJackson2Defaults().build(), true);
+    }
+
+    @Test
+    void mapperBuilderWithoutCompatibilityExcludesUnannotatedByDefault() throws Exception {
+        _assertViewBehavior(JsonMapper.builder().build(), false);
+    }
+
+    @Test
+    void disablingDefaultViewInclusionOverridesCompatibilityBuilders() throws Exception {
+        _assertViewBehavior(JsonMapper.builder().configureForJackson2()
+                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION).build(), false);
+        _assertViewBehavior(JsonMapper.builderWithJackson2Defaults()
+                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION).build(), false);
+    }
+
+    private void _assertViewBehavior(ObjectMapper mapper, boolean includeUnannotated)
+            throws Exception {
+        String expected = includeUnannotated
+                ? """
+                  {"annotated":1,"unannotated":2}"""
+                : """
+                  {"annotated":1}""";
+        assertEquals(expected, mapper.writerWithView(PublicView.class)
+                .writeValueAsString(new ViewBean()));
+
+        ViewBean bean = mapper.readerFor(ViewBean.class).withView(PublicView.class)
+                .readValue("""
+                        {"annotated":3,"unannotated":4}
+                        """);
+        assertEquals(3, bean.annotated);
+        assertEquals(includeUnannotated ? 4 : 2, bean.unannotated);
+    }
+
+    public static class PublicView { }
+
+    public static class ViewBean {
+        @JsonView(PublicView.class)
+        public int annotated = 1;
+
+        public int unannotated = 2;
     }
 }

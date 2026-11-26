@@ -174,39 +174,28 @@ public class JsonMapperBuilderTest extends DatabindTestUtil
 
     @Test
     void disablingDefaultViewInclusionOverridesCompatibilityBuilders() throws Exception {
-        ObjectMapper mapper1 = JsonMapper.builder().configureForJackson2()
-                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION).build();
-        ObjectMapper mapper2 = JsonMapper.builderWithJackson2Defaults()
-                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION).build();
-        for (ObjectMapper mapper : new ObjectMapper[] { mapper1, mapper2 }) {
-            _assertViewBehavior(mapper, false);
-        }
+        _assertViewBehavior(JsonMapper.builder().configureForJackson2()
+                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION).build(), false);
+        _assertViewBehavior(JsonMapper.builderWithJackson2Defaults()
+                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION).build(), false);
     }
 
     private void _assertViewBehavior(ObjectMapper mapper, boolean includeUnannotated)
             throws Exception {
-        String serialized = mapper.writerWithView(PublicView.class)
-                .writeValueAsString(new ViewBean());
-        JsonNode expected = includeUnannotated
-                ? mapper.readTree("""
-                        {"annotated":1,"unannotated":2}
-                        """)
-                : mapper.readTree("""
-                        {"annotated":1}
-                        """);
-        assertEquals(expected, mapper.readTree(serialized));
+        String expected = includeUnannotated
+                ? """
+                  {"annotated":1,"unannotated":2}"""
+                : """
+                  {"annotated":1}""";
+        assertEquals(expected, mapper.writerWithView(PublicView.class)
+                .writeValueAsString(new ViewBean()));
 
-        String input = """
-                {"annotated":3,"unannotated":4}
-                """;
-        ViewBean bean = mapper.readerWithView(PublicView.class)
-                .forType(ViewBean.class).readValue(input);
+        ViewBean bean = mapper.readerFor(ViewBean.class).withView(PublicView.class)
+                .readValue("""
+                        {"annotated":3,"unannotated":4}
+                        """);
         assertEquals(3, bean.annotated);
-        if (includeUnannotated) {
-            assertEquals(4, bean.unannotated);
-        } else {
-            assertEquals(2, bean.unannotated);
-        }
+        assertEquals(includeUnannotated ? 4 : 2, bean.unannotated);
     }
 
     public static class PublicView { }

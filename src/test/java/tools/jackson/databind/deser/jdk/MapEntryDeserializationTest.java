@@ -47,7 +47,7 @@ public class MapEntryDeserializationTest extends DatabindTestUtil
 
         MapEntryDeserializer.POJOWrappedDeserializer resolved =
                 new MapEntryDeserializer.POJOWrappedDeserializer(type)
-                    .withResolved(null, keyTypeDeser, null, valueTypeDeser);
+                    .withResolved(null, keyTypeDeser, null, valueTypeDeser, null);
 
         assertSame(keyTypeDeser, resolved._keyTypeDeserializer);
         assertSame(valueTypeDeser, resolved._valueTypeDeserializer);

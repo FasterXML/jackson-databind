@@ -10,6 +10,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #1591: Add `ObjectReader.convertValue(Object, ObjectWriter)`
  (requested by @apjoseph)
  (implemented by @wozhenbang2004)
+#2354: Add `@JsonDeserialize(builderMethod = ...)` for static Builder factory methods
+ (requested by @kaweston)
+ (implemented by @wozhenbang2004)
 #5742: `@JsonSetter(contentNulls)` (and Config Override "content nulls") propagates
   into nested containers (like `List<List<String>>`)
   (NOTE: setting now only applies to immediate content of the property value;

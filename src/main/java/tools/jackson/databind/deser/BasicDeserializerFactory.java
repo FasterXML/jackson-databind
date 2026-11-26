@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -142,6 +143,12 @@ public abstract class BasicDeserializerFactory
     public ValueInstantiator findValueInstantiator(DeserializationContext ctxt,
             BeanDescription.Supplier beanDescRef)
     {
+        return findValueInstantiator(ctxt, beanDescRef, null);
+    }
+
+    ValueInstantiator findValueInstantiator(DeserializationContext ctxt,
+            BeanDescription.Supplier beanDescRef, Supplier<AnnotatedMethod> builderFactory)
+    {
         final DeserializationConfig config = ctxt.getConfig();
         final boolean hasCustom = _factoryConfig.hasValueInstantiators();
 
@@ -169,7 +176,14 @@ public abstract class BasicDeserializerFactory
                 }
                 // Fourth: create default one, if no custom
                 if (instantiator == null) {
-                    instantiator = _constructDefaultValueInstantiator(ctxt, beanDescRef);
+                    if (builderFactory == null) {
+                        instantiator = _constructDefaultValueInstantiator(ctxt, beanDescRef);
+                    } else {
+                        CreatorCollector creators = new CreatorCollector(config,
+                                beanDescRef.getType());
+                        creators.setDefaultCreator(builderFactory.get());
+                        instantiator = creators.constructValueInstantiator(ctxt);
+                    }
                 }
             }
         }

@@ -1192,6 +1192,19 @@ public abstract class AnnotationIntrospector
     }
 
     /**
+     * Finds the name of the factory method declared on the value class that
+     * creates the builder instance, if explicitly configured.
+     *
+     * @param config Effective mapper configuration
+     * @param valueClass Annotated class for the value being built
+     * @return Factory method name, or {@code null} to use builder creator discovery.
+     * @since 3.4
+     */
+    public String findBuilderFactoryMethodName(MapperConfig<?> config, AnnotatedClass valueClass) {
+        return null;
+    }
+
+    /**
      * @param ac Annotated class to introspect
      */
     public JsonPOJOBuilder.Value findPOJOBuilderConfig(MapperConfig<?> config, AnnotatedClass ac) {

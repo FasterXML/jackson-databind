@@ -332,10 +332,17 @@ public class BeanDeserializerFactory
     		BeanDescription.Supplier builderDescRef,
     		BeanDescription.Supplier valueBeanDescRef)
     {
+        final DeserializationConfig config = ctxt.getConfig();
         // Creators, anyone? (to create builder itself)
         ValueInstantiator valueInstantiator;
         try {
-            valueInstantiator = findValueInstantiator(ctxt, builderDescRef);
+            String factoryName = ctxt.getAnnotationIntrospector()
+                    .findBuilderFactoryMethodName(config, valueBeanDescRef.getClassInfo());
+            valueInstantiator = (factoryName == null)
+                    ? findValueInstantiator(ctxt, builderDescRef)
+                    : findValueInstantiator(ctxt, builderDescRef,
+                            () -> _findBuilderFactoryMethod(ctxt, valueBeanDescRef,
+                                    builderDescRef.getBeanClass(), factoryName));
         } catch (NoClassDefFoundError error) {
             return new ErrorThrowingDeserializer(error);
         } catch (IllegalArgumentException e) {
@@ -346,7 +353,6 @@ public class BeanDeserializerFactory
                     ClassUtil.exceptionMessage(e),
                     builderDescRef, null);
         }
-        final DeserializationConfig config = ctxt.getConfig();
         BeanDeserializerBuilder deserBuilder = constructBeanDeserializerBuilder(ctxt, builderDescRef);
         deserBuilder.setValueInstantiator(valueInstantiator);
          // And then "with methods" for deserializing from JSON Object
@@ -393,6 +399,26 @@ public class BeanDeserializerFactory
             }
         }
         return (ValueDeserializer<Object>) deserializer;
+    }
+
+    private AnnotatedMethod _findBuilderFactoryMethod(DeserializationContext ctxt,
+            BeanDescription.Supplier valueBeanDescRef, Class<?> builderClass, String factoryName)
+    {
+        for (AnnotatedMethod method : valueBeanDescRef.getClassInfo().getFactoryMethods()) {
+            if (!factoryName.equals(method.getName()) || method.getParameterCount() != 0) {
+                continue;
+            }
+            if (!builderClass.isAssignableFrom(method.getRawReturnType())) {
+                return ctxt.reportBadTypeDefinition(valueBeanDescRef,
+                        "Builder factory method '%s()' returns %s, which is not assignable to %s",
+                        factoryName, ClassUtil.nameOf(method.getRawReturnType()),
+                        ClassUtil.nameOf(builderClass));
+            }
+            return method;
+        }
+        return ctxt.reportBadTypeDefinition(valueBeanDescRef,
+                "No static no-argument builder factory method '%s()' declared on the value class",
+                factoryName);
     }
 
     protected void addObjectIdReader(DeserializationContext ctxt,

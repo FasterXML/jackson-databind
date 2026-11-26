@@ -942,6 +942,9 @@ Kayokoi (@wozhenbang2004)
   [3.4.0]
  * Implemented #1591: Add `ObjectReader.convertValue(Object, ObjectWriter)`
   [3.4.0]
+ * Implemented #2354: Add `@JsonDeserialize(builderMethod = ...)` for static Builder
+   factory methods
+  [3.4.0]
 
 Okan Tiktas (@OKAN-SOFTWARE)
  * Fixed #6357: `BeanDeserializer` and `BuilderBasedDeserializer` silently stop on

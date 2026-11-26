@@ -22,6 +22,9 @@ Project: jackson-databind
 #6463: `TypeFactory.constructSpecializedType()` throws `IndexOutOfBoundsException`
   for a raw nested type argument in the subtype's supertype
  (reported, fixed by @Marti2203)
+#6493: `FloatNode.canConvertToExactIntegral()` returns `false` for integral values
+  outside of `int` range
+ (reported, fixed by @sagarrsharmaa)
 
 2.23.1 (not yet released)
 

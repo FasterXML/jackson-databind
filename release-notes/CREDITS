@@ -985,3 +985,12 @@ Mateusz Hubert Stefaniak (@EmhyrVarEmreis)
 @shevek
  * Reported #6445: `@JsonMerge` does not work properly for `EnumMap`
   [3.4.0]
+
+@Mengxi-Xu
+ * Reported #6484: `configureForJackson2()` forgets `MapperFeature.DEFAULT_VIEW_INCLUSION`
+  [3.3.1]
+
+Tiefang Hu (@hutiefang76)
+ * Contributed fix for #6484: `configureForJackson2()` forgets
+   `MapperFeature.DEFAULT_VIEW_INCLUSION`
+  [3.3.1]

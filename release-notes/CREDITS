@@ -440,6 +440,9 @@ Francesco Nigro (@franz1981)
  * Reported, contributed fix for #6182: `StdDateFormat.<clinit>` degrades JIT
    compilation of `UTF8JsonGenerator._writeStringSegment`
   [3.1.7]
+ * Reported, contributed fix for #6490: `@JsonAnySetter` on a method creates and adapts
+   a new `MethodHandle` per call (`AnnotatedMethod.callOnWith`)
+  [3.1.10]
 
 @renechoi
  * Reported #6185: Bracket unresolved IPv6 host name in `InetSocketAddress` serialization

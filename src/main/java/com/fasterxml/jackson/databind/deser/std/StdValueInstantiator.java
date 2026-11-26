@@ -26,8 +26,20 @@ public class StdValueInstantiator
     /**
      * Type of values that are instantiated; used
      * for error reporting purposes.
+     *<p>
+     * NOTE: since 2.18.13, when constructed with {@link JavaType}, only class name:
+     * full description (see {@link #getValueTypeDesc()}) of deeply nested types is
+     * costly to construct, and only needed for error messages.
      */
     protected final String _valueTypeDesc;
+
+    /**
+     * Type of values that are instantiated, if known; used for constructing
+     * full description (see {@link #getValueTypeDesc()}) when needed.
+     *
+     * @since 2.18.13
+     */
+    private final JavaType _valueType;
 
     /**
      * @since 2.8
@@ -82,11 +94,16 @@ public class StdValueInstantiator
     public StdValueInstantiator(DeserializationConfig config, Class<?> valueType) {
         _valueTypeDesc = ClassUtil.nameOf(valueType);
         _valueClass = (valueType == null) ? Object.class : valueType;
+        _valueType = null;
     }
 
     public StdValueInstantiator(DeserializationConfig config, JavaType valueType) {
-        _valueTypeDesc = (valueType == null) ? "UNKNOWN TYPE" : valueType.toString();
+        // 25-Nov-2026: [databind#6496] Construct full description lazily: for nested
+        //   container types it is as long as the type id, and constructing one for
+        //   each level takes quadratic time wrt nesting depth
+        _valueTypeDesc = (valueType == null) ? "UNKNOWN TYPE" : ClassUtil.nameOf(valueType.getRawClass());
         _valueClass = (valueType == null) ? Object.class : valueType.getRawClass();
+        _valueType = valueType;
     }
 
     /**
@@ -97,6 +114,7 @@ public class StdValueInstantiator
     {
         _valueTypeDesc = src._valueTypeDesc;
         _valueClass = src._valueClass;
+        _valueType = src._valueType;
 
         _defaultCreator = src._defaultCreator;
 
@@ -179,7 +197,7 @@ public class StdValueInstantiator
 
     @Override
     public String getValueTypeDesc() {
-        return _valueTypeDesc;
+        return (_valueType == null) ? _valueTypeDesc : _valueType.toString();
     }
 
     @Override

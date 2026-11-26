@@ -17,6 +17,10 @@ Project: jackson-databind
   `ObjectMapper.enableDefaultTyping()`
  (reported by @abdessattar23)
  (fix by @cowtowncoder, w/ Claude code)
+#6496: Polymorphic type validation should use resolved content types if possible (not raw)
+  [GHSA-268j-6pjg-73vh]
+  NOTE: also avoids quadratic time wrt nesting depth of type ids in `StdValueInstantiator`
+ (fix by @cowtowncoder, w/ Claude code)
 
 2.18.12 (17-Oct-2026)
 

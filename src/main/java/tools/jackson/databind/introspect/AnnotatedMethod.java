@@ -118,6 +118,12 @@ public final class AnnotatedMethod
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *<p>
+     * Note: no instance is passed, so calling a non-static method fails;
+     * use {@link #callOnWith} for those.
+     */
     @Override
     public final Object call(Object[] args) throws Exception {
         try {

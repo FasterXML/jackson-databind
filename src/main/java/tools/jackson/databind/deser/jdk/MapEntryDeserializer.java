@@ -148,13 +148,17 @@ public class MapEntryDeserializer
             valueTypeDeser = ctxt.findTypeDeserializer(valueType);
         }
         return new POJOWrappedDeserializer(entryType)
-                .withResolved(null, keyTypeDeser, null, valueTypeDeser);
+                .withResolved(null, keyTypeDeser, null, valueTypeDeser, null);
     }
 
     /**
      * Fluent factory method used to create a copy with slightly
      * different settings.
+     *
+     * @deprecated Since 3.4 use variant of {@code withResolved()} that takes
+     *    {@link NullValueProvider} instead
      */
+    @Deprecated // since 3.4
     protected MapEntryDeserializer withResolved(KeyDeserializer keyDeser,
             TypeDeserializer valueTypeDeser, ValueDeserializer<?> valueDeser)
     {
@@ -462,7 +466,11 @@ public class MapEntryDeserializer
         /**
          * Fluent factory method used to create a copy with slightly
          * different settings.
+         *
+         * @deprecated Since 3.4 use variant of {@code withResolved()} that takes
+         *    {@link NullValueProvider} instead
          */
+        @Deprecated // since 3.4
         protected POJOWrappedDeserializer withResolved(ValueDeserializer<?> keyDeser,
                 TypeDeserializer keyTypeDeser,
                 ValueDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser)

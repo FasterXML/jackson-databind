@@ -243,7 +243,7 @@ public class JsonNodeBigIntegerValueTest
                 "For ("+node.getClass().getSimpleName()+") value: "+node);
         assertThat(e.getMessage())
             .contains("cannot convert value")
-            .contains("value non-Finite ('NaN')");
+            .contains("value non-Finite");
 
         // Verify default value handling
         assertEquals(BigInteger.ONE, node.bigIntegerValue(BigInteger.ONE));

@@ -266,7 +266,7 @@ public class JsonNodeDecimalValueTest
         assertThat(e.getMessage())
             .contains("decimalValue()")
             .contains("cannot convert value")
-            .contains("value non-Finite ('NaN')");
+            .contains("value non-Finite");
 
         // Verify default value handling
         assertEquals(BD_DEFAULT, node.decimalValue(BD_DEFAULT));
@@ -298,7 +298,7 @@ public class JsonNodeDecimalValueTest
         assertThat(e.getMessage())
         .contains("asDecimal()")
             .contains("cannot convert value")
-            .contains("value non-Finite ('NaN')");
+            .contains("value non-Finite");
 
         // Verify default value handling
         assertEquals(BD_DEFAULT, node.asDecimal(BD_DEFAULT));

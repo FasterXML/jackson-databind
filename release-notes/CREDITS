@@ -856,6 +856,15 @@ Martin Mirchev (@Marti2203)
  * Reported, fixed #6443: JDK deserialization of a `JsonNode` with a negative length prefix
    throws `NegativeArraySizeException` instead of an `IOException`
   [3.3.1]
+ * Reported, fixed #6461: `ReferenceTypeDeserializer` NPE when updating with a value
+   deserializer whose `supportsUpdate()` returns `null` (the default)
+  [3.3.1]
+ * Reported, fixed #6463: `TypeFactory.constructSpecializedType()` throws
+   `IndexOutOfBoundsException` for a raw nested type argument
+  [3.3.1]
+ * Reported, fixed #6469: `POJONode.asDecimalOpt()` throws NPE for a wrapped NaN (and
+   `asDecimal()` variants return `null`)
+  [3.4.0]
 
 @essiembre
  * Reported #6275: Regression in 3.2: per-type `@JsonInclude(NON_DEFAULT)` no longer
@@ -928,6 +937,8 @@ Kayokoi (@wozhenbang2004)
  * Contributed #6413: Consolidate "effective input names" for `@JsonUnwrapped` properties
    (include polymorphic type id) instead of special-casing in `UnwrappedPropertyHandler`
   [3.4.0]
+ * Implemented #1591: Add `ObjectReader.convertValue(Object, ObjectWriter)`
+  [3.4.0]
 
 Okan Tiktas (@OKAN-SOFTWARE)
  * Fixed #6357: `BeanDeserializer` and `BuilderBasedDeserializer` silently stop on
@@ -942,6 +953,8 @@ Sahas Prakash Nagar (@Sahas2711)
 Caio Vinicius (@caiocv18)
  * Reported, fixed #6303: `IllegalArgumentException` thrown by a setter is reported
    as a type mismatch
+  [3.4.0]
+ * Fixed #6445: `@JsonMerge` does not work properly for `EnumMap`
   [3.4.0]
 
 @nu11Po1nter1
@@ -964,4 +977,8 @@ Mateusz Hubert Stefaniak (@EmhyrVarEmreis)
 @agamal026
  * Fixed #6299: Malformed JSON (or failure) for a single-element container whose only
    element is filtered with `APPLY_JSON_INCLUDE_FOR_CONTAINERS` + `WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED`
+  [3.4.0]
+
+@shevek
+ * Reported #6445: `@JsonMerge` does not work properly for `EnumMap`
   [3.4.0]

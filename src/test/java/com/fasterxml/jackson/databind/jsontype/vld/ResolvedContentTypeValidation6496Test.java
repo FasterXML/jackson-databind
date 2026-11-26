@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.deser.std.StdValueInstantiator;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -63,6 +64,12 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
     public static class MyLocaleMap extends HashMap<Locale, Currency> { }
     public static class MyNodeList extends ArrayList<JsonNode> { }
     public static class MyUriList extends ArrayList<java.net.URI> { }
+    public static class MyFileList extends ArrayList<java.io.File> { }
+    public static class MyPathList extends ArrayList<java.nio.file.Path> { }
+    public static class MyTimestampList extends ArrayList<java.sql.Timestamp> { }
+    public static class MyCharSequenceList extends ArrayList<CharSequence> { }
+    // not considered safe
+    public static class MySerializableList extends ArrayList<java.io.Serializable> { }
     public static class MyLocalDateList extends ArrayList<java.time.LocalDate> { }
     // ... but not types in sub-packages of `java.time`
     public static class MyFormatterList extends ArrayList<java.time.format.DateTimeFormatter> { }
@@ -140,6 +147,7 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
         _verifyRejected(mapper, json("[L" + MyGadgetList.class.getName() + ";", "[[{}]]"));
         // not a well-known value type
         _verifyRejected(mapper, json(MyFormatterList.class, "[]"));
+        _verifyRejected(mapper, json(MySerializableList.class, "[]"));
     }
 
     // Content type need not be subtype of declared content type (type erasure):
@@ -151,6 +159,24 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
                 .allowIfSubType(Collection.class)
                 .allowIfBaseType(Animal.class));
         _verifyRejected(mapper, json(MyGadgetList.class, "[{}]"), AnimalsWrapper.class);
+    }
+
+    // ... nor allowed by default validator (`LaissezFaireSubTypeValidator`), which only
+    // allows subtypes of declared type
+    @Test
+    public void contentTypeNotSubtypeOfDeclaredWithDefaultValidator() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(LaissezFaireSubTypeValidator.instance,
+                        DefaultTyping.OBJECT_AND_NON_CONCRETE)
+                .build();
+        InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
+                () -> mapper.readValue(json(MyGadgetList.class, "[{}]"), AnimalsWrapper.class));
+        verifyException(e, "not a subtype of declared type");
+        assertFalse(gadgetCreated);
+        // but subtypes are fine
+        assertEquals(MyDogList.class, mapper.readValue(json(MyDogList.class, "[{}]"),
+                AnimalsWrapper.class).value.getClass());
     }
 
     // Approval of base type does not cover content type either
@@ -189,6 +215,12 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
                 _read(mapper, MyNodeList.class, "[{'a':1}]"));
         assertEquals(Arrays.asList(java.net.URI.create("urn:x")),
                 _read(mapper, MyUriList.class, "['urn:x']"));
+        assertEquals(Arrays.asList(new java.io.File("x")), _read(mapper, MyFileList.class, "['x']"));
+        // (`Path` elements would need type ids of their own here, being abstract)
+        assertEquals(Collections.emptyList(), _read(mapper, MyPathList.class, "[]"));
+        assertEquals(Arrays.asList(new java.sql.Timestamp(0L)),
+                _read(mapper, MyTimestampList.class, "[0]"));
+        assertEquals(Arrays.asList("x"), _read(mapper, MyCharSequenceList.class, "['x']"));
         // (no Java 8 date/time module here: just verify type id is accepted)
         assertEquals(Collections.emptyList(), _read(mapper, MyLocalDateList.class, "[]"));
     }

@@ -1,9 +1,11 @@
 package com.fasterxml.jackson.databind;
 
+import java.io.File;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.Calendar;
 import java.util.Currency;
 import java.util.Date;
@@ -431,7 +433,9 @@ public abstract class DatabindContext
     {
         // [databind#6496]: due to type erasure, key/content type of a container type
         // need not be subtype of declared one: if not, has no declared type (but `Object`)
+        JavaType notSubtypeOf = null;
         if ((declaredType != null) && !param.isTypeOrSubTypeOf(declaredType.getRawClass())) {
+            notSubtypeOf = declaredType;
             declaredType = TypeFactory.unknownType();
         }
         if (!_isSafeTypeParameter(param)
@@ -465,6 +469,13 @@ public abstract class DatabindContext
                                 "contained type " + ClassUtil.getTypeDescription(param)
                                 + " not a subtype of base type (and no `PolymorphicTypeValidator`"
                                 + " configured to allow it)");
+                    }
+                    // [databind#6496]: ... nor ones not subtypes of declared type
+                    if (notSubtypeOf != null) {
+                        throw invalidTypeIdException(baseType, typeId,
+                                "contained type " + ClassUtil.getTypeDescription(param)
+                                + " not a subtype of declared type " + ClassUtil.getTypeDescription(notSubtypeOf)
+                                + " (and no `PolymorphicTypeValidator` configured to allow it)");
                     }
                     vld = Validity.ALLOWED;
                 } else {
@@ -642,8 +653,12 @@ public abstract class DatabindContext
      * {@code Date}, {@code Calendar}, {@code GregorianCalendar}, {@code Locale},
      * {@code Currency} and {@code TimeZone} (but not all of {@code java.util}:
      * some types there have side effects on construction, like {@code Timer});
-     * {@code java.net.URI}; and {@link JsonNode} (and its standard subtypes), read by
-     * tree model deserializers.
+     * {@code java.net.URI}, {@code java.io.File} and {@code java.nio.file.Path} (no file
+     * access); {@code java.sql.Date}, {@code java.sql.Time} and {@code java.sql.Timestamp}
+     * (matched by name: {@code java.sql} is an optional module); {@code CharSequence}
+     * (read as {@code String}); and {@link JsonNode} (and its standard subtypes), read by
+     * tree model deserializers. NOTE: not {@code Serializable}, although read as
+     * {@code Object} (untyped values only) by default.
      * NOTE: not {@code java.net.URL} or {@code java.net.InetAddress}, use of which may
      * cause DNS lookups.
      */
@@ -664,13 +679,18 @@ public abstract class DatabindContext
         // [databind#6496]: well-known value types
         if ((raw == Date.class) || (raw == Calendar.class) || (raw == GregorianCalendar.class)
                 || (raw == Locale.class) || (raw == Currency.class) || (raw == TimeZone.class)
-                || (raw == URI.class) || (raw == JsonNode.class)
+                || (raw == URI.class) || (raw == File.class) || (raw == Path.class)
+                || (raw == CharSequence.class) || (raw == JsonNode.class)
                 // only standard node types: others may have custom deserializers
                 || (JsonNode.class.isAssignableFrom(raw)
                         && raw.getName().startsWith("com.fasterxml.jackson.databind.node."))) {
             return true;
         }
         final String name = raw.getName();
+        if (name.startsWith("java.sql.")) {
+            return name.equals("java.sql.Date") || name.equals("java.sql.Time")
+                    || name.equals("java.sql.Timestamp");
+        }
         return name.startsWith("java.time.") && (name.indexOf('.', "java.time.".length()) < 0);
     }
 

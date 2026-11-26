@@ -67,6 +67,14 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
 
     public static class MyDogListList extends ArrayList<List<Dog>> { }
 
+    // Content type wraps type parameter (like Spring `LinkedMultiValueMap`)
+    public static class MyMultiMap<K, V> extends HashMap<K, List<V>> { }
+    // Part of content type from class declaration, part from type parameter
+    public static class MyHiddenGadgetMapList<T> extends ArrayList<Map<Gadget, T>> { }
+    // Mutually recursive content types
+    public static class MyPing extends ArrayList<MyPong> { }
+    public static class MyPong extends ArrayList<MyPing> { }
+
     // Polymorphic (via property annotation) base type, not `Object`
     public interface Plain { }
     public static class PlainEnv<T> implements Plain {
@@ -121,6 +129,8 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
         _verifyRejected(mapper, json(MyGadgetValueMap.class, "{'a':{}}"));
         _verifyRejected(mapper, json(MyGadgetKeyMap.class, "{'a':'b'}"));
         _verifyRejected(mapper, json(MyGadgetRef.class, "{}"));
+        _verifyRejected(mapper, json(MyHiddenGadgetMapList.class.getName() + "<java.lang.String>",
+                "[{}]"));
         // as type parameter
         _verifyRejected(mapper, json("java.util.ArrayList<" + MyGadgetList.class.getName() + ">",
                 "[[{}]]"));
@@ -163,6 +173,7 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
                 json("[L" + MyStringList.class.getName() + ";", "[['a']]"), ObjectWrapper.class)
                 .value.getClass());
         assertEquals(MyNode.class, _read(mapper, MyNode.class, "[]").getClass());
+        assertEquals(MyPing.class, _read(mapper, MyPing.class, "[[]]").getClass());
     }
 
     @Test
@@ -230,24 +241,31 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
     @Test
     public void deeplyNestedTypeIdValidatedFast() throws Exception
     {
+        _verifyNestedFast(HashMap.class.getName());
+        _verifyNestedFast(MyMultiMap.class.getName());
+    }
+
+    private void _verifyNestedFast(String mapType) throws Exception
+    {
         StringBuilder sb = new StringBuilder();
         final int levels = 40;
         for (int i = 0; i < levels; ++i) {
-            sb.append("java.util.HashMap<java.lang.String,");
+            sb.append(mapType).append("<java.lang.String,");
         }
         sb.append("java.lang.String");
         for (int i = 0; i < levels; ++i) {
             sb.append('>');
         }
         final String json = json(sb.toString(), "{}");
+        ObjectMapper mapper = containerMapper();
         assertTimeoutPreemptively(java.time.Duration.ofSeconds(5), () -> {
             assertEquals(Collections.emptyMap(),
-                    newJsonMapper().readValue(json, AnnotatedObjectWrapper.class).value);
-        });
+                    mapper.readValue(json, ObjectWrapper.class).value);
+        }, mapType);
     }
 
-    // Content type from declared base type that is not a container type
-    // (`Iterable<Animal>`) comes from declaration as well
+    // Content type that comes from type parameter bound to declared type parameter
+    // of base type that is not a container type (`Iterable<Animal>`) is not validated
     @Test
     public void contentTypeFromNonContainerBaseType() throws Exception
     {

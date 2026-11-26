@@ -284,12 +284,12 @@ public abstract class DatabindContext
                     declaredType = _declaredContentType(declaredType);
                     elementType = elementType.getContentType();
                 }
-                _validateContentTypes(baseType, subClass, declaredType, elementType, false, ptv, config);
+                _validateContentTypes(baseType, subClass, declaredType, elementType, true, ptv, config);
             }
         } else {
             // [databind#6496]: resolved content types (like `Gadget` for
             // `class MyGadgetList extends ArrayList<Gadget>`) need validation as well
-            _validateContentTypes(baseType, subClass, baseType, subType, false, ptv, config);
+            _validateContentTypes(baseType, subClass, baseType, subType, true, ptv, config);
         }
         return subType;
     }
@@ -496,7 +496,9 @@ public abstract class DatabindContext
             _validateArrayElementType(baseType, typeId, declaredType, param, ptv, config);
         } else {
             _validateContainedTypes(baseType, typeId, declaredType, param, ptv, config);
-            _validateContentTypes(baseType, typeId, declaredType, param, true, ptv, config);
+            // Type named in type id (no declared type) may have type parameters from it
+            _validateContentTypes(baseType, typeId, declaredType, param,
+                    (declaredType == null), ptv, config);
         }
     }
 
@@ -507,19 +509,20 @@ public abstract class DatabindContext
      * for {@code class MyGadgetList extends ArrayList<Gadget>}, or for
      * {@code class MyList<T> extends ArrayList<Gadget>}). Validated like other contained
      * types (see {@link #_validateContainedType}), with declared type of that of the
-     * declared container type, or {@code Object}. Only key and content types that come
-     * from class declarations are validated: not ones that depend on type parameters
-     * (which are validated as such if named in type id, or come from declared base
-     * type), nor ones exactly like those of declared type.
+     * declared container type, or {@code Object}. Only parts of key and content types
+     * that come from class declarations are validated: not ones that come from type
+     * parameters (which are validated as such if named in type id, or come from declared
+     * base type), nor key and content types exactly like those of declared type.
      *
      * @param declaredType Declared type of the container type, if any ({@code null} if none)
-     * @param typeParamsValidated Whether type parameters of {@code type} are validated
-     *   (as contained types) as well
+     * @param mayHaveTypeParameters Whether {@code type} may have type parameters from
+     *   type id or declared base type ({@code false} for types from class declarations:
+     *   their type parameters are validated as contained types)
      *
      * @since 2.18.13
      */
     private void _validateContentTypes(JavaType baseType, String typeId,
-            JavaType declaredType, JavaType type, boolean typeParamsValidated,
+            JavaType declaredType, JavaType type, boolean mayHaveTypeParameters,
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
@@ -528,35 +531,44 @@ public abstract class DatabindContext
         if ((keyType == null) && (contentType == null)) {
             return;
         }
-        // Key and content types that come from class declarations do not depend on
-        // type parameters: same (by class) for type resolved without them
-        final JavaType unparameterized = config.getTypeFactory().constructType(type.getRawClass());
+        // Parts of key and content types that come from class declarations are the
+        // same for type resolved without type parameters, so validate those: this
+        // way type parameters (possibly nested within them, like `V` for
+        // `class MV<K,V> extends HashMap<K,List<V>>`) are not validated again, which
+        // could take exponential time wrt nesting depth of type id
+        final JavaType unparameterized = mayHaveTypeParameters
+                ? config.getTypeFactory().constructType(type.getRawClass()) : null;
         if (keyType != null) {
             _validateContentType(baseType, typeId,
                     _declaredContainedType(declaredType, true), type, keyType,
-                    unparameterized.getKeyType(), typeParamsValidated, ptv, config);
+                    (unparameterized == null) ? null : unparameterized.getKeyType(),
+                    mayHaveTypeParameters, ptv, config);
         }
         if (contentType != null) {
             _validateContentType(baseType, typeId,
                     _declaredContainedType(declaredType, false), type, contentType,
-                    unparameterized.getContentType(), typeParamsValidated, ptv, config);
+                    (unparameterized == null) ? null : unparameterized.getContentType(),
+                    mayHaveTypeParameters, ptv, config);
         }
     }
 
     private void _validateContentType(JavaType baseType, String typeId,
             JavaType declaredType, JavaType type, JavaType contentType,
-            JavaType unparameterizedType, boolean typeParamsValidated,
+            JavaType unparameterizedType, boolean mayHaveTypeParameters,
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
-        // Depends on type parameters?
-        if ((unparameterizedType != null)
-                && !contentType.hasRawClass(unparameterizedType.getRawClass())) {
-            return;
-        }
-        // Validated as type parameter already? (needed to keep validation linear wrt
-        // nesting depth, in case type parameter bound is same as content type)
-        if (typeParamsValidated) {
+        if (mayHaveTypeParameters) {
+            if (unparameterizedType != null) {
+                // Comes from type parameter as a whole?
+                if (!contentType.hasRawClass(unparameterizedType.getRawClass())) {
+                    return;
+                }
+                contentType = unparameterizedType;
+            }
+        } else {
+            // Type parameters (validated already) of types from class declarations
+            // come from class declarations, too: no need to validate again
             for (int i = 0, n = type.containedTypeCount(); i < n; ++i) {
                 if (contentType == type.containedType(i)) {
                     return;

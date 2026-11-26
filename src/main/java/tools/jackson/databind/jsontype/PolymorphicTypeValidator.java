@@ -178,6 +178,34 @@ public abstract class PolymorphicTypeValidator
     }
 
     /**
+     * Method called for a Collection, Map or reference type named by a type id
+     * (directly or as type parameter), once approved, to check whether this validator
+     * allows that type explicitly, so that the approval covers key and content types
+     * its class declares (like {@code Bar} for {@code class BarList extends ArrayList<Bar>}).
+     * If not, those are validated on their own: approval by a rule that matches other
+     * types too (every {@code Collection}, every class in some package) says nothing
+     * about them. Type parameters named in the type id are validated regardless.
+     *<p>
+     * Default implementation returns {@code false}. {@link BasicPolymorphicTypeValidator}
+     * returns {@code true} for (non-array) types passed to
+     * {@link BasicPolymorphicTypeValidator.Builder#allowIfSubType(Class)}: exactly those
+     * classes, not their subclasses.
+     *
+     * @param ctxt Context for resolution: typically will be {@code DeserializationContext}
+     * @param baseType Nominal base type the container type was resolved for
+     * @param containerType Container type named by the type id, already approved
+     *
+     * @return {@code true} if the approval of the container type covers key and
+     *   content types its class declares
+     *
+     * @since 3.1.10
+     */
+    public boolean isContainerTypeAllowedExplicitly(DatabindContext ctxt, JavaType baseType,
+            JavaType containerType) {
+        return false;
+    }
+
+    /**
      * Shared base class with partial implementation (with all validation calls returning
      * {@link Validity#INDETERMINATE}) and convenience methods for indicating failure reasons.
      * Use of this base class is strongly recommended over directly implement

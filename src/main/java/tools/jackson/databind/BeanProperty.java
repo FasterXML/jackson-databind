@@ -280,6 +280,68 @@ public interface BeanProperty extends FullyNamed
     }
 
     /**
+     * Implementation that delegates all calls to another {@link BeanProperty}:
+     * intended as base class for implementations that only need to override
+     * some of the methods (like {@link #getType()} or {@link #getMetadata()}).
+     *
+     * @since 3.4
+     */
+    public static class Delegating implements BeanProperty
+    {
+        protected final BeanProperty _delegate;
+
+        public Delegating(BeanProperty delegate) {
+            _delegate = delegate;
+        }
+
+        @Override public String getName() { return _delegate.getName(); }
+        @Override public PropertyName getFullName() { return _delegate.getFullName(); }
+        @Override public boolean hasName(PropertyName name) { return _delegate.hasName(name); }
+        @Override public JavaType getType() { return _delegate.getType(); }
+        @Override public PropertyName getWrapperName() { return _delegate.getWrapperName(); }
+        @Override public PropertyMetadata getMetadata() { return _delegate.getMetadata(); }
+        @Override public boolean isRequired() { return _delegate.isRequired(); }
+        @Override public boolean isVirtual() { return _delegate.isVirtual(); }
+        @Override public AnnotatedMember getMember() { return _delegate.getMember(); }
+
+        @Override
+        public <A extends Annotation> A getAnnotation(Class<A> acls) {
+            return _delegate.getAnnotation(acls);
+        }
+
+        @Override
+        public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
+            return _delegate.getContextAnnotation(acls);
+        }
+
+        @Override
+        public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType) {
+            return _delegate.findPropertyFormat(config, baseType);
+        }
+
+        @Override
+        public JsonFormat.Value findFormatOverrides(MapperConfig<?> config) {
+            return _delegate.findFormatOverrides(config);
+        }
+
+        @Override
+        public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType) {
+            return _delegate.findPropertyInclusion(config, baseType);
+        }
+
+        @Override
+        public List<PropertyName> findAliases(MapperConfig<?> config) {
+            return _delegate.findAliases(config);
+        }
+
+        @Override
+        public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
+                SerializationContext ctxt) {
+            _delegate.depositSchemaProperty(objectVisitor, ctxt);
+        }
+    }
+
+    /**
      * Alternative "Null" implementation that can be used in cases where a non-null
      * {@link BeanProperty} is needed
      */

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
 import tools.jackson.core.*;
@@ -2175,6 +2176,64 @@ inputDesc, _coercedTypeDesc(targetType));
         //     to be checked for content nulls
         //  NOTE: will this work wrt type-specific overrides? Probably not...
         return ctxt.getConfig().getDefaultNullHandling().getContentNulls();
+    }
+
+    /**
+     * Helper method for container deserializers to call to get the property
+     * to pass when contextualizing content (element, value) deserializer:
+     * needed since "content nulls" setting of the property only applies to
+     * immediate content of the property value, and must not be visible to
+     * nested containers. Nested levels instead use Config Override
+     * of the nested type (if any), then global default.
+     *<p>
+     * If content is itself a container, returned property also reports
+     * {@code contentType} as its type, so that nested container sees
+     * its own type (and not that of the outer container).
+     *
+     * @since 3.4
+     */
+    protected BeanProperty _contentProperty(DeserializationContext ctxt,
+            BeanProperty prop, JavaType contentType)
+    {
+        if (prop == null) {
+            return null;
+        }
+        final DeserializationConfig config = ctxt.getConfig();
+        Nulls nulls = null;
+        JsonSetter.Value nullHandling = config.getConfigOverride(contentType.getRawClass())
+                .getNullHandling();
+        if (nullHandling != null) {
+            nulls = nullHandling.nonDefaultContentNulls();
+        }
+        if (nulls == null) {
+            nulls = config.getDefaultNullHandling().nonDefaultContentNulls();
+        }
+        final PropertyMetadata md = prop.getMetadata();
+        if ((nulls == md.getContentNulls()) && !contentType.isContainerType()) {
+            return prop;
+        }
+        return new ContentProperty(prop, contentType, md.withNulls(md.getValueNulls(), nulls));
+    }
+
+    /**
+     * Delegating {@link BeanProperty} that only overrides type and metadata: see
+     * {@link #_contentProperty}.
+     *
+     * @since 3.4
+     */
+    private final static class ContentProperty extends BeanProperty.Delegating
+    {
+        private final JavaType _type;
+        private final PropertyMetadata _metadata;
+
+        ContentProperty(BeanProperty delegate, JavaType type, PropertyMetadata metadata) {
+            super(delegate);
+            _type = type;
+            _metadata = metadata;
+        }
+
+        @Override public PropertyMetadata getMetadata() { return _metadata; }
+        @Override public JavaType getType() { return _type; }
     }
 
     protected final NullValueProvider _findNullProvider(DeserializationContext ctxt,

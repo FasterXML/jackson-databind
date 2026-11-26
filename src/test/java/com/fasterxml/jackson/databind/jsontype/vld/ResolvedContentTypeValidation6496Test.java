@@ -65,6 +65,15 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
     // ... but not types in sub-packages of `java.time`
     public static class MyFormatterList extends ArrayList<java.time.format.DateTimeFormatter> { }
 
+    public static class MyDogListList extends ArrayList<List<Dog>> { }
+
+    // Polymorphic (via property annotation) base type, not `Object`
+    public interface Plain { }
+    public static class PlainEnv<T> implements Plain {
+        public T payload;
+    }
+    public static class PlainDogList extends ArrayList<Dog> implements Plain { }
+
     // Recursive type: must not cause infinite recursion
     public static class MyNode extends ArrayList<MyNode> { }
 
@@ -78,8 +87,18 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
     static class ObjectWrapper { public Object value; }
     static class AnimalsWrapper { public List<Animal> value; }
     static class DogsWrapper { public List<Dog> value; }
+    static class AnimalIterableWrapper { public Iterable<Animal> value; }
+    static class AnimalListsWrapper { public Collection<List<Animal>> value; }
     // ... and with annotation, with default validator
     static class PayloadWrapper { public Payload value; }
+    static class AnnotatedObjectWrapper {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+        public Object value;
+    }
+    static class PlainWrapper {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+        public Plain value;
+    }
 
     @BeforeEach
     public void reset() {
@@ -109,6 +128,17 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
         _verifyRejected(mapper, json("[L" + MyGadgetList.class.getName() + ";", "[[{}]]"));
         // not a well-known value type
         _verifyRejected(mapper, json(MyFormatterList.class, "[]"));
+    }
+
+    // Content type need not be subtype of declared content type (type erasure):
+    // approval of declared content type as base type must not cover it
+    @Test
+    public void contentTypeNotSubtypeOfDeclared() throws Exception
+    {
+        ObjectMapper mapper = mapper(BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType(Collection.class)
+                .allowIfBaseType(Animal.class));
+        _verifyRejected(mapper, json(MyGadgetList.class, "[{}]"), AnimalsWrapper.class);
     }
 
     // Approval of base type does not cover content type either
@@ -194,6 +224,60 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
         Payload p = newJsonMapper().readValue(json(Batch.class, "[[{'x':1}]]"),
                 PayloadWrapper.class).value;
         assertEquals(1, ((Batch) p).get(0).get(0).x);
+    }
+
+    // Validation must take linear (not exponential) time wrt nesting depth
+    @Test
+    public void deeplyNestedTypeIdValidatedFast() throws Exception
+    {
+        StringBuilder sb = new StringBuilder();
+        final int levels = 40;
+        for (int i = 0; i < levels; ++i) {
+            sb.append("java.util.HashMap<java.lang.String,");
+        }
+        sb.append("java.lang.String");
+        for (int i = 0; i < levels; ++i) {
+            sb.append('>');
+        }
+        final String json = json(sb.toString(), "{}");
+        assertTimeoutPreemptively(java.time.Duration.ofSeconds(5), () -> {
+            assertEquals(Collections.emptyMap(),
+                    newJsonMapper().readValue(json, AnnotatedObjectWrapper.class).value);
+        });
+    }
+
+    // Content type from declared base type that is not a container type
+    // (`Iterable<Animal>`) comes from declaration as well
+    @Test
+    public void contentTypeFromNonContainerBaseType() throws Exception
+    {
+        List<?> animals = (List<?>) containerMapper().readValue(json(ArrayList.class, "[{}]"),
+                AnimalIterableWrapper.class).value;
+        assertEquals(Animal.class, animals.get(0).getClass());
+    }
+
+    // Content types of a type parameter come from its class declaration: not to be
+    // rejected by default validator any more than for top-level type id
+    @Test
+    public void contentTypeOfTypeParameterWithDefaultValidator() throws Exception
+    {
+        Plain p = newJsonMapper().readValue(
+                json(PlainEnv.class.getName() + "<" + PlainDogList.class.getName() + ">",
+                        "{'payload':[{}]}"),
+                PlainWrapper.class).value;
+        assertEquals(Dog.class, ((PlainDogList) ((PlainEnv<?>) p).payload).get(0).getClass());
+    }
+
+    // Approval of base type covers subtypes of declared type parameters of
+    // content type same as for content type itself
+    @Test
+    public void nestedSubtypeOfDeclaredContentType() throws Exception
+    {
+        ObjectMapper mapper = mapper(BasicPolymorphicTypeValidator.builder()
+                .allowIfBaseType(Collection.class));
+        Collection<List<Animal>> lists = mapper.readValue(json(MyDogListList.class, a2q("[['java.util.ArrayList',[{}]]]")),
+                AnimalListsWrapper.class).value;
+        assertEquals(MyDogListList.class, lists.getClass());
     }
 
     /*

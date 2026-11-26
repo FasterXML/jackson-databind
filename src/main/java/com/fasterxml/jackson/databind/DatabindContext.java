@@ -284,12 +284,12 @@ public abstract class DatabindContext
                     declaredType = _declaredContentType(declaredType);
                     elementType = elementType.getContentType();
                 }
-                _validateContentTypes(baseType, subClass, declaredType, elementType, ptv, config);
+                _validateContentTypes(baseType, subClass, declaredType, elementType, false, ptv, config);
             }
         } else {
             // [databind#6496]: resolved content types (like `Gadget` for
             // `class MyGadgetList extends ArrayList<Gadget>`) need validation as well
-            _validateContentTypes(baseType, subClass, baseType, subType, ptv, config);
+            _validateContentTypes(baseType, subClass, baseType, subType, false, ptv, config);
         }
         return subType;
     }
@@ -326,7 +326,7 @@ public abstract class DatabindContext
         _validateContainedTypes(baseType, subClass, subType, ptv, config);
         // [databind#6496]: ... as well as resolved content types, which need not
         // be type parameters (`class MyList<T> extends ArrayList<Gadget>`)
-        _validateContentTypes(baseType, subClass, baseType, subType, ptv, config);
+        _validateContentTypes(baseType, subClass, baseType, subType, true, ptv, config);
         return subType;
     }
 
@@ -367,18 +367,27 @@ public abstract class DatabindContext
     }
 
     /**
-     * @param declaredParamType Declared type for type parameters: {@code null} (none)
-     *   for ones named in the type id; {@code Object} for ones of a type that comes
-     *   from a class declaration ([databind#6496])
+     * @param declaredType Declared type of {@code type}: {@code null} (none) if named
+     *   in the type id (and so are its type parameters); otherwise type comes from a
+     *   class declaration ([databind#6496]) and so do its type parameters: their
+     *   declared types are those of declared type if same class, {@code Object} if not
      *
      * @since 2.18.13
      */
     private void _validateContainedTypes(JavaType baseType, String typeId,
-            JavaType declaredParamType, JavaType type,
+            JavaType declaredType, JavaType type,
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
         for (int i = 0, n = type.containedTypeCount(); i < n; ++i) {
+            JavaType declaredParamType = null;
+            if (declaredType != null) {
+                declaredParamType = type.hasRawClass(declaredType.getRawClass())
+                        ? declaredType.containedType(i) : null;
+                if (declaredParamType == null) {
+                    declaredParamType = TypeFactory.unknownType();
+                }
+            }
             _validateContainedType(baseType, typeId, declaredParamType,
                     type.containedType(i), ptv, config);
         }
@@ -420,6 +429,11 @@ public abstract class DatabindContext
             JavaType param, PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
+        // [databind#6496]: due to type erasure, key/content type of a container type
+        // need not be subtype of declared one: if not, has no declared type (but `Object`)
+        if ((declaredType != null) && !param.isTypeOrSubTypeOf(declaredType.getRawClass())) {
+            declaredType = TypeFactory.unknownType();
+        }
         if (!_isSafeTypeParameter(param)
                 && !((declaredType != null) && param.hasRawClass(declaredType.getRawClass()))) {
             final PolymorphicTypeValidator vldr;
@@ -481,12 +495,8 @@ public abstract class DatabindContext
         if (param.isArrayType()) {
             _validateArrayElementType(baseType, typeId, declaredType, param, ptv, config);
         } else {
-            // [databind#6496]: type with declared type (array element or content type)
-            // comes from a class declaration, and so do its type parameters
-            _validateContainedTypes(baseType, typeId,
-                    (declaredType == null) ? null : TypeFactory.unknownType(),
-                    param, ptv, config);
-            _validateContentTypes(baseType, typeId, declaredType, param, ptv, config);
+            _validateContainedTypes(baseType, typeId, declaredType, param, ptv, config);
+            _validateContentTypes(baseType, typeId, declaredType, param, true, ptv, config);
         }
     }
 
@@ -496,51 +506,76 @@ public abstract class DatabindContext
      * need not be visible as type parameters (for example {@code Gadget}
      * for {@code class MyGadgetList extends ArrayList<Gadget>}, or for
      * {@code class MyList<T> extends ArrayList<Gadget>}). Validated like other contained
-     * types (see {@link #_validateContainedType}), except that a key or content type
-     * exactly like that of the declared type is not validated: it comes from the
-     * declaration, not from the type id.
+     * types (see {@link #_validateContainedType}), with declared type of that of the
+     * declared container type, or {@code Object}. Only key and content types that come
+     * from class declarations are validated: not ones that depend on type parameters
+     * (which are validated as such if named in type id, or come from declared base
+     * type), nor ones exactly like those of declared type.
      *
      * @param declaredType Declared type of the container type, if any ({@code null} if none)
+     * @param typeParamsValidated Whether type parameters of {@code type} are validated
+     *   (as contained types) as well
      *
      * @since 2.18.13
      */
     private void _validateContentTypes(JavaType baseType, String typeId,
-            JavaType declaredType, JavaType type,
+            JavaType declaredType, JavaType type, boolean typeParamsValidated,
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
         final JavaType keyType = type.getKeyType();
+        final JavaType contentType = type.getContentType();
+        if ((keyType == null) && (contentType == null)) {
+            return;
+        }
+        // Key and content types that come from class declarations do not depend on
+        // type parameters: same (by class) for type resolved without them
+        final JavaType unparameterized = config.getTypeFactory().constructType(type.getRawClass());
         if (keyType != null) {
             _validateContentType(baseType, typeId,
-                    _declaredContainedType(declaredType, true),
-                    keyType, ptv, config);
+                    _declaredContainedType(declaredType, true), type, keyType,
+                    unparameterized.getKeyType(), typeParamsValidated, ptv, config);
         }
-        final JavaType contentType = type.getContentType();
         if (contentType != null) {
             _validateContentType(baseType, typeId,
-                    _declaredContainedType(declaredType, false),
-                    contentType, ptv, config);
+                    _declaredContainedType(declaredType, false), type, contentType,
+                    unparameterized.getContentType(), typeParamsValidated, ptv, config);
         }
     }
 
     private void _validateContentType(JavaType baseType, String typeId,
-            JavaType declaredType, JavaType contentType,
+            JavaType declaredType, JavaType type, JavaType contentType,
+            JavaType unparameterizedType, boolean typeParamsValidated,
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
+        // Depends on type parameters?
+        if ((unparameterizedType != null)
+                && !contentType.hasRawClass(unparameterizedType.getRawClass())) {
+            return;
+        }
+        // Validated as type parameter already? (needed to keep validation linear wrt
+        // nesting depth, in case type parameter bound is same as content type)
+        if (typeParamsValidated) {
+            for (int i = 0, n = type.containedTypeCount(); i < n; ++i) {
+                if (contentType == type.containedType(i)) {
+                    return;
+                }
+            }
+        }
         if (!contentType.equals(declaredType)) {
             _validateContainedType(baseType, typeId, declaredType, contentType, ptv, config);
         }
     }
 
     // Declared key or content type of a container type: that of declared type if
-    // it has one; `Object` if declared type has none (like `Object` itself);
-    // `null` (none) if no declared type
+    // it has one; `Object` if not (or if no declared type: key and content types
+    // come from class declaration, not type id)
     private static JavaType _declaredContainedType(JavaType declaredType, boolean keyType) {
-        if (declaredType == null) {
-            return null;
+        JavaType t = null;
+        if (declaredType != null) {
+            t = keyType ? declaredType.getKeyType() : declaredType.getContentType();
         }
-        JavaType t = keyType ? declaredType.getKeyType() : declaredType.getContentType();
         return (t == null) ? TypeFactory.unknownType() : t;
     }
 
@@ -595,7 +630,8 @@ public abstract class DatabindContext
      * {@code Date}, {@code Calendar}, {@code GregorianCalendar}, {@code Locale},
      * {@code Currency} and {@code TimeZone} (but not all of {@code java.util}:
      * some types there have side effects on construction, like {@code Timer});
-     * {@code java.net.URI}; and {@link JsonNode} types, read by tree model deserializers.
+     * {@code java.net.URI}; and {@link JsonNode} (and its standard subtypes), read by
+     * tree model deserializers.
      * NOTE: not {@code java.net.URL} or {@code java.net.InetAddress}, use of which may
      * cause DNS lookups.
      */
@@ -616,7 +652,10 @@ public abstract class DatabindContext
         // [databind#6496]: well-known value types
         if ((raw == Date.class) || (raw == Calendar.class) || (raw == GregorianCalendar.class)
                 || (raw == Locale.class) || (raw == Currency.class) || (raw == TimeZone.class)
-                || (raw == URI.class) || JsonNode.class.isAssignableFrom(raw)) {
+                || (raw == URI.class) || (raw == JsonNode.class)
+                // only standard node types: others may have custom deserializers
+                || (JsonNode.class.isAssignableFrom(raw)
+                        && raw.getName().startsWith("com.fasterxml.jackson.databind.node."))) {
             return true;
         }
         final String name = raw.getName();

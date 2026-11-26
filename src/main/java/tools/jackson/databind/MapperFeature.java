@@ -331,6 +331,10 @@ public enum MapperFeature
      * meaning that non-annotated
      * properties are not included views if there is no
      * {@link com.fasterxml.jackson.annotation.JsonView} annotation.
+     *<p>
+     * Note: enabled by
+     * {@link tools.jackson.databind.cfg.MapperBuilder#configureForJackson2()}
+     * (and so by {@code builderWithJackson2Defaults()}) to match 2.x behavior.
      */
     DEFAULT_VIEW_INCLUSION(false),
 

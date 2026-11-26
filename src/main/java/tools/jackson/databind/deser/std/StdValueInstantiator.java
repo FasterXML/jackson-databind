@@ -9,6 +9,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.introspect.AnnotatedWithParams;
+import tools.jackson.databind.util.ClassUtil;
 
 /**
  * Default {@link ValueInstantiator} implementation, which supports
@@ -22,8 +23,20 @@ public class StdValueInstantiator
     /**
      * Type of values that are instantiated; used
      * for error reporting purposes.
+     *<p>
+     * NOTE: since 3.1.10, when constructed with {@link JavaType}, only class name:
+     * full description (see {@link #getValueTypeDesc()}) of deeply nested types is
+     * costly to construct, and only needed for error messages.
      */
     protected final String _valueTypeDesc;
+
+    /**
+     * Type of values that are instantiated, if known; used for constructing
+     * full description (see {@link #getValueTypeDesc()}) when needed.
+     *
+     * @since 3.1.10
+     */
+    private final JavaType _valueType;
 
     protected final Class<?> _valueClass;
 
@@ -69,13 +82,12 @@ public class StdValueInstantiator
      */
 
     public StdValueInstantiator(DeserializationConfig config, JavaType valueType) {
-        if (valueType == null) {
-            _valueTypeDesc = "UNKNOWN TYPE";
-            _valueClass = Object.class;
-        } else {
-            _valueTypeDesc = valueType.toString();
-            _valueClass = valueType.getRawClass();
-        }
+        // 25-Nov-2026: [databind#6496] Construct full description lazily: for nested
+        //   container types it is as long as the type id, and constructing one for
+        //   each level takes quadratic time wrt nesting depth
+        _valueTypeDesc = (valueType == null) ? "UNKNOWN TYPE" : ClassUtil.nameOf(valueType.getRawClass());
+        _valueClass = (valueType == null) ? Object.class : valueType.getRawClass();
+        _valueType = valueType;
     }
 
     /**
@@ -86,6 +98,7 @@ public class StdValueInstantiator
     {
         _valueTypeDesc = src._valueTypeDesc;
         _valueClass = src._valueClass;
+        _valueType = src._valueType;
 
         _defaultCreator = src._defaultCreator;
 
@@ -175,7 +188,7 @@ public class StdValueInstantiator
 
     @Override
     public String getValueTypeDesc() {
-        return _valueTypeDesc;
+        return (_valueType == null) ? _valueTypeDesc : _valueType.toString();
     }
 
     @Override

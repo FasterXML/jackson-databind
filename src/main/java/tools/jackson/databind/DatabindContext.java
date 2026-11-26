@@ -1,8 +1,15 @@
 package tools.jackson.databind;
 
+import java.io.File;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URI;
+import java.nio.file.Path;
+import java.util.Calendar;
+import java.util.Currency;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -249,9 +256,24 @@ public abstract class DatabindContext
         // [CVE-2026-110879]: element type of an array type id is attacker-selected
         // as well and needs validation like type parameters of generic type ids
         // (approval of array type, by base type or by sub-type, does not extend to it)
-        if (subType.isArrayType()
-                && !_configuredValidator(ptv).isArrayTypeAllowedExplicitly(this, baseType, subType)) {
-            _validateArrayElementType(baseType, subClass, baseType, subType, ptv);
+        if (subType.isArrayType()) {
+            if (!_configuredValidator(ptv).isArrayTypeAllowedExplicitly(this, baseType, subType)) {
+                _validateArrayElementType(baseType, subClass, baseType, subType, ptv);
+            } else {
+                // [databind#6496]: explicit approval of array type covers its element
+                // type, but not key/content types its class declares (`[LMyGadgetList;`)
+                JavaType declaredType = baseType;
+                JavaType elementType = subType;
+                do {
+                    declaredType = _declaredContentType(declaredType);
+                    elementType = elementType.getContentType();
+                } while (elementType.isArrayType());
+                _validateDeclaredContentTypes(baseType, subClass, declaredType, elementType, ptv);
+            }
+        } else {
+            // [databind#6496]: key/content types from class declaration (like `Gadget` for
+            // `class MyGadgetList extends ArrayList<Gadget>`) need validation as well
+            _validateDeclaredContentTypes(baseType, subClass, baseType, subType, ptv);
         }
         return subType;
     }
@@ -284,6 +306,9 @@ public abstract class DatabindContext
         // [CVE-2026-110879]: ... and validated as if named as a direct type id,
         // see `_validateContainedType()`
         _validateContainedTypes(baseType, subClass, subType, ptv);
+        // [databind#6496]: ... as well as key/content types from class declaration,
+        // which need not be type parameters (`class MyList<T> extends ArrayList<Gadget>`)
+        _validateDeclaredContentTypes(baseType, subClass, baseType, subType, ptv);
         return subType;
     }
 
@@ -356,6 +381,31 @@ public abstract class DatabindContext
     private void _validateContainedType(JavaType baseType, String typeId, JavaType declaredType,
             JavaType param, PolymorphicTypeValidator ptv)
     {
+        _checkContainedType(baseType, typeId, declaredType, param, ptv, false);
+        if (param.isArrayType()) {
+            _validateArrayElementType(baseType, typeId, declaredType, param, ptv);
+        } else {
+            _validateContainedTypes(baseType, typeId, param, ptv);
+            // [databind#6496]: ... and key/content types its class declares
+            _validateDeclaredContentTypes(baseType, typeId, declaredType, param, ptv);
+        }
+    }
+
+    /**
+     * Helper for checking a contained type itself (not its contained types), see
+     * {@link #_validateContainedType}.
+     *
+     * @param fromDeclaration Whether type comes from a class declaration (see
+     *   {@link #_validateDeclaredContentTypes}): if so, denial of its declared type as
+     *   base type (like of {@code Object} by {@code DefaultBaseTypeLimitingValidator})
+     *   does not deny it if allowed as subtype
+     *
+     * @since 3.1.10
+     */
+    private void _checkContainedType(JavaType baseType, String typeId, JavaType declaredType,
+            JavaType param, PolymorphicTypeValidator ptv,
+            boolean fromDeclaration)
+    {
         if (!_isSafeTypeParameter(param)
                 && !((declaredType != null) && param.hasRawClass(declaredType.getRawClass()))) {
             final PolymorphicTypeValidator vldr;
@@ -386,7 +436,7 @@ public abstract class DatabindContext
                     vld = Validity.DENIED;
                 }
             }
-            if ((vld == Validity.INDETERMINATE)
+            if (((vld == Validity.INDETERMINATE) || (fromDeclaration && (vld == Validity.DENIED)))
                     && _isApprovedSubType(vldr, vldBaseType, param)) {
                 vld = Validity.ALLOWED;
             }
@@ -407,11 +457,112 @@ public abstract class DatabindContext
                         param.getRawClass().getName()));
             }
         }
-        if (param.isArrayType()) {
-            _validateArrayElementType(baseType, typeId, declaredType, param, ptv);
-        } else {
-            _validateContainedTypes(baseType, typeId, param, ptv);
+    }
+
+    /**
+     * Helper for [databind#6496]: validate key and content types of a Collection-,
+     * Map- or reference type named by type id (directly or as type parameter) that
+     * come from its class declaration (or ones it extends), like {@code Gadget} for
+     * {@code class MyGadgetList extends ArrayList<Gadget>} or for
+     * {@code class MyList<T> extends ArrayList<Gadget>}: approval of a container type
+     * (often by a rule matching all containers) does not cover them. They are validated
+     * by configured validator like type parameters named in type id (see
+     * {@link #_validateContainedType}), except that:
+     *<ul>
+     * <li>Parts that come from type parameters are not validated here: ones named in
+     *   type id are validated as such, and ones bound by declared base type come from
+     *   it, not from type id
+     *   </li>
+     * <li>Key/content type exactly like that of declared base type is not validated,
+     *   and approval of base type covers subtypes of it (as with arrays)
+     *   </li>
+     * <li>Explicit approval of the container class (see
+     *   {@link PolymorphicTypeValidator#isContainerTypeAllowedExplicitly}) covers them
+     *   </li>
+     *</ul>
+     *
+     * @param declaredType Declared type of {@code type} (polymorphic base type for
+     *   type named directly by type id, element type of declared array type for array
+     *   elements; {@code null} for type parameters)
+     *
+     * @since 3.1.10
+     */
+    private void _validateDeclaredContentTypes(JavaType baseType, String typeId,
+            JavaType declaredType, JavaType type,
+            PolymorphicTypeValidator ptv)
+    {
+        if (type.isArrayType()
+                || ((type.getKeyType() == null) && (type.getContentType() == null))) {
+            return;
         }
+        final PolymorphicTypeValidator vldr = _configuredValidator(ptv);
+        if (vldr.isContainerTypeAllowedExplicitly(this, baseType, type)) {
+            return;
+        }
+        _validateDeclaredParts(baseType, typeId, declaredType, type,
+                getTypeFactory().constructType(type.getRawClass()), null, ptv);
+    }
+
+    // Walks key, content and type parameter types of `type`, in parallel with:
+    // - `declaredType`: declared type of `type`, if any: part same as declared needs no
+    //   validation, nor does approval of base type cover subtype of it
+    // - `unparameterized`: `type` as declared by enclosing class, without type
+    //   parameters: parts that differ from it (are type variable bounds there) come
+    //   from type parameters, not class declaration, and are not walked. This also keeps
+    //   validation linear wrt nesting depth of type id: type parameters are not walked
+    //   (again)
+    // - `covered`: `type` as declared by explicitly approved class (if any), without
+    //   type parameters: parts that match it come from its declaration, and need no
+    //   validation (but their parts may)
+    private void _validateDeclaredParts(JavaType baseType, String typeId, JavaType declaredType,
+            JavaType type, JavaType unparameterized, JavaType covered,
+            PolymorphicTypeValidator ptv)
+    {
+        final JavaType keyType = type.getKeyType();
+        final JavaType contentType = type.getContentType();
+        _validateDeclaredPart(baseType, typeId, _keyType(declaredType), keyType,
+                unparameterized.getKeyType(), _keyType(covered), ptv);
+        _validateDeclaredPart(baseType, typeId, _contentType(declaredType), contentType,
+                unparameterized.getContentType(), _contentType(covered), ptv);
+        for (int i = 0, n = type.containedTypeCount(); i < n; ++i) {
+            final JavaType param = type.containedType(i);
+            // (usually same as key or content type: no need to walk again)
+            if ((param != keyType) && (param != contentType)) {
+                _validateDeclaredPart(baseType, typeId, null, param,
+                        unparameterized.containedType(i),
+                        (covered == null) ? null : covered.containedType(i), ptv);
+            }
+        }
+    }
+
+    private void _validateDeclaredPart(JavaType baseType, String typeId, JavaType declaredType,
+            JavaType type, JavaType unparameterized, JavaType covered,
+            PolymorphicTypeValidator ptv)
+    {
+        if ((type == null) || (unparameterized == null)
+                || !type.hasRawClass(unparameterized.getRawClass())
+                || type.equals(declaredType)) {
+            return;
+        }
+        // Declared type only corresponds to subtypes of it (and parts of those)
+        if ((declaredType != null) && !type.isTypeOrSubTypeOf(declaredType.getRawClass())) {
+            declaredType = null;
+        }
+        if ((covered == null) || !type.hasRawClass(covered.getRawClass())) {
+            _checkContainedType(baseType, typeId, declaredType, type, ptv, true);
+            covered = _configuredValidator(ptv).isContainerTypeAllowedExplicitly(this, baseType, type)
+                    ? getTypeFactory().constructType(type.getRawClass()) : null;
+        }
+        _validateDeclaredParts(baseType, typeId, declaredType, type, unparameterized, covered,
+                ptv);
+    }
+
+    private static JavaType _keyType(JavaType type) {
+        return (type == null) ? null : type.getKeyType();
+    }
+
+    private static JavaType _contentType(JavaType type) {
+        return (type == null) ? null : type.getContentType();
     }
 
     /**
@@ -457,6 +608,20 @@ public abstract class DatabindContext
      * as scalars (subtypes of {@code Number} other than these need type ids); and arrays
      * and {@code java.util} container (Collection, Map, reference) types are JDK types
      * whose contained types are validated separately.
+     *<p>
+     * [databind#6496]: also value types read from scalars by standard deserializers:
+     * {@code java.time} types (from {@code java.time} package itself, not sub-packages),
+     * {@code Date}, {@code Calendar}, {@code GregorianCalendar}, {@code Locale},
+     * {@code Currency} and {@code TimeZone} (but not all of {@code java.util}:
+     * some types there have side effects on construction, like {@code Timer});
+     * {@code java.net.URI}, {@code java.io.File} and {@code java.nio.file.Path} (no file
+     * access); {@code java.sql.Date}, {@code java.sql.Time} and {@code java.sql.Timestamp}
+     * (matched by name: {@code java.sql} is an optional module); {@code CharSequence}
+     * (read as {@code String}); and {@link JsonNode} (and its standard subtypes), read by
+     * tree model deserializers. NOTE: not {@code Serializable}, although read as
+     * {@code Object} (untyped values only) by default.
+     * NOTE: not {@code java.net.URL} or {@code java.net.InetAddress}, use of which may
+     * cause DNS lookups.
      */
     private static boolean _isSafeTypeParameter(JavaType param)
     {
@@ -468,8 +633,26 @@ public abstract class DatabindContext
                 && raw.getName().startsWith("java.util.")) {
             return true;
         }
-        return (raw == String.class) || (ClassUtil.primitiveType(raw) != null)
-                || (raw == Number.class) || (raw == BigDecimal.class) || (raw == BigInteger.class) || (raw == UUID.class);
+        if ((raw == String.class) || (ClassUtil.primitiveType(raw) != null)
+                || (raw == Number.class) || (raw == BigDecimal.class) || (raw == BigInteger.class) || (raw == UUID.class)) {
+            return true;
+        }
+        // [databind#6496]: well-known value types
+        if ((raw == Date.class) || (raw == Calendar.class) || (raw == GregorianCalendar.class)
+                || (raw == Locale.class) || (raw == Currency.class) || (raw == TimeZone.class)
+                || (raw == URI.class) || (raw == File.class) || (raw == Path.class)
+                || (raw == CharSequence.class) || (raw == JsonNode.class)
+                // only standard node types: others may have custom deserializers
+                || (JsonNode.class.isAssignableFrom(raw)
+                        && raw.getName().startsWith("tools.jackson.databind.node."))) {
+            return true;
+        }
+        final String name = raw.getName();
+        if (name.startsWith("java.sql.")) {
+            return name.equals("java.sql.Date") || name.equals("java.sql.Time")
+                    || name.equals("java.sql.Timestamp");
+        }
+        return name.startsWith("java.time.") && (name.indexOf('.', "java.time.".length()) < 0);
     }
 
     protected <T> T _throwNotASubtype(JavaType baseType, String subType) throws DatabindException {

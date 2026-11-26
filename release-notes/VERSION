@@ -14,6 +14,10 @@ No changes since 3.1
 #6490: `@JsonAnySetter` on a method creates and adapts a new `MethodHandle` per call
   (`AnnotatedMethod.callOnWith`)
  (reported, fixed by Francesco N)
+#6496: Polymorphic type validation should use resolved content types if possible (not raw)
+  [GHSA-268j-6pjg-73vh]
+  NOTE: also avoids quadratic time wrt nesting depth of type ids in `StdValueInstantiator`
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.1.9 (24-Nov-2026)
 

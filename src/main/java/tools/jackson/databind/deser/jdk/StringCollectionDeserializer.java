@@ -218,12 +218,16 @@ public final class StringCollectionDeserializer
         if (_valueDeserializer != null) {
             return deserializeUsingCustom(p, ctxt, result, _valueDeserializer);
         }
+        final boolean failOnDuplicate = CollectionDeserializer._failOnDuplicateSetElements(ctxt, result);
+        int index = 0;
         try {
-            while (true) {
+            for (;; ++index) {
                 // First the common case:
                 String value = p.nextStringValue();
                 if (value != null) {
-                    result.add(value);
+                    if (!result.add(value) && failOnDuplicate) {
+                        throw CollectionDeserializer._duplicateSetElement(p, result, index);
+                    }
                     continue;
                 }
                 JsonToken t = p.currentToken();
@@ -269,11 +273,13 @@ public final class StringCollectionDeserializer
                     }
                 }
 
-                result.add(value);
+                if (!result.add(value) && failOnDuplicate) {
+                    throw CollectionDeserializer._duplicateSetElement(p, result, index);
+                }
             }
         } catch (Exception e) {
             throw DatabindException.wrapWithPath(ctxt, e,
-                    new JacksonException.Reference(result, result.size()));
+                    new JacksonException.Reference(result, failOnDuplicate ? index : result.size()));
         }
         return result;
     }
@@ -281,8 +287,10 @@ public final class StringCollectionDeserializer
     private Collection<String> deserializeUsingCustom(JsonParser p, DeserializationContext ctxt,
             Collection<String> result, final ValueDeserializer<String> deser) throws JacksonException
     {
+        final boolean failOnDuplicate = CollectionDeserializer._failOnDuplicateSetElements(ctxt, result);
+        int index = 0;
         try {
-            while (true) {
+            for (;; ++index) {
                 /* 30-Dec-2014, tatu: This may look odd, but let's actually call method
                  *   that suggest we are expecting a String; this helps with some formats,
                  *   notably XML. Note, however, that while we can get String, we can't
@@ -315,11 +323,13 @@ public final class StringCollectionDeserializer
                     }
                 }
 
-                result.add(value);
+                if (!result.add(value) && failOnDuplicate) {
+                    throw CollectionDeserializer._duplicateSetElement(p, result, index);
+                }
             }
         } catch (Exception e) {
             throw DatabindException.wrapWithPath(ctxt, e,
-                    new JacksonException.Reference(result, result.size()));
+                    new JacksonException.Reference(result, failOnDuplicate ? index : result.size()));
         }
         return result;
     }

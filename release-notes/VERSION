@@ -24,6 +24,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
   `mode = PROPERTIES` is used, or Enum has class-level `@JsonFormat(shape = OBJECT)`)
  (reported by @EmhyrVarEmreis)
  (fix by @cowtowncoder, w/ Claude code)
+#6177: Add `DeserializationFeature.FAIL_ON_DUPLICATE_SET_ELEMENTS`
+ (requested by @dpkass)
 #6264: `@JsonIgnoreProperties` / `@JsonIncludeProperties` not honored on
   `@JsonAnySetter` properties
  (reported, fixed by @aysha-afrah26)

@@ -13,6 +13,7 @@ import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.deser.ReadableObjectId.Referring;
 import tools.jackson.databind.deser.std.ContainerDeserializerBase;
+import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
@@ -383,8 +384,11 @@ public class CollectionDeserializer
         if (_valueDeserializer.getObjectIdReader(ctxt) != null) {
             return _deserializeWithObjectId(p, ctxt, result);
         }
+        final boolean failOnDuplicate = _failOnDuplicateSetElements(ctxt, result);
+        int index = -1;
         JsonToken t;
         while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+            ++index;
             try {
                 Object value;
                 if (t == JsonToken.VALUE_NULL) {
@@ -401,12 +405,18 @@ public class CollectionDeserializer
 
                     // _skipNullValues is checked by _tryToAddNull.
                     if (value == null) {
-                        _tryToAddNull(p, ctxt, result);
+                        if (failOnDuplicate) {
+                            _tryToAddNull(p, ctxt, result, index);
+                        } else {
+                            _tryToAddNull(p, ctxt, result);
+                        }
                         continue;
                     }
                 }
 
-                result.add(value);
+                if (!result.add(value) && failOnDuplicate) {
+                    throw _duplicateSetElement(p, result, index);
+                }
 
                 /* 17-Dec-2017, tatu: should not occur at this level...
             } catch (UnresolvedForwardReference reference) {
@@ -419,7 +429,7 @@ public class CollectionDeserializer
                     ClassUtil.throwIfRTE(e);
                 }
                 throw DatabindException.wrapWithPath(ctxt, e,
-                        new JacksonException.Reference(result, result.size()));
+                        new JacksonException.Reference(result, failOnDuplicate ? index : result.size()));
             }
         }
         return result;
@@ -495,11 +505,14 @@ public class CollectionDeserializer
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.assignCurrentValue(result);
 
-        CollectionReferringAccumulator referringAccumulator =
-                new CollectionReferringAccumulator(_containerType.getContentType().getRawClass(), result);
+        final boolean failOnDuplicate = _failOnDuplicateSetElements(ctxt, result);
+        CollectionReferringAccumulator referringAccumulator = new CollectionReferringAccumulator(
+                _containerType.getContentType().getRawClass(), result, failOnDuplicate ? p : null);
 
+        int index = -1;
         JsonToken t;
         while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+            ++index;
             try {
                 Object value;
 
@@ -518,9 +531,9 @@ public class CollectionDeserializer
                         continue;
                     }
                 }
-                referringAccumulator.add(value);
+                referringAccumulator.add(value, index);
             } catch (UnresolvedForwardReference reference) {
-                Referring ref = referringAccumulator.handleUnresolvedReference(reference);
+                Referring ref = referringAccumulator.handleUnresolvedReference(reference, index);
                 reference.getRoid().appendReferring(ref);
             } catch (Exception e) {
                 boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
@@ -528,7 +541,7 @@ public class CollectionDeserializer
                     ClassUtil.throwIfRTE(e);
                 }
                 throw DatabindException.wrapWithPath(ctxt, e,
-                        new JacksonException.Reference(result, result.size()));
+                        new JacksonException.Reference(result, failOnDuplicate ? index : result.size()));
             }
         }
         return result;
@@ -596,6 +609,12 @@ public class CollectionDeserializer
      */
     protected void _tryToAddNull(JsonParser p, DeserializationContext ctxt, Collection<?> set)
     {
+        _tryToAddNull(p, ctxt, set, -1);
+    }
+
+    private void _tryToAddNull(JsonParser p, DeserializationContext ctxt, Collection<?> set,
+            int duplicateCheckIndex)
+    {
         if (_skipNullValues) {
             return;
         }
@@ -603,13 +622,28 @@ public class CollectionDeserializer
         // Ideally we'd have better idea of where nulls are accepted, but first
         // let's just produce something better than NPE:
         try {
-            set.add(null);
+            if (!set.add(null) && duplicateCheckIndex >= 0) {
+                throw _duplicateSetElement(p, set, duplicateCheckIndex);
+            }
         } catch (NullPointerException e) {
             ctxt.handleUnexpectedToken(_valueType, JsonToken.VALUE_NULL, p,
                     "`java.util.Collection` of type %s does not accept `null` values",
                     ClassUtil.getTypeDescription(getValueType(ctxt)));
         }
     }
+
+    static boolean _failOnDuplicateSetElements(DeserializationContext ctxt, Collection<?> result) {
+        return ctxt.isEnabled(DeserializationFeature.FAIL_ON_DUPLICATE_SET_ELEMENTS)
+                && result instanceof Set<?>;
+    }
+
+    static MismatchedInputException _duplicateSetElement(JsonParser p, Collection<?> result,
+            int index) {
+        String message = (index < 0) ? "Duplicate element for Set"
+                : "Duplicate element for Set at array index " + index;
+        return MismatchedInputException.from(p, result.getClass(), message);
+    }
+
     /**
      * Helper class for dealing with Object Id references for values contained in
      * collections being deserialized.
@@ -617,6 +651,7 @@ public class CollectionDeserializer
     public static class CollectionReferringAccumulator {
         private final Class<?> _elementType;
         private final Collection<Object> _result;
+        private final JsonParser _duplicateCheckParser;
 
         /**
          * Values read at or after the first still unresolved reference, in encounter
@@ -628,6 +663,9 @@ public class CollectionDeserializer
          * references resolve in reverse order (see [databind#6204]).
          */
         private final List<Object> _pending = new ArrayList<>();
+
+        // Original array indexes for _pending, needed only for duplicate errors.
+        private final List<Integer> _pendingIndexes;
 
         /**
          * Index of the first entry in {@link #_pending} not yet moved to the result.
@@ -650,23 +688,45 @@ public class CollectionDeserializer
         private Set<Object> _replacedSetItems;
 
         public CollectionReferringAccumulator(Class<?> elementType, Collection<Object> result) {
-            _elementType = elementType;
-            _result = result;
+            this(elementType, result, null);
         }
 
-        public void add(Object value)
+        private CollectionReferringAccumulator(Class<?> elementType, Collection<Object> result,
+                JsonParser duplicateCheckParser) {
+            _elementType = elementType;
+            _result = result;
+            _duplicateCheckParser = duplicateCheckParser;
+            _pendingIndexes = (duplicateCheckParser == null) ? null : new ArrayList<>();
+        }
+
+        public void add(Object value) {
+            add(value, -1);
+        }
+
+        private void add(Object value, int index)
         {
             if (_pendingStart == _pending.size()) {
-                _result.add(value);
+                _addToResult(value, index);
             } else {
-                _pending.add(value);
+                _addPending(value, index);
             }
         }
 
-        public Referring handleUnresolvedReference(UnresolvedForwardReference reference)
+        private void _addPending(Object value, int index) {
+            _pending.add(value);
+            if (_pendingIndexes != null) {
+                _pendingIndexes.add(index);
+            }
+        }
+
+        public Referring handleUnresolvedReference(UnresolvedForwardReference reference) {
+            return handleUnresolvedReference(reference, -1);
+        }
+
+        private Referring handleUnresolvedReference(UnresolvedForwardReference reference, int index)
         {
             CollectionReferring id = new CollectionReferring(this, reference, _elementType);
-            _pending.add(id);
+            _addPending(id, index);
             // Ids are usable as hash keys: `ObjectIdResolver`s already rely on that
             Deque<CollectionReferring> refs = _unresolvedById.get(reference.getUnresolvedId());
             if (refs == null) {
@@ -703,14 +763,25 @@ public class CollectionDeserializer
                     pendingRef.markMoved((_result instanceof List<?>) ? _result.size() : -1);
                     pending = pendingRef.resolvedValue();
                 }
-                _result.add(pending);
+                _addToResult(pending, (_pendingIndexes == null) ? -1 : _pendingIndexes.get(i));
                 _pending.set(i, null);
             }
             if (i == end) {
                 _pending.clear();
+                if (_pendingIndexes != null) {
+                    _pendingIndexes.clear();
+                }
                 _pendingStart = 0;
             } else {
                 _pendingStart = i;
+            }
+        }
+
+        private void _addToResult(Object value, int index) {
+            if (!_result.add(value) && _duplicateCheckParser != null) {
+                // The message reports the source index, even if the path of the
+                // current input token is where the object id is resolved.
+                throw _duplicateSetElement(_duplicateCheckParser, _result, index);
             }
         }
 
@@ -741,7 +812,7 @@ public class CollectionDeserializer
                 List<Object> snapshot = new ArrayList<>(_result);
                 _result.clear();
                 for (Object item : snapshot) {
-                    _result.add(item == oldItem ? newItem : item);
+                    _addToResult(item == oldItem ? newItem : item, -1);
                 }
             }
             // Same item may also still be pending, if an earlier forward reference has
@@ -795,7 +866,7 @@ public class CollectionDeserializer
                         return;
                     }
                     if (_result.remove(oldItem)) {
-                        _result.add(newItem);
+                        _addToResult(newItem, -1);
                         return;
                     }
                     // Not found: hash code of `oldItem` changed after being added

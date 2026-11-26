@@ -480,7 +480,20 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default.
      */
-    EAGER_DESERIALIZER_FETCH(true)
+    EAGER_DESERIALIZER_FETCH(true),
+
+    /**
+     * Feature that determines whether standard {@link java.util.Set} deserialization
+     * fails if the set declines to add a deserialized array element as a duplicate.
+     * The check uses the set's own comparison rules after content deserialization
+     * and null handling. When updating a set, its existing elements are included
+     * in the check.
+     *<p>
+     * Feature is disabled by default.
+     *
+     * @since 3.4
+     */
+    FAIL_ON_DUPLICATE_SET_ELEMENTS(false)
 
     ;
 

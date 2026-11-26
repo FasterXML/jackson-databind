@@ -196,9 +196,12 @@ public class EnumSetDeserializer
     protected final EnumSet<?> _deserialize(JsonParser p, DeserializationContext ctxt,
             EnumSet result) throws JacksonException
     {
+        final boolean failOnDuplicate = ctxt.isEnabled(DeserializationFeature.FAIL_ON_DUPLICATE_SET_ELEMENTS);
+        int index = -1;
         try {
             JsonToken t;
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+                ++index;
                 // What to do with nulls? Fail or ignore? Fail, for now (note: would fail if we
                 // passed it to EnumDeserializer, too, but in general nulls should never be passed
                 // to non-container deserializers)
@@ -219,11 +222,13 @@ public class EnumSetDeserializer
                         throw InvalidNullException.from(ctxt, null, _enumType);
                     }
                 }
-                result.add(value);
+                if (!result.add(value) && failOnDuplicate) {
+                    throw CollectionDeserializer._duplicateSetElement(p, result, index);
+                }
             }
         } catch (Exception e) {
             throw DatabindException.wrapWithPath(ctxt, e,
-                    new JacksonException.Reference(result, result.size()));
+                    new JacksonException.Reference(result, failOnDuplicate ? index : result.size()));
         }
         return result;
     }

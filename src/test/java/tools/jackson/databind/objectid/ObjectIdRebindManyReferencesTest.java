@@ -6,9 +6,12 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonPOJOBuilder;
+import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -208,6 +211,19 @@ public class ObjectIdRebindManyReferencesTest extends DatabindTestUtil
         assertEquals(HashSet.class, set.getClass());
         assertEquals(1, set.size());
         assertEquals(Named.class, set.iterator().next().getClass());
+    }
+
+    // [databind#6177]: distinct builders can produce equal set elements
+    @Test
+    public void duplicateSetElementAfterObjectIdRebind()
+    {
+        ObjectReader reader = MAPPER.readerFor(NamedContainer.class)
+                .with(DeserializationFeature.FAIL_ON_DUPLICATE_SET_ELEMENTS);
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> reader.readValue("""
+                        {"entities":[{"id":0,"set":[1,2]},{"id":1,"name":"a"},{"id":2,"name":"a"}]}
+                        """));
+        verifyException(e, "Duplicate element for Set");
     }
 
     // Values following rebound ones refer to them: must get the built values

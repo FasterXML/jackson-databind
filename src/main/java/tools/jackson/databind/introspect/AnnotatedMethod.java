@@ -25,7 +25,10 @@ public final class AnnotatedMethod
     final protected MethodHolder _invokerWithArgs = new MethodHolder(null);
     final protected MethodHolder _invokerNullary = new MethodHolder(methodType(Object.class));
     final protected MethodHolder _invokerUnary = new MethodHolder(methodType(Object.class, Object.class));
-    final protected MethodHolder _invokerOnWith = new OnWithMethodHolder();
+    // Only needed for `callOnWith()` (method-based any-setters, Enum factories),
+    // so created lazily to avoid overhead for all other introspected methods.
+    // Must be `volatile` for safe publication; racing creation is benign.
+    protected volatile MethodHolder _invokerOnWith;
 
     // // Simple lazy-caching:
 
@@ -124,7 +127,11 @@ public final class AnnotatedMethod
 
     public final Object callOnWith(Object pojo, Object... args) throws Exception {
         try {
-            return _invokerOnWith.get().invokeExact(pojo, args);
+            MethodHolder h = _invokerOnWith;
+            if (h == null) {
+                _invokerOnWith = h = new OnWithMethodHolder();
+            }
+            return h.get().invokeExact(pojo, args);
         } catch (Throwable e) {
             throw sneakyThrow(e);
         }

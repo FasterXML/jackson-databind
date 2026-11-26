@@ -35,8 +35,18 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
     }
 
     static class FactoryBean {
+        String name;
+        int count;
+
         public static FactoryBean create() {
             return new FactoryBean();
+        }
+
+        public static FactoryBean create(String name, int count) {
+            FactoryBean bean = new FactoryBean();
+            bean.name = name;
+            bean.count = count;
+            return bean;
         }
     }
 
@@ -145,6 +155,7 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
     }
 
     // [databind#6198]
+    @SuppressWarnings("deprecation")
     @Test
     public void annotatedMethodCallOnBuildsOnlyUnaryInvoker() throws Exception {
         DeserializationConfig context = MAPPER.deserializationConfig();
@@ -198,6 +209,29 @@ public class AnnotatedMemberEqualityTest extends DatabindTestUtil
         assertNotNull(factory._invokerNullary);
         assertNull(factory._invokerUnary);
         assertNull(factory._invokerWithArgs);
+    }
+
+    @Test
+    public void annotatedMethodCallWithArgsBuildsOnlyWithArgsInvoker() throws Exception {
+        DeserializationConfig context = MAPPER.deserializationConfig();
+        JavaType beanType = MAPPER.constructType(FactoryBean.class);
+
+        AnnotatedClass instance = AnnotatedClassResolver.resolve(context, beanType, context);
+        AnnotatedMethod factory = null;
+        for (AnnotatedMethod m : instance.getFactoryMethods()) {
+            if ("create".equals(m.getName()) && m.getParameterCount() == 2) {
+                factory = m;
+                break;
+            }
+        }
+        assertNotNull(factory);
+
+        FactoryBean created = (FactoryBean) factory.call(new Object[] { "x", 3 });
+        assertEquals("x", created.name);
+        assertEquals(3, created.count);
+        assertNull(factory._invokerNullary);
+        assertNull(factory._invokerUnary);
+        assertNotNull(factory._invokerWithArgs);
     }
 
     // [databind#3187]

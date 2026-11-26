@@ -53,14 +53,14 @@ public class AnnotatedMethodCallOnWithTest extends DatabindTestUtil
     public void instanceMethodWithTwoArgs() throws Exception {
         AnnotatedMethod put = annotated("put", String.class, Integer.TYPE);
         // invoker only created on first call
-        assertNull(put._invokerOnWith);
+        assertNull(put._invokerWithArgs);
         Target t1 = new Target();
         assertNull(put.callOnWith(t1, "a", 1));
         assertEquals("a", t1.key);
         assertEquals(1, t1.value);
 
         // same (cached) invoker must be used for other instances
-        Object invoker = put._invokerOnWith;
+        Object invoker = put._invokerWithArgs;
         assertNotNull(invoker);
         Target t2 = new Target();
         assertNull(put.callOnWith(t2, "b", 2));
@@ -68,7 +68,7 @@ public class AnnotatedMethodCallOnWithTest extends DatabindTestUtil
         assertEquals(2, t2.value);
         // and must not have affected first instance
         assertEquals("a", t1.key);
-        assertSame(invoker, put._invokerOnWith);
+        assertSame(invoker, put._invokerWithArgs);
     }
 
     @Test

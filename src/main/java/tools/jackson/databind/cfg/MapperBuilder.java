@@ -841,6 +841,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
                 .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
                 .enable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)
                 .enable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
+                .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
                 .disable(MapperFeature.DETECT_PARAMETER_NAMES) // [databind#5314]
                 .disable(MapperFeature.FIX_FIELD_NAME_UPPER_CASE_PREFIX) // [databind#6011]
                 .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)

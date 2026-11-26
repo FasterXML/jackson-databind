@@ -2,6 +2,8 @@ package tools.jackson.databind.json;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 import tools.jackson.core.StreamReadFeature;
 import tools.jackson.core.StreamWriteFeature;
 import tools.jackson.core.json.*;
@@ -153,5 +155,66 @@ public class JsonMapperBuilderTest extends DatabindTestUtil
         // But should have same configuration
         assertEquals(mapper1.isEnabled(SerializationFeature.INDENT_OUTPUT),
                      mapper2.isEnabled(SerializationFeature.INDENT_OUTPUT));
+    }
+
+    @Test
+    void configureForJackson2IncludesUnannotatedByDefault() throws Exception {
+        _assertViewBehavior(JsonMapper.builder().configureForJackson2().build(), true);
+    }
+
+    @Test
+    void builderWithJackson2DefaultsIncludesUnannotatedByDefault() throws Exception {
+        _assertViewBehavior(JsonMapper.builderWithJackson2Defaults().build(), true);
+    }
+
+    @Test
+    void mapperBuilderWithoutCompatibilityExcludesUnannotatedByDefault() throws Exception {
+        _assertViewBehavior(JsonMapper.builder().build(), false);
+    }
+
+    @Test
+    void disablingDefaultViewInclusionOverridesCompatibilityBuilders() throws Exception {
+        ObjectMapper mapper1 = JsonMapper.builder().configureForJackson2()
+                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION).build();
+        ObjectMapper mapper2 = JsonMapper.builderWithJackson2Defaults()
+                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION).build();
+        for (ObjectMapper mapper : new ObjectMapper[] { mapper1, mapper2 }) {
+            _assertViewBehavior(mapper, false);
+        }
+    }
+
+    private void _assertViewBehavior(ObjectMapper mapper, boolean includeUnannotated)
+            throws Exception {
+        String serialized = mapper.writerWithView(PublicView.class)
+                .writeValueAsString(new ViewBean());
+        JsonNode expected = includeUnannotated
+                ? mapper.readTree("""
+                        {"annotated":1,"unannotated":2}
+                        """)
+                : mapper.readTree("""
+                        {"annotated":1}
+                        """);
+        assertEquals(expected, mapper.readTree(serialized));
+
+        String input = """
+                {"annotated":3,"unannotated":4}
+                """;
+        ViewBean bean = mapper.readerWithView(PublicView.class)
+                .forType(ViewBean.class).readValue(input);
+        assertEquals(3, bean.annotated);
+        if (includeUnannotated) {
+            assertEquals(4, bean.unannotated);
+        } else {
+            assertEquals(2, bean.unannotated);
+        }
+    }
+
+    public static class PublicView { }
+
+    public static class ViewBean {
+        @JsonView(PublicView.class)
+        public int annotated = 1;
+
+        public int unannotated = 2;
     }
 }

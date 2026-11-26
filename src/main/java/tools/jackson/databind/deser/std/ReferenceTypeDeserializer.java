@@ -75,7 +75,6 @@ public abstract class ReferenceTypeDeserializer<T>
     // [databind#2736]: look through ReferenceType wrapper so that `@JsonUnwrapped`
     //   applied to a reference-typed property (e.g. Optional<Child>) delegates
     //   unwrapping support to the referenced value's deserializer.
-    @SuppressWarnings("unchecked")
     @Override
     public ValueDeserializer<T> unwrappingDeserializer(DeserializationContext ctxt,
             NameTransformer unwrapper) {

@@ -1,11 +1,9 @@
 package tools.jackson.databind.deser.std;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
@@ -19,7 +17,6 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
-import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.deser.bean.BeanDeserializerBase;
 import tools.jackson.databind.deser.impl.NullsAsEmptyProvider;
@@ -27,7 +24,6 @@ import tools.jackson.databind.deser.impl.NullsConstantProvider;
 import tools.jackson.databind.deser.impl.NullsFailProvider;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.introspect.AnnotatedMember;
-import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.AccessPattern;
@@ -2189,6 +2185,10 @@ inputDesc, _coercedTypeDesc(targetType));
      * immediate content of the property value, and must not be visible to
      * nested containers. Nested levels instead use Config Override
      * of the nested type (if any), then global default.
+     *<p>
+     * If content is itself a container, returned property also reports
+     * {@code contentType} as its type, so that nested container sees
+     * its own type (and not that of the outer container).
      *
      * @since 3.4
      */
@@ -2209,70 +2209,31 @@ inputDesc, _coercedTypeDesc(targetType));
             nulls = config.getDefaultNullHandling().nonDefaultContentNulls();
         }
         final PropertyMetadata md = prop.getMetadata();
-        if (nulls == md.getContentNulls()) {
+        if ((nulls == md.getContentNulls()) && !contentType.isContainerType()) {
             return prop;
         }
-        return new ContentProperty(prop, md.withNulls(md.getValueNulls(), nulls));
+        return new ContentProperty(prop, contentType, md.withNulls(md.getValueNulls(), nulls));
     }
 
     /**
-     * Delegating {@link BeanProperty} that only overrides metadata: see
+     * Delegating {@link BeanProperty} that only overrides type and metadata: see
      * {@link #_contentProperty}.
+     *
+     * @since 3.4
      */
-    private final static class ContentProperty implements BeanProperty
+    private final static class ContentProperty extends BeanProperty.Delegating
     {
-        private final BeanProperty _delegate;
+        private final JavaType _type;
         private final PropertyMetadata _metadata;
 
-        ContentProperty(BeanProperty delegate, PropertyMetadata metadata) {
-            _delegate = delegate;
+        ContentProperty(BeanProperty delegate, JavaType type, PropertyMetadata metadata) {
+            super(delegate);
+            _type = type;
             _metadata = metadata;
         }
 
         @Override public PropertyMetadata getMetadata() { return _metadata; }
-
-        @Override public String getName() { return _delegate.getName(); }
-        @Override public PropertyName getFullName() { return _delegate.getFullName(); }
-        @Override public JavaType getType() { return _delegate.getType(); }
-        @Override public PropertyName getWrapperName() { return _delegate.getWrapperName(); }
-        @Override public boolean isRequired() { return _delegate.isRequired(); }
-        @Override public boolean isVirtual() { return _delegate.isVirtual(); }
-        @Override public AnnotatedMember getMember() { return _delegate.getMember(); }
-
-        @Override
-        public <A extends Annotation> A getAnnotation(Class<A> acls) {
-            return _delegate.getAnnotation(acls);
-        }
-
-        @Override
-        public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
-            return _delegate.getContextAnnotation(acls);
-        }
-
-        @Override
-        public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType) {
-            return _delegate.findPropertyFormat(config, baseType);
-        }
-
-        @Override
-        public JsonFormat.Value findFormatOverrides(MapperConfig<?> config) {
-            return _delegate.findFormatOverrides(config);
-        }
-
-        @Override
-        public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType) {
-            return _delegate.findPropertyInclusion(config, baseType);
-        }
-
-        @Override
-        public List<PropertyName> findAliases(MapperConfig<?> config) {
-            return _delegate.findAliases(config);
-        }
-
-        @Override
-        public void depositSchemaProperty(JsonObjectFormatVisitor v, SerializationContext ctxt) {
-            _delegate.depositSchemaProperty(v, ctxt);
-        }
+        @Override public JavaType getType() { return _type; }
     }
 
     protected final NullValueProvider _findNullProvider(DeserializationContext ctxt,

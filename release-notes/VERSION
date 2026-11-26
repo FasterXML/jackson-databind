@@ -74,6 +74,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #6476: `POJONode.asDecimal()` loses precision for wrapped `AtomicLong` (and other
   integral `Number`s that are not boxed primitives)
  (fix by @cowtowncoder, w/ Claude code)
+#6499: `@JsonSetter(contentNulls)` on `Map.Entry` property not applied to entry value,
+  but propagates into nested container value
+  (fix by @cowtowncoder, w/ Claude code)
 
 3.3.1 (not yet released)
 

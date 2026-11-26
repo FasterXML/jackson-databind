@@ -4,11 +4,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.Nulls;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.deser.*;
+import tools.jackson.databind.deser.impl.NullsConstantProvider;
+import tools.jackson.databind.deser.impl.NullsFailProvider;
 import tools.jackson.databind.deser.std.ContainerDeserializerBase;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
@@ -64,7 +67,17 @@ public class MapEntryDeserializer
             KeyDeserializer keyDeser, ValueDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser)
     {
-        super(src);
+        this(src, keyDeser, valueDeser, valueTypeDeser, src._nullProvider);
+    }
+
+    /**
+     * @since 3.4
+     */
+    protected MapEntryDeserializer(MapEntryDeserializer src,
+            KeyDeserializer keyDeser, ValueDeserializer<Object> valueDeser,
+            TypeDeserializer valueTypeDeser, NullValueProvider nuller)
+    {
+        super(src, nuller, src._unwrapSingle);
         _keyDeserializer = keyDeser;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
@@ -138,16 +151,26 @@ public class MapEntryDeserializer
      * Fluent factory method used to create a copy with slightly
      * different settings.
      */
-    @SuppressWarnings("unchecked")
     protected MapEntryDeserializer withResolved(KeyDeserializer keyDeser,
             TypeDeserializer valueTypeDeser, ValueDeserializer<?> valueDeser)
     {
+        return withResolved(keyDeser, valueTypeDeser, valueDeser, _nullProvider);
+    }
+
+    /**
+     * @since 3.4
+     */
+    @SuppressWarnings("unchecked")
+    protected MapEntryDeserializer withResolved(KeyDeserializer keyDeser,
+            TypeDeserializer valueTypeDeser, ValueDeserializer<?> valueDeser,
+            NullValueProvider nuller)
+    {
         if ((_keyDeserializer == keyDeser) && (_valueDeserializer == valueDeser)
-                && (_valueTypeDeserializer == valueTypeDeser)) {
+                && (_valueTypeDeserializer == valueTypeDeser) && (_nullProvider == nuller)) {
             return this;
         }
         return new MapEntryDeserializer(this,
-                keyDeser, (ValueDeserializer<Object>) valueDeser, valueTypeDeser);
+                keyDeser, (ValueDeserializer<Object>) valueDeser, valueTypeDeser, nuller);
     }
 
     @Override // since 2.12
@@ -193,16 +216,54 @@ public class MapEntryDeserializer
         ValueDeserializer<?> vd = _valueDeserializer;
         vd = findConvertingContentDeserializer(ctxt, property, vd);
         JavaType contentType = _containerType.containedTypeOrUnknown(1);
+        // [databind#6499]: content nulls of property only apply to entry value
+        final BeanProperty contentProp = _contentProperty(ctxt, property, contentType);
         if (vd == null) {
-            vd = ctxt.findContextualValueDeserializer(contentType, property);
+            vd = ctxt.findContextualValueDeserializer(contentType, contentProp);
         } else { // if directly assigned, probably not yet contextual, so:
-            vd = ctxt.handleSecondaryContextualization(vd, property, contentType);
+            vd = ctxt.handleSecondaryContextualization(vd, contentProp, contentType);
         }
         TypeDeserializer vtd = _valueTypeDeserializer;
         if (vtd != null) {
             vtd = vtd.forProperty(property);
         }
-        return withResolved(kd, vtd, vd);
+        return withResolved(kd, vtd, vd,
+                _valueNullProvider(property, contentType, findContentNullStyle(ctxt, property),
+                        findContentNullProvider(ctxt, property, vd)));
+    }
+
+    /**
+     * Helper method for finding handler for {@code null} entry value, based on
+     * "content nulls" settings: needed to get target type right for "fail" case,
+     * since {@code Map.Entry} type itself has no "content type".
+     *
+     * @since 3.4
+     */
+    protected static NullValueProvider _valueNullProvider(BeanProperty property,
+            JavaType valueType, Nulls nulls, NullValueProvider nuller)
+    {
+        if (nulls == Nulls.FAIL) {
+            return (property == null)
+                    ? NullsFailProvider.constructForRootValue(valueType)
+                    : NullsFailProvider.constructForProperty(property, valueType);
+        }
+        return nuller;
+    }
+
+    /**
+     * Helper method for getting value to use for {@code null} entry value:
+     * note that "skip" is not possible for single entry, so value deserializer's
+     * "null value" is used instead.
+     *
+     * @since 3.4
+     */
+    protected static Object _nullEntryValue(DeserializationContext ctxt,
+            NullValueProvider nuller, ValueDeserializer<Object> valueDeser)
+    {
+        if ((nuller == null) || NullsConstantProvider.isSkipper(nuller)) {
+            return valueDeser.getNullValue(ctxt);
+        }
+        return nuller.getNullValue(ctxt);
     }
 
     protected static Boolean _shouldDeserializeAsPOJO(DeserializationContext ctxt,
@@ -283,7 +344,7 @@ public class MapEntryDeserializer
         try {
             // Note: must handle null explicitly here; value deserializers won't
             if (t == JsonToken.VALUE_NULL) {
-                value = valueDes.getNullValue(ctxt);
+                value = _nullEntryValue(ctxt, _nullProvider, valueDes);
             } else if (typeDeser == null) {
                 value = valueDes.deserialize(p, ctxt);
             } else {
@@ -345,6 +406,13 @@ public class MapEntryDeserializer
         protected final ValueDeserializer<Object> _valueDeserializer;
         protected final TypeDeserializer _valueTypeDeserializer;
 
+        /**
+         * Handler for {@code null} entry value.
+         *
+         * @since 3.4
+         */
+        protected final NullValueProvider _valueNullProvider;
+
         /*
         /**********************************************************************
         /* Life-cycle
@@ -358,37 +426,64 @@ public class MapEntryDeserializer
             _keyTypeDeserializer = null;
             _valueDeserializer = null;
             _valueTypeDeserializer = null;
+            _valueNullProvider = null;
         }
     
         protected POJOWrappedDeserializer(POJOWrappedDeserializer src,
                 ValueDeserializer<Object> keyDeser, TypeDeserializer keyTypeDeser,
                 ValueDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser)
         {
+            this(src, keyDeser, keyTypeDeser, valueDeser, valueTypeDeser,
+                    src._valueNullProvider);
+        }
+
+        /**
+         * @since 3.4
+         */
+        protected POJOWrappedDeserializer(POJOWrappedDeserializer src,
+                ValueDeserializer<Object> keyDeser, TypeDeserializer keyTypeDeser,
+                ValueDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
+                NullValueProvider valueNuller)
+        {
             super(src);
             _keyDeserializer = keyDeser;
             _keyTypeDeserializer = keyTypeDeser;
             _valueDeserializer = valueDeser;
             _valueTypeDeserializer = valueTypeDeser;
+            _valueNullProvider = valueNuller;
         }
 
         /**
          * Fluent factory method used to create a copy with slightly
          * different settings.
          */
-        @SuppressWarnings("unchecked")
         protected POJOWrappedDeserializer withResolved(ValueDeserializer<?> keyDeser,
                 TypeDeserializer keyTypeDeser,
                 ValueDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser)
         {
+            return withResolved(keyDeser, keyTypeDeser, valueDeser, valueTypeDeser,
+                    _valueNullProvider);
+        }
+
+        /**
+         * @since 3.4
+         */
+        @SuppressWarnings("unchecked")
+        protected POJOWrappedDeserializer withResolved(ValueDeserializer<?> keyDeser,
+                TypeDeserializer keyTypeDeser,
+                ValueDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser,
+                NullValueProvider valueNuller)
+        {
             if ((_keyDeserializer == keyDeser)
                     && (_keyTypeDeserializer == keyTypeDeser)
                     && (_valueDeserializer == valueDeser)
-                    && (_valueTypeDeserializer == valueTypeDeser)) {
+                    && (_valueTypeDeserializer == valueTypeDeser)
+                    && (_valueNullProvider == valueNuller)) {
                 return this;
             }
             return new POJOWrappedDeserializer(this,
                     (ValueDeserializer<Object>) keyDeser, keyTypeDeser,
-                    (ValueDeserializer<Object>) valueDeser, valueTypeDeser);
+                    (ValueDeserializer<Object>) valueDeser, valueTypeDeser, valueNuller);
         }
 
         @Override
@@ -426,10 +521,12 @@ public class MapEntryDeserializer
             ValueDeserializer<?> kd = _keyDeserializer;
             kd = findConvertingContentDeserializer(ctxt, property, kd);
             JavaType keyType = _valueType.containedTypeOrUnknown(0);
+            // [databind#6499]: content nulls of property do not apply to key (or its content)
+            final BeanProperty keyProp = _contentProperty(ctxt, property, keyType);
             if (kd == null) {
-                kd = ctxt.findContextualValueDeserializer(keyType, property);
+                kd = ctxt.findContextualValueDeserializer(keyType, keyProp);
             } else { // if directly assigned, probably not yet contextual, so:
-                kd = ctxt.handleSecondaryContextualization(kd, property, keyType);
+                kd = ctxt.handleSecondaryContextualization(kd, keyProp, keyType);
             }
             TypeDeserializer ktd = _keyTypeDeserializer;
             if (ktd != null) {
@@ -439,16 +536,20 @@ public class MapEntryDeserializer
             ValueDeserializer<?> vd = _valueDeserializer;
             vd = findConvertingContentDeserializer(ctxt, property, vd);
             JavaType valueType = _valueType.containedTypeOrUnknown(1);
+            // [databind#6499]: content nulls of property only apply to entry value
+            final BeanProperty valueProp = _contentProperty(ctxt, property, valueType);
             if (vd == null) {
-                vd = ctxt.findContextualValueDeserializer(valueType, property);
+                vd = ctxt.findContextualValueDeserializer(valueType, valueProp);
             } else { // if directly assigned, probably not yet contextual, so:
-                vd = ctxt.handleSecondaryContextualization(vd, property, valueType);
+                vd = ctxt.handleSecondaryContextualization(vd, valueProp, valueType);
             }
             TypeDeserializer vtd = _valueTypeDeserializer;
             if (vtd != null) {
                 vtd = vtd.forProperty(property);
             }
-            return withResolved(kd, ktd, vd, vtd);
+            return withResolved(kd, ktd, vd, vtd,
+                    _valueNullProvider(property, valueType, findContentNullStyle(ctxt, property),
+                            findContentNullProvider(ctxt, property, vd)));
         }
 
         /*
@@ -495,7 +596,7 @@ public class MapEntryDeserializer
                 } else if ("value".equals(propName)) {
                     try {
                         if (t == JsonToken.VALUE_NULL) {
-                            value = _valueDeserializer.getNullValue(ctxt);
+                            value = _nullEntryValue(ctxt, _valueNullProvider, _valueDeserializer);
                         } else if (_valueTypeDeserializer != null) {
                             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
                         } else {

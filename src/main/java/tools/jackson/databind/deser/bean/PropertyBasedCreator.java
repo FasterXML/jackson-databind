@@ -410,6 +410,25 @@ public final class PropertyBasedCreator
                 _injectablePropIndexes, mayRebind);
     }
 
+    PropertyValueBuffer startBuildingForBuilder(JsonParser p, DeserializationContext ctxt,
+            ObjectIdReader oir, Set<String> requiredValueProperties) {
+        if (requiredValueProperties.isEmpty()) {
+            return startBuilding(p, ctxt, oir, true);
+        }
+        final Class<?> activeView = ctxt.getActiveView();
+        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, null,
+                _injectablePropIndexes, true) {
+            @Override
+            boolean _isRequiredParameter(SettableBeanProperty prop) {
+                return super._isRequiredParameter(prop)
+                        || (prop.getMetadata().getRequired() == null
+                            && requiredValueProperties.contains(prop.getName())
+                            && findCreatorProperty(prop.getName()) == prop
+                            && (activeView == null || prop.visibleInView(activeView)));
+            }
+        };
+    }
+
     /**
      * @deprecated Since 3.2
      */

@@ -96,6 +96,11 @@ public class BeanAsArrayBuilderDeserializer
     @Override
     protected void initNameMatcher(DeserializationContext ctxt) { }
 
+    @Override
+    Set<String> _defaultRequiredPropertyNames(DeserializationContext ctxt) {
+        return _delegate._defaultRequiredPropertyNames(ctxt);
+    }
+
     /*
     /**********************************************************************
     /* Overrides
@@ -135,8 +140,17 @@ public class BeanAsArrayBuilderDeserializer
         if (!p.isExpectedStartArrayToken()) {
             return finishBuild(ctxt, _deserializeFromNonArray(p, ctxt));
         }
+        RequiredPropertyParser tracking = _delegate._trackRequiredArrayProperties(p, ctxt, _orderedProperties);
+        Object builder = (tracking == null) ? _deserializeArray(p, ctxt)
+                : tracking.read(ctxt, () -> _deserializeArray(tracking, ctxt), handledType());
+        return finishBuild(ctxt, builder);
+    }
+
+    private Object _deserializeArray(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
         if (!_useVanillaProcessing(ctxt)) {
-            return finishBuild(ctxt, _deserializeNonVanilla(p, ctxt));
+            return _deserializeNonVanilla(p, ctxt);
         }
         Object builder = _valueInstantiator.createUsingDefault(ctxt);
         final SettableBeanProperty[] props = _orderedProperties;
@@ -144,7 +158,7 @@ public class BeanAsArrayBuilderDeserializer
         final int propCount = props.length;
         while (true) {
             if (p.nextToken() == JsonToken.END_ARRAY) {
-                return finishBuild(ctxt, builder);
+                return builder;
             }
             if (i == propCount) {
                 break;
@@ -171,7 +185,7 @@ public class BeanAsArrayBuilderDeserializer
         }
         // otherwise, skip until end
         _skipToEndArray(p, ctxt);
-        return finishBuild(ctxt, builder);
+        return builder;
     }
 
     @Override
@@ -267,8 +281,7 @@ public class BeanAsArrayBuilderDeserializer
         throws JacksonException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        // [databind#5909]: builder will be rebuilt via finishBuild
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader, true);
+        PropertyValueBuffer buffer = _startBuildingForBuilder(p, ctxt);
 
         final SettableBeanProperty[] props = _orderedProperties;
         final int propCount = props.length;

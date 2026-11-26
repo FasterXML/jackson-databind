@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.SettableBeanProperty;
+import tools.jackson.databind.deser.bean.BeanDeserializerBase;
 import tools.jackson.databind.introspect.*;
 import tools.jackson.databind.util.ClassUtil;
 
@@ -82,7 +83,11 @@ public final class InnerClassProperty
                         _creator.getDeclaringClass().getName(), e.getMessage()));
                 value = null;
             }
-            _valueDeserializer.deserialize(p, ctxt, value);
+            if (_valueDeserializer instanceof BeanDeserializerBase deserializer) {
+                deserializer.deserializeIntoNewInstance(p, ctxt, value);
+            } else {
+                _valueDeserializer.deserialize(p, ctxt, value);
+            }
         }
         set(ctxt, bean, value);
     }

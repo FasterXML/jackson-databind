@@ -1,6 +1,7 @@
 package tools.jackson.databind.deser.impl;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 import tools.jackson.core.*;
 
@@ -37,6 +38,7 @@ public class ExternalTypeHandler
 
     private final String[] _typeIds;
     private final TokenBuffer[] _tokens;
+    private final Consumer<SettableBeanProperty> _valueRead;
 
     protected ExternalTypeHandler(JavaType beanType,
             ExtTypedProperty[] properties,
@@ -48,9 +50,15 @@ public class ExternalTypeHandler
         _nameToPropertyIndex = nameToPropertyIndex;
         _typeIds = typeIds;
         _tokens = tokens;
+        _valueRead = null;
     }
 
     protected ExternalTypeHandler(ExternalTypeHandler h)
+    {
+        this(h, null);
+    }
+
+    private ExternalTypeHandler(ExternalTypeHandler h, Consumer<SettableBeanProperty> valueRead)
     {
         _beanType = h._beanType;
         _properties = h._properties;
@@ -58,6 +66,7 @@ public class ExternalTypeHandler
         int len = _properties.length;
         _typeIds = new String[len];
         _tokens = new TokenBuffer[len];
+        _valueRead = valueRead;
     }
 
     public static Builder builder(JavaType beanType) {
@@ -70,6 +79,25 @@ public class ExternalTypeHandler
      */
     public ExternalTypeHandler start() {
         return new ExternalTypeHandler(this);
+    }
+
+    /**
+     * Starts collection and reports each value property this handler receives.
+     * Type id properties do not trigger the observer.
+     *
+     * @since 3.4
+     */
+    public ExternalTypeHandler start(Consumer<SettableBeanProperty> valueRead) {
+        return new ExternalTypeHandler(this, valueRead);
+    }
+
+    /**
+     * Returns the properties whose values this handler binds.
+     *
+     * @since 3.4
+     */
+    public List<SettableBeanProperty> valueProperties() {
+        return Arrays.stream(_properties).map(ExtTypedProperty::getProperty).toList();
     }
 
     /**
@@ -171,9 +199,9 @@ public class ExternalTypeHandler
                 }
             } else {
                 TokenBuffer tokens = _bufferValueWithPinnedContext(ctxt, p);
-                _tokens[index] = tokens;
+                _storeValue(index, tokens);
                 while (it.hasNext()) {
-                    _tokens[it.next()] = tokens;
+                    _storeValue(it.next(), tokens);
                 }
             }
             return true;
@@ -194,7 +222,7 @@ public class ExternalTypeHandler
         } else {
             @SuppressWarnings("resource")
             TokenBuffer tokens = _bufferValueWithPinnedContext(ctxt, p);
-            _tokens[index] = tokens;
+            _storeValue(index, tokens);
             canDeserialize = (bean != null) && (_typeIds[index] != null)
                     && !_isFilteredByView(ctxt, index);
         }
@@ -208,6 +236,13 @@ public class ExternalTypeHandler
             _tokens[index] = null;
         }
         return true;
+    }
+
+    private void _storeValue(int index, TokenBuffer tokens) {
+        _tokens[index] = tokens;
+        if (_valueRead != null) {
+            _valueRead.accept(_properties[index].getProperty());
+        }
     }
 
     /**

@@ -403,6 +403,32 @@ public abstract class DatabindContext
             JavaType param, PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
+        _checkContainedType(baseType, typeId, declaredType, param, ptv, config, false);
+        if (param.isArrayType()) {
+            _validateArrayElementType(baseType, typeId, declaredType, param, ptv, config);
+        } else {
+            _validateContainedTypes(baseType, typeId, param, ptv, config);
+            // [databind#6496]: ... and key/content types its class declares
+            _validateDeclaredContentTypes(baseType, typeId, declaredType, param, ptv, config);
+        }
+    }
+
+    /**
+     * Helper for checking a contained type itself (not its contained types), see
+     * {@link #_validateContainedType}.
+     *
+     * @param fromDeclaration Whether type comes from a class declaration (see
+     *   {@link #_validateDeclaredContentTypes}): if so, denial of its declared type as
+     *   base type (like of {@code Object} by {@code DefaultBaseTypeLimitingValidator})
+     *   does not deny it if allowed as subtype
+     *
+     * @since 2.18.13
+     */
+    private void _checkContainedType(JavaType baseType, String typeId, JavaType declaredType,
+            JavaType param, PolymorphicTypeValidator ptv, MapperConfig<?> config,
+            boolean fromDeclaration)
+        throws JsonMappingException
+    {
         if (!_isSafeTypeParameter(param)
                 && !((declaredType != null) && param.hasRawClass(declaredType.getRawClass()))) {
             final PolymorphicTypeValidator vldr;
@@ -440,7 +466,7 @@ public abstract class DatabindContext
                     vld = vldr.validateBaseType(config, vldBaseType);
                 }
             }
-            if ((vld == Validity.INDETERMINATE)
+            if (((vld == Validity.INDETERMINATE) || (fromDeclaration && (vld == Validity.DENIED)))
                     && _isApprovedSubType(vldr, config, vldBaseType, param)) {
                 vld = Validity.ALLOWED;
             }
@@ -460,13 +486,6 @@ public abstract class DatabindContext
                         "Illegal type (%s) to deserialize: prevented for security reasons",
                         param.getRawClass().getName()));
             }
-        }
-        if (param.isArrayType()) {
-            _validateArrayElementType(baseType, typeId, declaredType, param, ptv, config);
-        } else {
-            _validateContainedTypes(baseType, typeId, param, ptv, config);
-            // [databind#6496]: ... and key/content types its class declares
-            _validateDeclaredContentTypes(baseType, typeId, declaredType, param, ptv, config);
         }
     }
 
@@ -516,118 +535,72 @@ public abstract class DatabindContext
                 || vldr.isContainerTypeAllowedExplicitly(config, baseType, type)) {
             return;
         }
-        // Type resolved without type parameters has the same declared parts, and ones
-        // from type parameters differ (are type variable bounds): only walk parts of
-        // `type` that match it. This also keeps validation linear wrt nesting depth of
-        // type id: type parameters are never walked again
-        final JavaType unparameterized = config.getTypeFactory().constructType(type.getRawClass());
-        _validateDeclaredParts(baseType, typeId, declaredType, type, unparameterized, null,
-                ptv, vldr, config);
+        _validateDeclaredParts(baseType, typeId, declaredType, type,
+                config.getTypeFactory().constructType(type.getRawClass()), null, ptv, config);
     }
 
-    // Walks key, content and type parameter types of `type` (except ones of
-    // type parameters, or same as those of `declaredType`), in parallel with
-    // `unparameterized`: those that come from class declarations. Ones that
-    // also match `covered` (if any) come from declaration of explicitly approved
-    // class, and are not validated
-    private void _validateDeclaredParts(JavaType baseType, String typeId,
-            JavaType declaredType, JavaType type, JavaType unparameterized,
-            JavaType covered,
-            PolymorphicTypeValidator ptv, PolymorphicTypeValidator vldr,
-            MapperConfig<?> config)
+    // Walks key, content and type parameter types of `type`, in parallel with:
+    // - `declaredType`: declared type of `type`, if any: part same as declared needs no
+    //   validation, nor does approval of base type cover subtype of it
+    // - `unparameterized`: `type` as declared by enclosing class, without type
+    //   parameters: parts that differ from it (are type variable bounds there) come
+    //   from type parameters, not class declaration, and are not walked. This also keeps
+    //   validation linear wrt nesting depth of type id: type parameters are not walked
+    //   (again)
+    // - `covered`: `type` as declared by explicitly approved class (if any), without
+    //   type parameters: parts that match it come from its declaration, and need no
+    //   validation (but their parts may)
+    private void _validateDeclaredParts(JavaType baseType, String typeId, JavaType declaredType,
+            JavaType type, JavaType unparameterized, JavaType covered,
+            PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
         final JavaType keyType = type.getKeyType();
         final JavaType contentType = type.getContentType();
-        if (!_isCovered(keyType, (covered == null) ? null : covered.getKeyType())) {
-            _validateDeclaredPart(baseType, typeId,
-                    (declaredType == null) ? null : declaredType.getKeyType(),
-                    keyType, unparameterized.getKeyType(), ptv, vldr, config);
-        }
-        if (!_isCovered(contentType, (covered == null) ? null : covered.getContentType())) {
-            _validateDeclaredPart(baseType, typeId,
-                    (declaredType == null) ? null : declaredType.getContentType(),
-                    contentType, unparameterized.getContentType(), ptv, vldr, config);
-        }
-        final int n = Math.min(type.containedTypeCount(), unparameterized.containedTypeCount());
-        for (int i = 0; i < n; ++i) {
+        _validateDeclaredPart(baseType, typeId, _keyType(declaredType), keyType,
+                unparameterized.getKeyType(), _keyType(covered), ptv, config);
+        _validateDeclaredPart(baseType, typeId, _contentType(declaredType), contentType,
+                unparameterized.getContentType(), _contentType(covered), ptv, config);
+        for (int i = 0, n = type.containedTypeCount(); i < n; ++i) {
             final JavaType param = type.containedType(i);
             // (usually same as key or content type: no need to walk again)
-            if ((param != keyType) && (param != contentType)
-                    && !_isCovered(param, (covered == null) ? null : covered.containedType(i))) {
-                _validateDeclaredPart(baseType, typeId, null,
-                        param, unparameterized.containedType(i), ptv, vldr, config);
+            if ((param != keyType) && (param != contentType)) {
+                _validateDeclaredPart(baseType, typeId, null, param,
+                        unparameterized.containedType(i),
+                        (covered == null) ? null : covered.containedType(i), ptv, config);
             }
         }
     }
 
-    // Whether part of a type comes from declaration of an explicitly approved class:
-    // same (by class) as for class resolved without type parameters
-    private static boolean _isCovered(JavaType part, JavaType coveredPart) {
-        return (part != null) && (coveredPart != null) && part.hasRawClass(coveredPart.getRawClass());
-    }
-
-    private void _validateDeclaredPart(JavaType baseType, String typeId,
-            JavaType declaredType, JavaType type, JavaType unparameterized,
-            PolymorphicTypeValidator ptv, PolymorphicTypeValidator vldr,
-            MapperConfig<?> config)
+    private void _validateDeclaredPart(JavaType baseType, String typeId, JavaType declaredType,
+            JavaType type, JavaType unparameterized, JavaType covered,
+            PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
-        // From type parameter (so not class declaration), or exactly as declared?
         if ((type == null) || (unparameterized == null)
                 || !type.hasRawClass(unparameterized.getRawClass())
                 || type.equals(declaredType)) {
             return;
         }
-        if (!_isSafeTypeParameter(type)) {
-            final boolean allowed;
-            if (type.isTypeOrSubTypeOf(baseType.getRawClass())) {
-                // same as for direct type id
-                allowed = _isApprovedSubType(ptv, config, baseType, type);
-            } else if ((ptv instanceof ApprovedBaseTypeValidator)
-                    && (declaredType != null) && !ClassUtil.isArraySuperType(declaredType.getRawClass())
-                    && type.isTypeOrSubTypeOf(declaredType.getRawClass())) {
-                // Approval of base type covers subtypes of its key/content type
-                // (except for `Object`, `Serializable` and `Cloneable`)
-                allowed = true;
-            } else {
-                // Validated as if direct type id for declared key/content type, if
-                // subtype of it, or `Object`; but denial of base type (like of `Object`
-                // by `DefaultBaseTypeLimitingValidator`) does not deny types explicitly
-                // allowed
-                final JavaType objectType = TypeFactory.unknownType();
-                boolean ok = false;
-                if ((declaredType != null) && type.isTypeOrSubTypeOf(declaredType.getRawClass())) {
-                    ok = (vldr.validateBaseType(config, declaredType) == Validity.ALLOWED)
-                            || _isApprovedSubType(vldr, config, declaredType, type);
-                }
-                allowed = ok || (vldr.validateBaseType(config, objectType) == Validity.ALLOWED)
-                        || _isApprovedSubType(vldr, config, objectType, type);
+        if ((covered == null) || !type.hasRawClass(covered.getRawClass())) {
+            // Validated as contained type; as subtype of declared type only if it is one
+            if ((declaredType != null) && !type.isTypeOrSubTypeOf(declaredType.getRawClass())) {
+                declaredType = null;
             }
-            if (!allowed) {
-                throw invalidTypeIdException(baseType, typeId,
-                        "Configured `PolymorphicTypeValidator` (of type "
-                                + ClassUtil.classNameOf(vldr)
-                                + ") denied resolution of contained type "
-                                + ClassUtil.getTypeDescription(type));
-            }
-            // (same as for type parameters, see `_validateContainedType()`)
-            if (SubTypeValidator.instance().isIllegalType(type.getRawClass())) {
-                reportBadDefinition(type, String.format(
-                        "Illegal type (%s) to deserialize: prevented for security reasons",
-                        type.getRawClass().getName()));
-            }
-            // Explicit approval covers parts the container class itself declares,
-            // but not its type parameters (from enclosing class declaration)
-            if (vldr.isContainerTypeAllowedExplicitly(config, baseType, type)) {
-                _validateDeclaredParts(baseType, typeId, declaredType, type, unparameterized,
-                        config.getTypeFactory().constructType(type.getRawClass()),
-                        ptv, vldr, config);
-                return;
-            }
+            _checkContainedType(baseType, typeId, declaredType, type, ptv, config, true);
+            covered = _configuredValidator(ptv).isContainerTypeAllowedExplicitly(config, baseType, type)
+                    ? config.getTypeFactory().constructType(type.getRawClass()) : null;
         }
-        _validateDeclaredParts(baseType, typeId, declaredType, type, unparameterized, null,
-                ptv, vldr, config);
+        _validateDeclaredParts(baseType, typeId, declaredType, type, unparameterized, covered,
+                ptv, config);
+    }
+
+    private static JavaType _keyType(JavaType type) {
+        return (type == null) ? null : type.getKeyType();
+    }
+
+    private static JavaType _contentType(JavaType type) {
+        return (type == null) ? null : type.getContentType();
     }
 
     /**

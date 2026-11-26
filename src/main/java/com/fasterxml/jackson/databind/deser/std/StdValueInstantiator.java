@@ -35,18 +35,11 @@ public class StdValueInstantiator
 
     /**
      * Type of values that are instantiated, if known; used for constructing
-     * full description ({@link #_fullValueTypeDesc}) lazily.
+     * full description (see {@link #getValueTypeDesc()}) when needed.
      *
      * @since 2.18.13
      */
     private final JavaType _valueType;
-
-    /**
-     * Lazily constructed full description of {@link #_valueType}.
-     *
-     * @since 2.18.13
-     */
-    private transient String _fullValueTypeDesc;
 
     /**
      * @since 2.8
@@ -204,15 +197,7 @@ public class StdValueInstantiator
 
     @Override
     public String getValueTypeDesc() {
-        if (_valueType == null) {
-            return _valueTypeDesc;
-        }
-        String desc = _fullValueTypeDesc;
-        if (desc == null) {
-            // (benign race: may get constructed more than once)
-            _fullValueTypeDesc = desc = _valueType.toString();
-        }
-        return desc;
+        return (_valueType == null) ? _valueTypeDesc : _valueType.toString();
     }
 
     @Override

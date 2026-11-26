@@ -3,15 +3,11 @@ package com.fasterxml.jackson.databind.jsontype.vld;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdValueInstantiator;
@@ -23,45 +19,47 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for [databind#6496]: resolved content (and key) types of Collection,
- * Map and reference types named by type id must be validated, even if not
- * visible as type parameters of the type id.
+ * Tests for [databind#6496]: key and content types of Collection, Map and
+ * reference types named by type id that come from their class declarations
+ * (not visible as type parameters of the type id) must be validated.
  */
 @SuppressWarnings("serial")
 public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
 {
-    static boolean gadgetCreated;
-
     /** Stand-in "gadget" type: never allow-listed */
-    public static class Gadget {
-        public Gadget() { gadgetCreated = true; }
+    public static class Gadget { }
 
-        // usable as Map key
-        public Gadget(String key) { gadgetCreated = true; }
-    }
-
-    public static class Animal {
-        public String name;
-    }
-
+    public static class Animal { }
     public static class Dog extends Animal { }
-
-    public static class Item {
-        public int x;
-    }
+    public static class Item { }
 
     public static class MyGadgetList extends ArrayList<Gadget> { }
     // Content type not visible as type parameter even with generic type id
     public static class MyHiddenGadgetList<T> extends ArrayList<Gadget> { }
+    // Part of content type from class declaration, part from type parameter
+    public static class MyHiddenGadgetMapList<T> extends ArrayList<Map<Gadget, T>> { }
     public static class MyNestedGadgetList extends ArrayList<List<Gadget>> { }
     public static class MyGadgetValueMap extends HashMap<String, Gadget> { }
     public static class MyGadgetKeyMap extends HashMap<Gadget, String> { }
     public static class MyGadgetRef extends AtomicReference<Gadget> { }
+    public static class MyGadgetListList extends ArrayList<MyGadgetList> { }
+    public static class MyGadgetMapList extends ArrayList<HashMap<String, Gadget>> { }
+    public static class MyGadgetArrayList extends ArrayList<Gadget[]> { }
+    public static class MyGadgetArrayListList extends ArrayList<ArrayList<Gadget>> { }
 
-    public static class MyStringList extends ArrayList<String> { }
     public static class MyAnimalList extends ArrayList<Animal> { }
     public static class MyDogList extends ArrayList<Dog> { }
-    // Well-known value types
+    public static class MyDogListSub extends MyDogList { }
+    public static class MyDogListList extends ArrayList<List<Dog>> { }
+    public static class MyDogArrayListList extends ArrayList<ArrayList<Dog>> { }
+    // Content from type variable bound to declared type
+    public static class MyBoundedListList<T extends Animal> extends ArrayList<List<T>> { }
+    // Generic container type, given type argument by enclosing class declaration
+    public static class MyGenList<T> extends ArrayList<List<T>> { }
+    public static class MyGenGadgetHolder extends ArrayList<MyGenList<Gadget>> { }
+
+    // Safe (and well-known value) content types
+    public static class MyStringList extends ArrayList<String> { }
     public static class MyDateList extends ArrayList<Date> { }
     public static class MyLocaleMap extends HashMap<Locale, Currency> { }
     public static class MyNodeList extends ArrayList<JsonNode> { }
@@ -70,75 +68,38 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
     public static class MyPathList extends ArrayList<java.nio.file.Path> { }
     public static class MyTimestampList extends ArrayList<java.sql.Timestamp> { }
     public static class MyCharSequenceList extends ArrayList<CharSequence> { }
-    // not considered safe
-    public static class MySerializableList extends ArrayList<java.io.Serializable> { }
     public static class MyLocalDateList extends ArrayList<java.time.LocalDate> { }
-    // ... but not types in sub-packages of `java.time`
+    // ... but not types in sub-packages of `java.time`, nor `Serializable`
     public static class MyFormatterList extends ArrayList<java.time.format.DateTimeFormatter> { }
+    public static class MySerializableList extends ArrayList<java.io.Serializable> { }
 
-    public static class MyDogListList extends ArrayList<List<Dog>> { }
-
-    // Content type wraps type parameter (like Spring `LinkedMultiValueMap`)
-    public static class MyMultiMap<K, V> extends HashMap<K, List<V>> { }
-    // Part of content type from class declaration, part from type parameter
-    public static class MyHiddenGadgetMapList<T> extends ArrayList<Map<Gadget, T>> { }
-    // Mutually recursive content types
+    // Recursive types: must not cause infinite recursion
+    public static class MyNode extends ArrayList<MyNode> { }
     public static class MyPing extends ArrayList<MyPong> { }
     public static class MyPong extends ArrayList<MyPing> { }
 
-    // Polymorphic (via property annotation) base type, not `Object`
-    public interface Plain { }
-    public static class PlainEnv<T> implements Plain {
-        public T payload;
-    }
-    public static class PlainDogList extends ArrayList<Dog> implements Plain { }
+    // Content type wraps type parameter (like Spring `LinkedMultiValueMap`)
+    public static class MyMultiMap<K, V> extends HashMap<K, List<V>> { }
 
-    // Gadget nested in various ways in declared content types
-    public static class MyGadgetListList extends ArrayList<MyGadgetList> { }
-    public static class MyGadgetMapList extends ArrayList<HashMap<String, Gadget>> { }
-    public static class MyGadgetArrayList extends ArrayList<Gadget[]> { }
-    public static class MyGadgetArrayListList extends ArrayList<ArrayList<Gadget>> { }
-    public static class MyDogArrayListList extends ArrayList<ArrayList<Dog>> { }
-    // Content from type variable bound to declared type
-    public static class MyBoundedListList<T extends Animal> extends ArrayList<List<T>> { }
-    // Subclass of explicitly approved container type
-    public static class MyDogListSub extends MyDogList { }
-    // Explicitly approved generic container type, with type argument from
-    // enclosing class declaration
-    public static class MyGenList<T> extends ArrayList<T> { }
-    public static class MyGenGadgetHolder extends ArrayList<MyGenList<Gadget>> { }
-
-    // Recursive type: must not cause infinite recursion
-    public static class MyNode extends ArrayList<MyNode> { }
-
+    // Polymorphic base type other than `Object`
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
     public interface Payload { }
-
     public static class Batch extends ArrayList<List<Item>> implements Payload { }
-
-    // With Default Typing (`OBJECT_AND_NON_CONCRETE`), values of these properties
-    // are typed (but not elements of concrete types like `Animal`)
-    static class ObjectWrapper { public Object value; }
-    static class AnimalsWrapper { public List<Animal> value; }
-    static class DogsWrapper { public List<Dog> value; }
-    static class AnimalIterableWrapper { public Iterable<Animal> value; }
-    static class AnimalListsWrapper { public Collection<List<Animal>> value; }
-    static class DogListsWrapper { public List<List<Dog>> value; }
-    // ... and with annotation, with default validator
-    static class PayloadWrapper { public Payload value; }
-    static class AnnotatedObjectWrapper {
-        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-        public Object value;
-    }
-    static class PlainWrapper {
-        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-        public Plain value;
+    public static class DogPayload extends ArrayList<Dog> implements Payload { }
+    public static class PayloadEnv<T> implements Payload {
+        public T payload;
     }
 
-    @BeforeEach
-    public void reset() {
-        gadgetCreated = false;
-    }
+    // With Default Typing (`OBJECT_AND_NON_CONCRETE`), values of these properties are
+    // typed (but not elements of concrete types like `Animal`)
+    static class Wrapper<T> { public T value; }
+    static class ObjectWrapper extends Wrapper<Object> { }
+    static class AnimalsWrapper extends Wrapper<List<Animal>> { }
+    static class DogsWrapper extends Wrapper<List<Dog>> { }
+    static class AnimalIterableWrapper extends Wrapper<Iterable<Animal>> { }
+    static class AnimalListsWrapper extends Wrapper<Collection<List<Animal>>> { }
+    static class DogListsWrapper extends Wrapper<List<List<Dog>>> { }
+    static class PayloadWrapper extends Wrapper<Payload> { }
 
     /*
     /**********************************************************************
@@ -150,74 +111,103 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
     public void contentTypesRejected() throws Exception
     {
         ObjectMapper mapper = containerMapper();
-        _verifyRejected(mapper, json(MyGadgetList.class, "[{}]"));
-        _verifyRejected(mapper, json(MyHiddenGadgetList.class.getName() + "<java.lang.String>", "[{}]"));
-        _verifyRejected(mapper, json(MyNestedGadgetList.class, "[[{}]]"));
-        _verifyRejected(mapper, json(MyGadgetValueMap.class, "{'a':{}}"));
-        _verifyRejected(mapper, json(MyGadgetKeyMap.class, "{'a':'b'}"));
-        _verifyRejected(mapper, json(MyGadgetRef.class, "{}"));
-        _verifyRejected(mapper, json(MyHiddenGadgetMapList.class.getName() + "<java.lang.String>",
-                "[{}]"));
-        // as type parameter
-        _verifyRejected(mapper, json("java.util.ArrayList<" + MyGadgetList.class.getName() + ">",
-                "[[{}]]"));
-        // as element type of explicitly approved array type
-        _verifyRejected(mapper, json("[L" + MyGadgetList.class.getName() + ";", "[[{}]]"));
-        // not a well-known value type
-        _verifyRejected(mapper, json(MyFormatterList.class, "[]"));
-        _verifyRejected(mapper, json(MySerializableList.class, "[]"));
-        // nested in declared content types
-        _verifyRejected(mapper, json(MyGadgetListList.class, "[[{}]]"));
-        _verifyRejected(mapper, json(MyGadgetMapList.class, "[{'a':{}}]"));
-        _verifyRejected(mapper, json(MyGadgetArrayList.class, "[[{}]]"));
-        _verifyRejected(mapper, json(MyGadgetArrayListList.class, "[[{}]]"));
+        for (Object typeId : Arrays.asList(MyGadgetList.class,
+                MyHiddenGadgetList.class.getName() + "<java.lang.String>",
+                MyHiddenGadgetMapList.class.getName() + "<java.lang.String>",
+                MyNestedGadgetList.class, MyGadgetValueMap.class, MyGadgetKeyMap.class,
+                MyGadgetRef.class, MyGadgetListList.class, MyGadgetMapList.class,
+                MyGadgetArrayList.class, MyGadgetArrayListList.class,
+                MyFormatterList.class, MySerializableList.class,
+                // as type parameter
+                "java.util.ArrayList<" + MyGadgetList.class.getName() + ">",
+                // as element type of explicitly approved array type
+                MyGadgetList[].class)) {
+            _rejected(mapper, ObjectWrapper.class, typeId);
+        }
+        // Subtype of declared content type not approved as such
+        _rejected(mapper, AnimalsWrapper.class, MyDogList.class);
+        // Declared non-container type (`Iterable<Animal>`) does not cover anything
+        _rejected(mapper, AnimalIterableWrapper.class, MyGadgetList.class);
     }
 
-    // Content type need not be subtype of declared content type (type erasure):
-    // approval of declared content type as base type must not cover it
     @Test
-    public void contentTypeNotSubtypeOfDeclared() throws Exception
+    public void contentTypesAccepted() throws Exception
     {
+        ObjectMapper mapper = containerMapper();
+        for (Object typeId : Arrays.asList(MyStringList.class, ArrayList.class,
+                MyDateList.class, MyNodeList.class, MyUriList.class, MyFileList.class,
+                MyPathList.class, MyTimestampList.class, MyCharSequenceList.class,
+                MyLocalDateList.class, MyNode.class, MyPing.class, MyStringList[].class,
+                "java.util.ArrayList<java.lang.String>")) {
+            _accepted(mapper, ObjectWrapper.class, typeId, "[]");
+        }
+        _accepted(mapper, ObjectWrapper.class, HashMap.class, "{}");
+        _accepted(mapper, ObjectWrapper.class, MyLocaleMap.class, "{}");
+        // Same as declared content type
+        _accepted(mapper, AnimalsWrapper.class, MyAnimalList.class, "[]");
+        _accepted(mapper, AnimalsWrapper.class, ArrayList.class, "[]");
+        _accepted(mapper, DogsWrapper.class, MyDogList.class, "[]");
+        // From type variables (bound by declared type), not class declaration
+        _accepted(mapper, DogListsWrapper.class, MyBoundedListList.class, "[]");
+        _accepted(mapper, AnimalIterableWrapper.class, ArrayList.class, "[]");
+    }
+
+    // Approval of base type covers subtypes of declared content types (also nested),
+    // nothing else
+    @Test
+    public void approvedBaseType() throws Exception
+    {
+        ObjectMapper mapper = mapper(BasicPolymorphicTypeValidator.builder()
+                .allowIfBaseType(Collection.class));
+        _accepted(mapper, AnimalsWrapper.class, MyDogList.class, "[]");
+        _accepted(mapper, AnimalListsWrapper.class, MyDogListList.class, "[]");
+        _accepted(mapper, AnimalListsWrapper.class, MyDogArrayListList.class, "[]");
+        _rejected(mapper, AnimalsWrapper.class, MyGadgetList.class);
+    }
+
+    @Test
+    public void approvedContentType() throws Exception
+    {
+        // As subtype of declared content type, approved as base type
         ObjectMapper mapper = mapper(BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(Collection.class)
                 .allowIfBaseType(Animal.class));
-        _verifyRejected(mapper, json(MyGadgetList.class, "[{}]"), AnimalsWrapper.class);
+        _accepted(mapper, AnimalsWrapper.class, MyDogList.class, "[]");
+        // ... which does not cover other types (type erasure)
+        _rejected(mapper, AnimalsWrapper.class, MyGadgetList.class);
+
+        // As subtype
+        mapper = mapper(BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType(Collection.class)
+                .allowIfSubType(Animal.class));
+        _accepted(mapper, ObjectWrapper.class, MyDogList.class, "[]");
     }
 
-    // Default validator (`LaissezFaireSubTypeValidator`) only limits classes named in
-    // type id: key/content types their classes declare are not validated (same as
-    // their properties)
+    // Explicit approval of exact container class covers content types it declares,
+    // but not for subclasses, nor type arguments given to it
     @Test
-    public void defaultValidatorDoesNotValidateDeclaredContent() throws Exception
+    public void explicitlyApprovedContainerType() throws Exception
     {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .activateDefaultTyping(LaissezFaireSubTypeValidator.instance,
-                        DefaultTyping.OBJECT_AND_NON_CONCRETE)
-                .build();
-        assertEquals(MyGadgetList.class, mapper.readValue(json(MyGadgetList.class, "[{}]"),
-                AnimalsWrapper.class).value.getClass());
-    }
-
-    // Declared content type from non-container declared type (`Iterable<Animal>`)
-    // does not cover anything
-    @Test
-    public void contentTypeWithNonContainerBaseType() throws Exception
-    {
-        _verifyRejected(containerMapper(), json(MyGadgetList.class, "[{}]"),
-                AnimalIterableWrapper.class);
+        ObjectMapper mapper = mapper(BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType(Collection.class)
+                .allowIfSubType(MyDogList.class)
+                .allowIfSubType(MyGenList.class));
+        _accepted(mapper, ObjectWrapper.class, MyDogList.class, "[]");
+        _accepted(mapper, ObjectWrapper.class,
+                "java.util.ArrayList<" + MyDogList.class.getName() + ">", "[]");
+        _rejected(mapper, ObjectWrapper.class, MyDogListSub.class);
+        _rejected(mapper, ObjectWrapper.class, MyGenGadgetHolder.class);
     }
 
     // Validators that deny `Object` as base type (like the one used with
     // `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES`) do not deny all content
     @Test
-    public void validatorDenyingObjectBaseType() throws Exception
+    public void objectDeniedAsBaseType() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enable(com.fasterxml.jackson.databind.MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)
+                .enable(MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)
                 .build();
-        Batch b = (Batch) mapper.readValue(json(Batch.class, "[[{'x':1}]]"),
-                PayloadWrapper.class).value;
-        assertEquals(1, b.get(0).get(0).x);
+        _accepted(mapper, PayloadWrapper.class, Batch.class, "[]");
 
         mapper = jsonMapperBuilder()
                 .polymorphicTypeValidator(BasicPolymorphicTypeValidator.builder()
@@ -226,212 +216,71 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
                         .allowIfSubType(Dog.class)
                         .build())
                 .build();
-        PlainDogList dogs = (PlainDogList) mapper.readValue(json(PlainDogList.class, "[{}]"),
-                PlainWrapper.class).value;
-        assertEquals(Dog.class, dogs.get(0).getClass());
+        _accepted(mapper, PayloadWrapper.class, DogPayload.class, "[]");
     }
 
-    // Explicit approval of exact container class covers content types it declares
-    // (but not for subclasses)
+    // Default validator (`LaissezFaireSubTypeValidator`) only limits classes named in
+    // type id: key/content types their classes declare are not validated (same as
+    // their properties)
     @Test
-    public void explicitlyApprovedContainerType() throws Exception
+    public void defaultValidator() throws Exception
     {
-        ObjectMapper mapper = mapper(BasicPolymorphicTypeValidator.builder()
-                .allowIfSubType(MyDogList.class)
-                .allowIfSubType(ArrayList.class));
-        assertEquals(MyDogList.class, _read(mapper, MyDogList.class, "[{}]").getClass());
-        // also as type parameter
-        List<?> lists = (List<?>) mapper.readValue(json("java.util.ArrayList<" + MyDogList.class.getName() + ">",
-                "[[{}]]"), ObjectWrapper.class).value;
-        assertEquals(MyDogList.class, lists.get(0).getClass());
-        _verifyRejected(mapper, json(MyDogListSub.class, "[{}]"));
-    }
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(LaissezFaireSubTypeValidator.instance,
+                        DefaultTyping.OBJECT_AND_NON_CONCRETE)
+                .build();
+        _accepted(mapper, AnimalsWrapper.class, MyGadgetList.class, "[]");
 
-    // Explicit approval of container class does not cover type arguments given to it
-    // by enclosing class declaration
-    @Test
-    public void explicitlyApprovedNestedGenericContainerType() throws Exception
-    {
-        ObjectMapper mapper = mapper(BasicPolymorphicTypeValidator.builder()
-                .allowIfSubType(Collection.class)
-                .allowIfSubType(MyGenList.class));
-        _verifyRejected(mapper, json(MyGenGadgetHolder.class, "[[{}]]"));
-    }
-
-    // Subtype of declared content type: validated as subtype of it (approval of it
-    // as base type covers it)
-    @Test
-    public void subtypeOfDeclaredContentTypeApprovedAsBaseType() throws Exception
-    {
-        ObjectMapper mapper = mapper(BasicPolymorphicTypeValidator.builder()
-                .allowIfSubType(MyDogList.class.getName())
-                .allowIfBaseType(Animal.class));
-        assertEquals(MyDogList.class, mapper.readValue(json(MyDogList.class, "[{}]"),
-                AnimalsWrapper.class).value.getClass());
+        mapper = newJsonMapper();
+        _accepted(mapper, PayloadWrapper.class, Batch.class, "[]");
+        _accepted(mapper, PayloadWrapper.class,
+                PayloadEnv.class.getName() + "<" + DogPayload.class.getName() + ">", "{}");
     }
 
     // Declared element type of declared array type is declared type of array elements
     @Test
     public void declaredContentOfArrayElements() throws Exception
     {
+        ObjectMapper mapper = newJsonMapper();
+        DeserializationContext ctxt = ((DefaultDeserializationContext) mapper.getDeserializationContext())
+                .createDummyInstance(mapper.getDeserializationConfig());
+        JavaType arrayType = mapper.constructType(MyDogList[].class);
         for (BasicPolymorphicTypeValidator.Builder b : Arrays.asList(
                 // array type explicitly approved
                 BasicPolymorphicTypeValidator.builder().allowIfSubType(MyDogList[].class),
                 // or not
                 BasicPolymorphicTypeValidator.builder().allowIfSubTypeIsArray()
                         .allowIfSubType(Collection.class))) {
-            ObjectMapper mapper = newJsonMapper();
-            DeserializationContext ctxt = ((DefaultDeserializationContext) mapper.getDeserializationContext())
-                    .createDummyInstance(mapper.getDeserializationConfig());
-            JavaType arrayType = mapper.constructType(MyDogList[].class);
             assertEquals(arrayType, ctxt.resolveAndValidateSubType(arrayType,
-                    "[L" + MyDogList.class.getName() + ";", b.build()));
+                    MyDogList[].class.getName(), b.build()));
         }
-    }
-
-    // Part from type variable bound to declared type parameter is not validated
-    // (nor its bound)
-    @Test
-    public void boundedTypeVariableContent() throws Exception
-    {
-        assertEquals(MyBoundedListList.class, containerMapper().readValue(
-                json(MyBoundedListList.class, "[]"), DogListsWrapper.class).value.getClass());
-    }
-
-    // Approval of base type covers subtypes of nested declared content type
-    @Test
-    public void nestedSubtypeOfDeclaredContentTypeOtherClass() throws Exception
-    {
-        ObjectMapper mapper = mapper(BasicPolymorphicTypeValidator.builder()
-                .allowIfBaseType(Collection.class));
-        assertEquals(MyDogArrayListList.class, mapper.readValue(
-                json(MyDogArrayListList.class, a2q("[['java.util.ArrayList',[{}]]]")),
-                AnimalListsWrapper.class).value.getClass());
-    }
-
-    // Approval of base type does not cover content type either
-    @Test
-    public void contentTypeRejectedWithApprovedBaseType() throws Exception
-    {
-        ObjectMapper mapper = mapper(BasicPolymorphicTypeValidator.builder()
-                .allowIfBaseType(Collection.class));
-        _verifyRejected(mapper, json(MyGadgetList.class, "[{}]"), AnimalsWrapper.class);
-    }
-
-    @Test
-    public void safeContentTypesAccepted() throws Exception
-    {
-        ObjectMapper mapper = containerMapper();
-        assertEquals(Arrays.asList("a"), _read(mapper, MyStringList.class, "['a']"));
-        assertEquals(Arrays.asList("a"), _read(mapper, ArrayList.class, "['a']"));
-        assertEquals(Collections.singletonMap("a", 1), _read(mapper, HashMap.class, "{'a':1}"));
-        assertEquals(Arrays.asList("a"), mapper.readValue(
-                json("java.util.ArrayList<java.lang.String>", "['a']"), ObjectWrapper.class).value);
-        assertEquals(MyStringList[].class, mapper.readValue(
-                json("[L" + MyStringList.class.getName() + ";", "[['a']]"), ObjectWrapper.class)
-                .value.getClass());
-        assertEquals(MyNode.class, _read(mapper, MyNode.class, "[]").getClass());
-        assertEquals(MyPing.class, _read(mapper, MyPing.class, "[[]]").getClass());
-    }
-
-    @Test
-    public void valueContentTypesAccepted() throws Exception
-    {
-        ObjectMapper mapper = containerMapper();
-        assertEquals(Arrays.asList(new Date(0L)), _read(mapper, MyDateList.class, "[0]"));
-        assertEquals(Collections.singletonMap(Locale.CANADA, Currency.getInstance("CAD")),
-                _read(mapper, MyLocaleMap.class, "{'en_CA':'CAD'}"));
-        assertEquals(Arrays.asList(mapper.readTree(a2q("{'a':1}"))),
-                _read(mapper, MyNodeList.class, "[{'a':1}]"));
-        assertEquals(Arrays.asList(java.net.URI.create("urn:x")),
-                _read(mapper, MyUriList.class, "['urn:x']"));
-        assertEquals(Arrays.asList(new java.io.File("x")), _read(mapper, MyFileList.class, "['x']"));
-        // (`Path` elements would need type ids of their own here, being abstract)
-        assertEquals(Collections.emptyList(), _read(mapper, MyPathList.class, "[]"));
-        assertEquals(Arrays.asList(new java.sql.Timestamp(0L)),
-                _read(mapper, MyTimestampList.class, "[0]"));
-        assertEquals(Arrays.asList("x"), _read(mapper, MyCharSequenceList.class, "['x']"));
-        // (no Java 8 date/time module here: just verify type id is accepted)
-        assertEquals(Collections.emptyList(), _read(mapper, MyLocalDateList.class, "[]"));
-    }
-
-    @Test
-    public void allowedContentTypeAccepted() throws Exception
-    {
-        ObjectMapper mapper = mapper(BasicPolymorphicTypeValidator.builder()
-                .allowIfSubType(Collection.class)
-                .allowIfSubType(Animal.class));
-        List<?> dogs = (List<?>) _read(mapper, MyDogList.class, "[{'name':'Rex'}]");
-        assertEquals(Dog.class, dogs.get(0).getClass());
-    }
-
-    // Content type same as declared one comes from declaration: not validated
-    @Test
-    public void declaredContentTypeAccepted() throws Exception
-    {
-        ObjectMapper mapper = containerMapper();
-        assertEquals(MyAnimalList.class, mapper.readValue(json(MyAnimalList.class, "[{}]"),
-                AnimalsWrapper.class).value.getClass());
-        assertEquals(ArrayList.class, mapper.readValue(json(ArrayList.class, "[{}]"),
-                AnimalsWrapper.class).value.getClass());
-        assertEquals(MyDogList.class, mapper.readValue(json(MyDogList.class, "[{}]"),
-                DogsWrapper.class).value.getClass());
-    }
-
-    // Subtype of declared content type: allowed only if approved (by base type)
-    @Test
-    public void subtypeOfDeclaredContentType() throws Exception
-    {
-        _verifyRejected(containerMapper(), json(MyDogList.class, "[{}]"), AnimalsWrapper.class);
-
-        ObjectMapper mapper = mapper(BasicPolymorphicTypeValidator.builder()
-                .allowIfBaseType(List.class));
-        List<Animal> animals = mapper.readValue(json(MyDogList.class, "[{}]"),
-                AnimalsWrapper.class).value;
-        assertEquals(Dog.class, animals.get(0).getClass());
-    }
-
-    // Type parameters of declared content types are not named by type id either:
-    // must not be rejected by default validator (`LaissezFaireSubTypeValidator`)
-    @Test
-    public void nestedDeclaredContentWithDefaultValidator() throws Exception
-    {
-        Payload p = newJsonMapper().readValue(json(Batch.class, "[[{'x':1}]]"),
-                PayloadWrapper.class).value;
-        assertEquals(1, ((Batch) p).get(0).get(0).x);
     }
 
     // Validation must take linear (not exponential) time wrt nesting depth
     @Test
     public void deeplyNestedTypeIdValidatedFast() throws Exception
     {
-        _verifyNestedFast(HashMap.class.getName());
-        _verifyNestedFast(MyMultiMap.class.getName());
-    }
-
-    private void _verifyNestedFast(String mapType) throws Exception
-    {
-        StringBuilder sb = new StringBuilder();
-        final int levels = 40;
-        for (int i = 0; i < levels; ++i) {
-            sb.append(mapType).append("<java.lang.String,");
-        }
-        sb.append("java.lang.String");
-        for (int i = 0; i < levels; ++i) {
-            sb.append('>');
-        }
-        final String json = json(sb.toString(), "{}");
         ObjectMapper mapper = containerMapper();
-        assertTimeoutPreemptively(java.time.Duration.ofSeconds(5), () -> {
-            assertEquals(Collections.emptyMap(),
-                    mapper.readValue(json, ObjectWrapper.class).value);
-        }, mapType);
+        for (Class<?> mapType : Arrays.asList(HashMap.class, MyMultiMap.class)) {
+            StringBuilder sb = new StringBuilder();
+            final int levels = 40;
+            for (int i = 0; i < levels; ++i) {
+                sb.append(mapType.getName()).append("<java.lang.String,");
+            }
+            sb.append("java.lang.String");
+            for (int i = 0; i < levels; ++i) {
+                sb.append('>');
+            }
+            assertTimeoutPreemptively(java.time.Duration.ofSeconds(5),
+                    () -> _accepted(mapper, ObjectWrapper.class, sb.toString(), "{}"),
+                    mapType.getName());
+        }
     }
 
-    // Description of value type (for error messages) is constructed lazily, since
-    // constructing it for every level of nested types takes quadratic time
+    // Description of value type (for error messages) is constructed when needed,
+    // since constructing it for every level of nested types takes quadratic time
     @Test
-    public void valueInstantiatorTypeDescLazy() throws Exception
+    public void valueInstantiatorTypeDesc() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         JavaType type = mapper.getTypeFactory().constructFromCanonical(
@@ -439,40 +288,6 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
         StdValueInstantiator inst = new StdValueInstantiator(mapper.getDeserializationConfig(), type);
         assertEquals(type.toString(), inst.getValueTypeDesc());
         assertEquals(type.toString(), new StdValueInstantiator(inst) { }.getValueTypeDesc());
-    }
-
-    // Content type that comes from type parameter bound to declared type parameter
-    // of base type that is not a container type (`Iterable<Animal>`) is not validated
-    @Test
-    public void contentTypeFromNonContainerBaseType() throws Exception
-    {
-        List<?> animals = (List<?>) containerMapper().readValue(json(ArrayList.class, "[{}]"),
-                AnimalIterableWrapper.class).value;
-        assertEquals(Animal.class, animals.get(0).getClass());
-    }
-
-    // Content types of a type parameter come from its class declaration: not to be
-    // rejected by default validator any more than for top-level type id
-    @Test
-    public void contentTypeOfTypeParameterWithDefaultValidator() throws Exception
-    {
-        Plain p = newJsonMapper().readValue(
-                json(PlainEnv.class.getName() + "<" + PlainDogList.class.getName() + ">",
-                        "{'payload':[{}]}"),
-                PlainWrapper.class).value;
-        assertEquals(Dog.class, ((PlainDogList) ((PlainEnv<?>) p).payload).get(0).getClass());
-    }
-
-    // Approval of base type covers subtypes of declared type parameters of
-    // content type same as for content type itself
-    @Test
-    public void nestedSubtypeOfDeclaredContentType() throws Exception
-    {
-        ObjectMapper mapper = mapper(BasicPolymorphicTypeValidator.builder()
-                .allowIfBaseType(Collection.class));
-        Collection<List<Animal>> lists = mapper.readValue(json(MyDogListList.class, a2q("[['java.util.ArrayList',[{}]]]")),
-                AnimalListsWrapper.class).value;
-        assertEquals(MyDogListList.class, lists.getClass());
     }
 
     /*
@@ -496,29 +311,29 @@ public class ResolvedContentTypeValidation6496Test extends DatabindTestUtil
                 .build();
     }
 
-    private static String json(Class<?> type, String value) {
-        return json(type.getName(), value);
+    // Type id as Class or String
+    private static String json(Object typeId, String value) {
+        String id = (typeId instanceof Class<?>) ? ((Class<?>) typeId).getName() : (String) typeId;
+        return a2q("{'value':['" + id + "'," + value + "]}");
     }
 
-    private static String json(String typeId, String value) {
-        return a2q("{'value':['" + typeId + "'," + value + "]}");
+    private void _accepted(ObjectMapper mapper, Class<? extends Wrapper<?>> wrapperType,
+            Object typeId, String value) throws Exception
+    {
+        Object result = mapper.readValue(json(typeId, value), wrapperType).value;
+        assertNotNull(result, String.valueOf(typeId));
+        if (typeId instanceof Class<?>) {
+            assertEquals(typeId, result.getClass());
+        }
     }
 
-    private Object _read(ObjectMapper mapper, Class<?> type, String value) throws Exception {
-        Object result = mapper.readValue(json(type, value), ObjectWrapper.class).value;
-        assertEquals(type, result.getClass());
-        return result;
-    }
-
-    private void _verifyRejected(ObjectMapper mapper, String json) {
-        _verifyRejected(mapper, json, ObjectWrapper.class);
-    }
-
-    private void _verifyRejected(ObjectMapper mapper, String json, Class<?> wrapperType)
+    // (type id is validated before value is read)
+    private void _rejected(ObjectMapper mapper, Class<? extends Wrapper<?>> wrapperType,
+            Object typeId)
     {
         InvalidTypeIdException e = assertThrows(InvalidTypeIdException.class,
-                () -> mapper.readValue(json, wrapperType));
+                () -> mapper.readValue(json(typeId, "null"), wrapperType),
+                String.valueOf(typeId));
         verifyException(e, "denied resolution of contained type");
-        assertFalse(gadgetCreated);
     }
 }

@@ -270,6 +270,16 @@ public abstract class DatabindContext
         if (subType.isArrayType()) {
             if (!_configuredValidator(ptv).isArrayTypeAllowedExplicitly(config, baseType, subType)) {
                 _validateArrayElementType(baseType, subClass, baseType, subType, ptv, config);
+            } else {
+                // [databind#6496]: explicit approval of array type covers its element
+                // type, but not content types of element type (`[LMyGadgetList;`)
+                JavaType declaredType = baseType;
+                JavaType elementType = subType;
+                while (elementType.isArrayType()) {
+                    declaredType = _declaredContentType(declaredType);
+                    elementType = elementType.getContentType();
+                }
+                _validateContentTypes(baseType, subClass, declaredType, elementType, ptv, config);
             }
         } else {
             // [databind#6496]: resolved content types (like `Gadget` for
@@ -348,23 +358,41 @@ public abstract class DatabindContext
             PolymorphicTypeValidator ptv, MapperConfig<?> config)
         throws JsonMappingException
     {
+        _validateContainedTypes(baseType, typeId, null, type, ptv, config);
+    }
+
+    /**
+     * @param declaredParamType Declared type for type parameters: {@code null} (none)
+     *   for ones named in the type id; {@code Object} for ones of a type that comes
+     *   from a class declaration ([databind#6496])
+     *
+     * @since 2.18.13
+     */
+    private void _validateContainedTypes(JavaType baseType, String typeId,
+            JavaType declaredParamType, JavaType type,
+            PolymorphicTypeValidator ptv, MapperConfig<?> config)
+        throws JsonMappingException
+    {
         for (int i = 0, n = type.containedTypeCount(); i < n; ++i) {
-            _validateContainedType(baseType, typeId, null,
+            _validateContainedType(baseType, typeId, declaredParamType,
                     type.containedType(i), ptv, config);
         }
     }
 
     /**
      * Helper for validating a class named in a type id as type parameter (or as element
-     * type of an array type): it gets the same checks a class named directly as type id
-     * would get. Unless it is a safe type (see {@link #_isSafeTypeParameter}) or exactly
+     * type of an array type), or resolved as key or content type of a container type
+     * (see {@link #_validateContentTypes}): it gets the same checks a class named
+     * directly as type id would get. Unless it is a safe type (see {@link #_isSafeTypeParameter}) or exactly
      * its declared type, the {@link SubTypeValidator} deny list applies, and:
      *<ul>
      * <li>If assignable to polymorphic base type, checked as if a direct type id for it
      *   </li>
      * <li>Otherwise checked by configured {@link PolymorphicTypeValidator} as a direct type
      *   id for its declared type (element type of declared array type for array
-     *   elements; none -- validated as {@code Object} -- otherwise), starting with
+     *   elements; key or content type of declared container type for key and content
+     *   types; {@code Object} for type parameters of these; none -- validated as
+     *   {@code Object} -- for type parameters named in the type id), starting with
      *   {@link PolymorphicTypeValidator#validateBaseType}: approval of polymorphic base
      *   type does not extend to it. {@link LaissezFaireSubTypeValidator} (which allows
      *   all subtypes of base type) only allows subtypes of declared type, if any
@@ -373,8 +401,9 @@ public abstract class DatabindContext
      * Assignment compatibility with declared type parameters of the base type is
      * NOT verified: classes named in the type id are the only attacker-selected
      * ones (other types come from the declared base type or from class
-     * declarations), so validating them suffices to prevent instantiation of
-     * unapproved types.
+     * declarations). Key and content types from class declarations are validated
+     * as well ([databind#6496]): approval of a container type, often by a rule
+     * matching all containers, does not cover them.
      *
      * @param baseType Polymorphic base type
      * @param declaredType Declared type of the contained type, if any ({@code null} if none)
@@ -399,9 +428,9 @@ public abstract class DatabindContext
             } else if ((ptv instanceof ApprovedBaseTypeValidator)
                     && (declaredType != null) && !ClassUtil.isArraySuperType(declaredType.getRawClass())
                     && param.isTypeOrSubTypeOf(declaredType.getRawClass())) {
-                // Approval of base type (declared array type) covers subtypes of its
-                // element type (except for `Object[]`, `Serializable[]` and
-                // `Cloneable[]`, which would cover everything)
+                // Approval of base type (declared array or container type) covers
+                // subtypes of its element (key, content) type (except for `Object`,
+                // `Serializable` and `Cloneable`, which would cover everything)
                 vldr = ptv;
                 vldBaseType = declaredType;
                 vld = Validity.ALLOWED;
@@ -447,7 +476,11 @@ public abstract class DatabindContext
         if (param.isArrayType()) {
             _validateArrayElementType(baseType, typeId, declaredType, param, ptv, config);
         } else {
-            _validateContainedTypes(baseType, typeId, param, ptv, config);
+            // [databind#6496]: type with declared type (array element or content type)
+            // comes from a class declaration, and so do its type parameters
+            _validateContainedTypes(baseType, typeId,
+                    (declaredType == null) ? null : TypeFactory.unknownType(),
+                    param, ptv, config);
             _validateContentTypes(baseType, typeId, declaredType, param, ptv, config);
         }
     }

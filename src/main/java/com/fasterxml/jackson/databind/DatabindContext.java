@@ -582,11 +582,11 @@ public abstract class DatabindContext
                 || type.equals(declaredType)) {
             return;
         }
+        // Declared type only corresponds to subtypes of it (and parts of those)
+        if ((declaredType != null) && !type.isTypeOrSubTypeOf(declaredType.getRawClass())) {
+            declaredType = null;
+        }
         if ((covered == null) || !type.hasRawClass(covered.getRawClass())) {
-            // Validated as contained type; as subtype of declared type only if it is one
-            if ((declaredType != null) && !type.isTypeOrSubTypeOf(declaredType.getRawClass())) {
-                declaredType = null;
-            }
             _checkContainedType(baseType, typeId, declaredType, type, ptv, config, true);
             covered = _configuredValidator(ptv).isContainerTypeAllowedExplicitly(config, baseType, type)
                     ? config.getTypeFactory().constructType(type.getRawClass()) : null;

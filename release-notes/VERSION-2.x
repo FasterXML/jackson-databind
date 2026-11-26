@@ -29,6 +29,10 @@ Project: jackson-databind
   `ObjectMapper.enableDefaultTyping()`
  (reported by @abdessattar23)
  (fix by @cowtowncoder, w/ Claude code)
+#6496: Polymorphic type validation should use resolved content types if possible (not raw)
+  [GHSA-268j-6pjg-73vh]
+  NOTE: also avoids quadratic time wrt nesting depth of type ids in `StdValueInstantiator`
+ (fix by @cowtowncoder, w/ Claude code)
 
 2.23.0 (07-Nov-2026)
 
@@ -167,6 +171,13 @@ Project: jackson-databind
 #3884: Add `ObjectNode.put(JsonPointer, JsonNode)` method
  (requested by @SaiKrishna369)
  (contributed by Lee Jiwon)
+
+2.21.10 (not yet released)
+
+#6496: Polymorphic type validation should use resolved content types if possible (not raw)
+  [GHSA-268j-6pjg-73vh]
+  NOTE: also avoids quadratic time wrt nesting depth of type ids in `StdValueInstantiator`
+ (fix by @cowtowncoder, w/ Claude code)
 
 2.21.9 (24-Nov-2026)
 
@@ -559,6 +570,10 @@ No changes since 2.19.2
 #6422: `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` not applied to legacy
   `ObjectMapper.enableDefaultTyping()`
  (reported by @abdessattar23)
+ (fix by @cowtowncoder, w/ Claude code)
+#6496: Polymorphic type validation should use resolved content types if possible (not raw)
+  [GHSA-268j-6pjg-73vh]
+  NOTE: also avoids quadratic time wrt nesting depth of type ids in `StdValueInstantiator`
  (fix by @cowtowncoder, w/ Claude code)
 
 2.18.12 (17-Oct-2026)

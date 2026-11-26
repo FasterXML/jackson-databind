@@ -492,6 +492,10 @@ public class BasicPolymorphicTypeValidator
      */
     protected final Set<Class<?>> _explicitSubTypes;
 
+    /**
+     * @deprecated Since 2.18.13
+     */
+    @Deprecated // since 2.18.13
     protected BasicPolymorphicTypeValidator(Set<Class<?>> invalidBaseTypes,
             TypeMatcher[] baseTypeMatchers,
             NameMatcher[] subTypeNameMatchers, TypeMatcher[] subClassMatchers) {
@@ -500,8 +504,10 @@ public class BasicPolymorphicTypeValidator
 
     /**
      * @since 2.18.8
+     * @deprecated Since 2.18.13
      */
     // [databind#5981]
+    @Deprecated // since 2.18.13
     protected BasicPolymorphicTypeValidator(Set<Class<?>> invalidBaseTypes,
             TypeMatcher[] baseTypeMatchers,
             NameMatcher[] subTypeNameMatchers, TypeMatcher[] subClassMatchers,
@@ -512,7 +518,9 @@ public class BasicPolymorphicTypeValidator
 
     /**
      * @since 2.18.12
+     * @deprecated Since 2.18.13
      */
+    @Deprecated // since 2.18.13
     protected BasicPolymorphicTypeValidator(Set<Class<?>> invalidBaseTypes,
             TypeMatcher[] baseTypeMatchers,
             NameMatcher[] subTypeNameMatchers, TypeMatcher[] subClassMatchers,

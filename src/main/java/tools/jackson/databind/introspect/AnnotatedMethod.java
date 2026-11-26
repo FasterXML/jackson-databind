@@ -148,8 +148,8 @@ public final class AnnotatedMethod
     private MethodHandle _invokerOnWithHandle() throws IllegalAccessException {
         MethodHandle h = _invokerOnWith;
         if (h == null) {
-            // [databind#5231], [databind#6426] must be fixed-arity for varargs methods
-            h = MethodHandles.lookup().unreflect(_method).asFixedArity()
+            // Start from unadapted (but fixed-arity, see [databind#5231]) handle
+            h = _invokerWithArgs.get()
                     .asSpreader(Object[].class, _method.getParameterCount());
             if (Modifier.isStatic(_method.getModifiers())) { // pojo ignored
                 h = MethodHandles.dropArguments(h, 0, Object.class);

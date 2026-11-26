@@ -23,6 +23,8 @@ public final class AnnotatedMethod
     // Invocation types for the arity-specific handles; constant so no per-use lookup
     private static final MethodType INVOKER_NULLARY_TYPE = methodType(Object.class);
     private static final MethodType INVOKER_UNARY_TYPE = methodType(Object.class, Object.class);
+    private static final MethodType INVOKER_ON_WITH_TYPE
+        = methodType(Object.class, Object.class, Object[].class);
 
     final protected transient Method _method;
 
@@ -34,6 +36,17 @@ public final class AnnotatedMethod
     protected volatile MethodHandle _invokerWithArgs;
     protected volatile MethodHandle _invokerNullary;
     protected volatile MethodHandle _invokerUnary;
+
+    /**
+     * Lazily resolved handle for {@link #callOnWith}, adapted to
+     * {@code (Object pojo, Object[] args)Object}; only needed for method-based
+     * any-setters and Enum factories so not created for other methods.
+     * {@code volatile} so a racy first use is safely published (duplicate
+     * resolution is harmless, handles are equivalent).
+     *
+     * @since 3.1.10
+     */
+    protected volatile MethodHandle _invokerOnWith;
 
     // // Simple lazy-caching:
 
@@ -136,11 +149,7 @@ public final class AnnotatedMethod
 
     public final Object callOnWith(Object pojo, Object... args) throws Exception {
         try {
-            MethodHandle invoker = _invokerWithArgsHandle();
-            if (!Modifier.isStatic(_method.getModifiers())) {
-                invoker = invoker.bindTo(pojo);
-            }
-            return invoker.invokeWithArguments(args);
+            return _invokerOnWithHandle().invokeExact(pojo, args);
         } catch (Throwable e) {
             throw sneakyThrow(e);
         }
@@ -169,6 +178,23 @@ public final class AnnotatedMethod
         if (h == null) {
             h = _unreflect();
             _invokerWithArgs = h;
+        }
+        return h;
+    }
+
+    // Adapted once so that calls need neither `bindTo()` nor `invokeWithArguments()`:
+    // both create and adapt a new handle on every call
+    private MethodHandle _invokerOnWithHandle() throws IllegalAccessException {
+        MethodHandle h = _invokerOnWith;
+        if (h == null) {
+            // Start from unadapted (but fixed-arity, see [databind#5231]) handle
+            h = _invokerWithArgsHandle()
+                    .asSpreader(Object[].class, _method.getParameterCount());
+            if (Modifier.isStatic(_method.getModifiers())) { // pojo ignored
+                h = MethodHandles.dropArguments(h, 0, Object.class);
+            }
+            h = h.asType(INVOKER_ON_WITH_TYPE);
+            _invokerOnWith = h;
         }
         return h;
     }

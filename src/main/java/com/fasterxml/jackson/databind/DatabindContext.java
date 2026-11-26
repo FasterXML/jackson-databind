@@ -267,9 +267,14 @@ public abstract class DatabindContext
         // [CVE-2026-110879]: element type of an array type id is attacker-selected
         // as well and needs validation like type parameters of generic type ids
         // (approval of array type, by base type or by sub-type, does not extend to it)
-        if (subType.isArrayType()
-                && !_configuredValidator(ptv).isArrayTypeAllowedExplicitly(config, baseType, subType)) {
-            _validateArrayElementType(baseType, subClass, baseType, subType, ptv, config);
+        if (subType.isArrayType()) {
+            if (!_configuredValidator(ptv).isArrayTypeAllowedExplicitly(config, baseType, subType)) {
+                _validateArrayElementType(baseType, subClass, baseType, subType, ptv, config);
+            }
+        } else {
+            // [databind#6496]: resolved content types (like `Gadget` for
+            // `class MyGadgetList extends ArrayList<Gadget>`) need validation as well
+            _validateContentTypes(baseType, subClass, baseType, subType, ptv, config);
         }
         return subType;
     }
@@ -304,6 +309,9 @@ public abstract class DatabindContext
         // [CVE-2026-110879]: ... and validated as if named as a direct type id,
         // see `_validateContainedType()`
         _validateContainedTypes(baseType, subClass, subType, ptv, config);
+        // [databind#6496]: ... as well as resolved content types, which need not
+        // be type parameters (`class MyList<T> extends ArrayList<Gadget>`)
+        _validateContentTypes(baseType, subClass, baseType, subType, ptv, config);
         return subType;
     }
 
@@ -440,7 +448,62 @@ public abstract class DatabindContext
             _validateArrayElementType(baseType, typeId, declaredType, param, ptv, config);
         } else {
             _validateContainedTypes(baseType, typeId, param, ptv, config);
+            _validateContentTypes(baseType, typeId, declaredType, param, ptv, config);
         }
+    }
+
+    /**
+     * Helper for [databind#6496]: validate resolved key and content types of a
+     * Collection-, Map- or reference type (other than array type): these
+     * need not be visible as type parameters (for example {@code Gadget}
+     * for {@code class MyGadgetList extends ArrayList<Gadget>}, or for
+     * {@code class MyList<T> extends ArrayList<Gadget>}). Validated like other contained
+     * types (see {@link #_validateContainedType}), except that a key or content type
+     * exactly like that of the declared type is not validated: it comes from the
+     * declaration, not from the type id.
+     *
+     * @param declaredType Declared type of the container type, if any ({@code null} if none)
+     *
+     * @since 2.18.13
+     */
+    private void _validateContentTypes(JavaType baseType, String typeId,
+            JavaType declaredType, JavaType type,
+            PolymorphicTypeValidator ptv, MapperConfig<?> config)
+        throws JsonMappingException
+    {
+        final JavaType keyType = type.getKeyType();
+        if (keyType != null) {
+            _validateContentType(baseType, typeId,
+                    _declaredContainedType(declaredType, true),
+                    keyType, ptv, config);
+        }
+        final JavaType contentType = type.getContentType();
+        if (contentType != null) {
+            _validateContentType(baseType, typeId,
+                    _declaredContainedType(declaredType, false),
+                    contentType, ptv, config);
+        }
+    }
+
+    private void _validateContentType(JavaType baseType, String typeId,
+            JavaType declaredType, JavaType contentType,
+            PolymorphicTypeValidator ptv, MapperConfig<?> config)
+        throws JsonMappingException
+    {
+        if (!contentType.equals(declaredType)) {
+            _validateContainedType(baseType, typeId, declaredType, contentType, ptv, config);
+        }
+    }
+
+    // Declared key or content type of a container type: that of declared type if
+    // it has one; `Object` if declared type has none (like `Object` itself);
+    // `null` (none) if no declared type
+    private static JavaType _declaredContainedType(JavaType declaredType, boolean keyType) {
+        if (declaredType == null) {
+            return null;
+        }
+        JavaType t = keyType ? declaredType.getKeyType() : declaredType.getContentType();
+        return (t == null) ? TypeFactory.unknownType() : t;
     }
 
     /**

@@ -17,6 +17,11 @@ Project: jackson-databind
   `ObjectMapper.enableDefaultTyping()`
  (reported by @abdessattar23)
  (fix by @cowtowncoder, w/ Claude code)
+#6496: Polymorphic type validation should use resolved content types if possible (not raw)
+  NOTE: resolved key and content types of Collection, Map and reference types
+  named by type id (like `Bar` for `class BarList extends ArrayList<Bar>`) are now
+  validated like type parameters, unless same as those of the declared base type
+ (fix by @cowtowncoder, w/ Claude code)
 
 2.18.12 (17-Oct-2026)
 

@@ -534,3 +534,12 @@ Matt Van Horn (@mvanhorn)
  * Fixed #6437: `OptionalInt`/`OptionalLong`/`OptionalDouble` deserializers report
    `AccessPattern.ALWAYS_NULL` but return an empty Optional
   [3.1.9]
+
+@Mengxi-Xu
+ * Reported #6484: `configureForJackson2()` forgets `MapperFeature.DEFAULT_VIEW_INCLUSION`
+  [3.1.10]
+
+Tiefang Hu (@hutiefang76)
+ * Contributed fix for #6484: `configureForJackson2()` forgets
+   `MapperFeature.DEFAULT_VIEW_INCLUSION`
+  [3.1.10]

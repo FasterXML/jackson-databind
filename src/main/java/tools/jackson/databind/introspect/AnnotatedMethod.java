@@ -23,6 +23,8 @@ public final class AnnotatedMethod
     // Invocation types for the arity-specific handles; constant so no per-use lookup
     private static final MethodType INVOKER_NULLARY_TYPE = methodType(Object.class);
     private static final MethodType INVOKER_UNARY_TYPE = methodType(Object.class, Object.class);
+    private static final MethodType INVOKER_WITH_ARGS_TYPE
+        = methodType(Object.class, Object.class, Object[].class);
 
     final protected transient Method _method;
 
@@ -31,9 +33,17 @@ public final class AnnotatedMethod
      * {@code volatile} so a racy first use is safely published (duplicate
      * resolution is harmless, handles are equivalent).
      */
-    protected volatile MethodHandle _invokerWithArgs;
     protected volatile MethodHandle _invokerNullary;
     protected volatile MethodHandle _invokerUnary;
+
+    /**
+     * Lazily resolved handle for {@link #callOnWith} and {@link #call(Object[])},
+     * adapted to {@code (Object pojo, Object[] args)Object} (with {@code pojo}
+     * ignored for static methods).
+     * {@code volatile} so a racy first use is safely published (duplicate
+     * resolution is harmless, handles are equivalent).
+     */
+    protected volatile MethodHandle _invokerWithArgs;
 
     // // Simple lazy-caching:
 
@@ -108,10 +118,17 @@ public final class AnnotatedMethod
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *<p>
+     * Note: no instance is passed, so calling a non-static method fails;
+     * use {@link #callOnWith} for those.
+     */
     @Override
     public final Object call(Object[] args) throws Exception {
         try {
-            return _invokerWithArgsHandle().invokeWithArguments(args);
+            // Only used for static (factory) methods, so no instance to pass
+            return _invokerWithArgsHandle().invokeExact((Object) null, args);
         } catch (final Throwable e) {
             throw sneakyThrow(e);
         }
@@ -126,6 +143,10 @@ public final class AnnotatedMethod
         }
     }
 
+    /**
+     * @deprecated Since 3.4: not used by Jackson itself, to be removed from 4.0
+     */
+    @Deprecated // since 3.4
     public final Object callOn(Object pojo) throws Exception {
         try {
             return _invokerUnaryHandle().invokeExact(pojo);
@@ -136,11 +157,7 @@ public final class AnnotatedMethod
 
     public final Object callOnWith(Object pojo, Object... args) throws Exception {
         try {
-            MethodHandle invoker = _invokerWithArgsHandle();
-            if (!Modifier.isStatic(_method.getModifiers())) {
-                invoker = invoker.bindTo(pojo);
-            }
-            return invoker.invokeWithArguments(args);
+            return _invokerWithArgsHandle().invokeExact(pojo, args);
         } catch (Throwable e) {
             throw sneakyThrow(e);
         }
@@ -164,10 +181,16 @@ public final class AnnotatedMethod
         return h;
     }
 
+    // Adapted once so that calls need neither `bindTo()` nor `invokeWithArguments()`:
+    // both create and adapt a new handle on every call
     private MethodHandle _invokerWithArgsHandle() throws IllegalAccessException {
         MethodHandle h = _invokerWithArgs;
         if (h == null) {
-            h = _unreflect();
+            h = _unreflect().asSpreader(Object[].class, _method.getParameterCount());
+            if (Modifier.isStatic(_method.getModifiers())) { // pojo ignored
+                h = MethodHandles.dropArguments(h, 0, Object.class);
+            }
+            h = h.asType(INVOKER_WITH_ARGS_TYPE);
             _invokerWithArgs = h;
         }
         return h;
@@ -180,8 +203,7 @@ public final class AnnotatedMethod
     private MethodHandle _unreflect() throws IllegalAccessException {
         // [databind#5231], [databind#6426] A varargs member unreflects to a variable-arity
         // handle, which would collect the (already array-valued) trailing argument into
-        // another array. That applies both to `asType()` and to callers using
-        // `invokeWithArguments()`: so all handles must be fixed-arity
+        // another array when adapted: so all handles must be fixed-arity
         return MethodHandles.lookup().unreflect(_method).asFixedArity();
     }
 

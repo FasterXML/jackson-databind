@@ -20,6 +20,7 @@ public final class AnnotatedConstructor
     // Invocation types for the arity-specific handles; constant so no per-use lookup
     private static final MethodType INVOKER_NULLARY_TYPE = methodType(Object.class);
     private static final MethodType INVOKER_UNARY_TYPE = methodType(Object.class, Object.class);
+    private static final MethodType INVOKER_WITH_ARGS_TYPE = methodType(Object.class, Object[].class);
 
     protected final Constructor<?> _constructor;
 
@@ -131,7 +132,7 @@ public final class AnnotatedConstructor
     @Override
     public final Object call(Object[] args) throws Exception {
         try {
-            return _invokerWithArgsHandle().invokeWithArguments(args);
+            return _invokerWithArgsHandle().invokeExact(args);
         } catch (Throwable e) {
             throw ClassUtil.sneakyThrow(e);
         }
@@ -164,10 +165,13 @@ public final class AnnotatedConstructor
         return h;
     }
 
+    // Adapted once to `(Object[] args)Object` so that calls need not use
+    // `invokeWithArguments()`, which creates and adapts a new invoker on every call
     private MethodHandle _invokerWithArgsHandle() throws IllegalAccessException {
         MethodHandle h = _invokerWithArgs;
         if (h == null) {
-            h = _unreflect();
+            h = _unreflect().asSpreader(Object[].class, _constructor.getParameterCount())
+                    .asType(INVOKER_WITH_ARGS_TYPE);
             _invokerWithArgs = h;
         }
         return h;
@@ -180,8 +184,7 @@ public final class AnnotatedConstructor
     private MethodHandle _unreflect() throws IllegalAccessException {
         // [databind#5231], [databind#6426] A varargs member unreflects to a variable-arity
         // handle, which would collect the (already array-valued) trailing argument into
-        // another array. That applies both to `asType()` and to callers using
-        // `invokeWithArguments()`: so all handles must be fixed-arity
+        // another array when adapted: so all handles must be fixed-arity
         return MethodHandles.lookup().unreflectConstructor(_constructor).asFixedArity();
     }
 

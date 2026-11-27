@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -121,6 +122,8 @@ public abstract class BeanDeserializerBase
      * to use have been successfully resolved.
      */
     protected final BeanPropertyMap _beanProperties;
+
+    private transient volatile Set<SettableBeanProperty> _requiredInputProperties;
 
     /**
      * List of {@link ValueInjector}s, if any injectable values are
@@ -1344,6 +1347,123 @@ ClassUtil.getTypeDescription(ct));
     protected final boolean _useVanillaProcessing(DeserializationContext ctxt) {
         return _vanillaProcessing
                 && (!_needViewProcesing || (ctxt.getActiveView() == null));
+    }
+
+    final RequiredPropertyParser _trackRequiredProperties(JsonParser p, DeserializationContext ctxt)
+    {
+        if (!ctxt.isEnabled(DeserializationFeature.FAIL_ON_MISSING_REQUIRED_PROPERTIES)) {
+            return null;
+        }
+        String consumedTypeId = (p instanceof TypeIdPropertyParser typeIdParser)
+                ? typeIdParser.takePropertyName() : null;
+        if (_usesDelegatingObjectCreator(p)) {
+            return null;
+        }
+        return _trackNamedProperties(p, ctxt, consumedTypeId);
+    }
+
+    private RequiredPropertyParser _trackNamedProperties(JsonParser p, DeserializationContext ctxt,
+            String consumedTypeId) {
+        Set<SettableBeanProperty> required = _requiredInputProperties(ctxt);
+        return required.isEmpty() ? null : RequiredPropertyParser.start(p, _beanProperties,
+                _inputObjectIdProperty(), _requiredExternalTypes(), required,
+                ctxt.getActiveView(), consumedTypeId);
+    }
+
+    final RequiredPropertyParser _trackRequiredArrayProperties(JsonParser p, DeserializationContext ctxt,
+            SettableBeanProperty[] orderedProperties)
+    {
+        if (!ctxt.isEnabled(DeserializationFeature.FAIL_ON_MISSING_REQUIRED_PROPERTIES)
+                || (_nonStandardCreation && _delegateDeserializer(p) != null)) {
+            return null;
+        }
+        return _trackArrayProperties(p, ctxt, orderedProperties);
+    }
+
+    final RequiredPropertyParser _trackArrayProperties(JsonParser p, DeserializationContext ctxt,
+            SettableBeanProperty[] orderedProperties) {
+        return RequiredPropertyParser.startArray(p, orderedProperties, _inputObjectIdProperty(),
+                _requiredInputProperties(ctxt), ctxt.getActiveView());
+    }
+
+    /**
+     * Populates a new instance constructed by its enclosing bean, as for a
+     * non-static inner class.
+     *
+     * @since 3.4
+     */
+    public final Object deserializeIntoNewInstance(JsonParser p, DeserializationContext ctxt, Object bean) {
+        RequiredPropertyParser tracking = ctxt.isEnabled(DeserializationFeature.FAIL_ON_MISSING_REQUIRED_PROPERTIES)
+                ? _trackRequiredPropertiesForNewInstance(p, ctxt) : null;
+        return (tracking == null) ? deserialize(p, ctxt, bean)
+                : tracking.read(ctxt, () -> deserialize(tracking, ctxt, bean), null);
+    }
+
+    RequiredPropertyParser _trackRequiredPropertiesForNewInstance(JsonParser p, DeserializationContext ctxt) {
+        return _trackNamedProperties(p, ctxt, null);
+    }
+
+    final PropertyValueBuffer _startBuildingForBuilder(JsonParser p, DeserializationContext ctxt) {
+        // [databind#5909]: builder will be rebuilt via finishBuild
+        if (!ctxt.isEnabled(DeserializationFeature.FAIL_ON_MISSING_REQUIRED_PROPERTIES)) {
+            return _propertyBasedCreator.startBuilding(p, ctxt, _objectIdReader, true);
+        }
+        return _propertyBasedCreator.startBuildingForBuilder(p, ctxt, _objectIdReader,
+                _defaultRequiredPropertyNames(ctxt));
+    }
+
+    final ExternalTypeHandler _startExternalTypeIdHandler(JsonParser p) {
+        Consumer<SettableBeanProperty> observer = (p instanceof RequiredPropertyParser tracker)
+                ? tracker.takeExternalPropertyObserver(_externalTypeIdHandler) : null;
+        return observer == null ? _externalTypeIdHandler.start() : _externalTypeIdHandler.start(observer);
+    }
+
+    private Set<SettableBeanProperty> _requiredInputProperties(DeserializationContext ctxt)
+    {
+        Set<SettableBeanProperty> required = _requiredInputProperties;
+        if (required != null) {
+            return required;
+        }
+
+        Set<String> defaultRequiredNames = _defaultRequiredPropertyNames(ctxt);
+        required = new LinkedHashSet<>();
+        SettableBeanProperty idProperty = _inputObjectIdProperty();
+        for (SettableBeanProperty matched : _beanProperties.getPrimaryProperties()) {
+            SettableBeanProperty prop = RequiredPropertyParser.inputProperty(matched, idProperty);
+            if (RequiredPropertyParser.isRequired(prop, defaultRequiredNames)) {
+                required.add(prop);
+            }
+        }
+        ExternalTypeHandler externalTypes = _requiredExternalTypes();
+        if (externalTypes != null) {
+            for (SettableBeanProperty prop : externalTypes.valueProperties()) {
+                if (!IgnorePropertiesUtil.shouldIgnore(prop.getName(), _ignorableProps, _includableProps)
+                        && RequiredPropertyParser.isRequired(prop, defaultRequiredNames)) {
+                    required.add(prop);
+                }
+            }
+        }
+        _requiredInputProperties = required.isEmpty() ? Set.of() : Collections.unmodifiableSet(required);
+        return _requiredInputProperties;
+    }
+
+    private ExternalTypeHandler _requiredExternalTypes() {
+        return (_unwrappedPropertyHandler == null) ? _externalTypeIdHandler : null;
+    }
+
+    Set<String> _defaultRequiredPropertyNames(DeserializationContext ctxt) {
+        return Set.of();
+    }
+
+    private SettableBeanProperty _inputObjectIdProperty() {
+        return (_objectIdReader == null) ? null : _objectIdReader.idProperty;
+    }
+
+    boolean _usesDelegatingObjectCreator(JsonParser p) {
+        if (_unwrappedPropertyHandler != null) {
+            return _delegateDeserializer != null;
+        }
+        return _nonStandardCreation && _delegateDeserializer(p) != null;
     }
 
     @Override

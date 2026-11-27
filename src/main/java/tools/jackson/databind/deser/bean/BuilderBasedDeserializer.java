@@ -13,6 +13,7 @@ import tools.jackson.databind.deser.impl.ExternalTypeHandler;
 import tools.jackson.databind.deser.impl.ObjectIdReader;
 import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
 import tools.jackson.databind.introspect.AnnotatedMethod;
+import tools.jackson.databind.introspect.BeanPropertyDefinition;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.NameTransformer;
@@ -38,6 +39,9 @@ public class BuilderBasedDeserializer
      * `handledType()` which refers to Builder class.
      */
     protected final JavaType _targetType;
+
+    private NameTransformer _valuePropertyNameTransformer = NameTransformer.NOP;
+    private transient volatile Set<String> _requiredValuePropertyNames;
 
     // @since 3.0
     protected PropertyNameMatcher _propertyNameMatcher;
@@ -84,6 +88,7 @@ public class BuilderBasedDeserializer
         super(src, ignoreAllUnknown);
         _buildMethod = src._buildMethod;
         _targetType = src._targetType;
+        _valuePropertyNameTransformer = src._valuePropertyNameTransformer;
         _propertyNameMatcher = src._propertyNameMatcher;
         _propertiesByIndex = src._propertiesByIndex;
     }
@@ -95,6 +100,7 @@ public class BuilderBasedDeserializer
         super(src, unwrapHandler, pbCreator, renamedProperties, ignoreAllUnknown);
         _buildMethod = src._buildMethod;
         _targetType = src._targetType;
+        _valuePropertyNameTransformer = src._valuePropertyNameTransformer;
         _propertyNameMatcher = _beanProperties.getNameMatcher();
         _propertiesByIndex = _beanProperties.getNameMatcherProperties();
     }
@@ -103,6 +109,7 @@ public class BuilderBasedDeserializer
         super(src, oir);
         _buildMethod = src._buildMethod;
         _targetType = src._targetType;
+        _valuePropertyNameTransformer = src._valuePropertyNameTransformer;
         _propertyNameMatcher = src._propertyNameMatcher;
         _propertiesByIndex = src._propertiesByIndex;
     }
@@ -115,6 +122,7 @@ public class BuilderBasedDeserializer
         super(src, ignorableProps, includableProps);
         _buildMethod = src._buildMethod;
         _targetType = src._targetType;
+        _valuePropertyNameTransformer = src._valuePropertyNameTransformer;
         _propertyNameMatcher = src._propertyNameMatcher;
         _propertiesByIndex = src._propertiesByIndex;
     }
@@ -123,8 +131,27 @@ public class BuilderBasedDeserializer
         super(src, props);
         _buildMethod = src._buildMethod;
         _targetType = src._targetType;
+        _valuePropertyNameTransformer = src._valuePropertyNameTransformer;
         _propertyNameMatcher = _beanProperties.getNameMatcher();
         _propertiesByIndex = _beanProperties.getNameMatcherProperties();
+    }
+
+    @Override
+    Set<String> _defaultRequiredPropertyNames(DeserializationContext ctxt) {
+        Set<String> required = _requiredValuePropertyNames;
+        if (required != null) {
+            return required;
+        }
+        BeanDescription value = ctxt.introspectBeanDescriptionForCreation(_targetType);
+        required = new HashSet<>();
+        for (BeanPropertyDefinition property : value.findProperties()) {
+            if (property.isRequired()) {
+                required.add(_valuePropertyNameTransformer.transform(property.getName()));
+            }
+        }
+        required = Set.copyOf(required);
+        _requiredValuePropertyNames = required;
+        return required;
     }
 
     @Override
@@ -156,7 +183,11 @@ public class BuilderBasedDeserializer
             }
             // and handle direct unwrapping as well:
             BeanPropertyMap props = _beanProperties.renameAll(ctxt, transformer);
-            return new BuilderBasedDeserializer(this, uwHandler, pbCreator, props, true);
+            BuilderBasedDeserializer unwrapped = new BuilderBasedDeserializer(
+                    this, uwHandler, pbCreator, props, true);
+            unwrapped._valuePropertyNameTransformer = NameTransformer.chainedTransformer(
+                    transformer, _valuePropertyNameTransformer);
+            return unwrapped;
         } finally { _currentlyTransforming = null; }
     }
 
@@ -266,7 +297,10 @@ public class BuilderBasedDeserializer
         // common case first:
         if (p.isExpectedStartObjectToken()) {
             if (_useVanillaProcessing(ctxt)) {
-                return finishBuild(ctxt, _vanillaDeserialize(p, ctxt));
+                RequiredPropertyParser tracking = _trackRequiredProperties(p, ctxt);
+                Object builder = (tracking == null) ? _vanillaDeserialize(p, ctxt)
+                        : tracking.read(ctxt, () -> _vanillaDeserialize(tracking, ctxt), handledType());
+                return finishBuild(ctxt, builder);
             }
             p.nextToken();
             if (_objectIdReader != null) {
@@ -378,6 +412,20 @@ public class BuilderBasedDeserializer
     public Object deserializeFromObject(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
+        RequiredPropertyParser tracking = _trackRequiredProperties(p, ctxt);
+        return (tracking == null) ? _deserializeFromObject(p, ctxt)
+                : tracking.read(ctxt, () -> _deserializeFromObject(tracking, ctxt), handledType());
+    }
+
+    @Override
+    boolean _usesDelegatingObjectCreator(JsonParser p) {
+        return (_unwrappedPropertyHandler != null || _externalTypeIdHandler == null)
+                && super._usesDelegatingObjectCreator(p);
+    }
+
+    private Object _deserializeFromObject(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
         if (_nonStandardCreation) {
             if (_unwrappedPropertyHandler != null) {
                 return deserializeWithUnwrapped(p, ctxt);
@@ -444,8 +492,7 @@ public class BuilderBasedDeserializer
         throws JacksonException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        // [databind#5909]: builder will be rebuilt via finishBuild
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader, true);
+        PropertyValueBuffer buffer = _startBuildingForBuilder(p, ctxt);
 
         // [dataformats-text#22]: Handle native Object Ids (e.g. YAML anchors)
         if (_objectIdReader != null && p.canReadObjectId()) {
@@ -859,8 +906,7 @@ public class BuilderBasedDeserializer
         throws JacksonException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        // [databind#5909]: builder will be rebuilt via finishBuild
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader, true);
+        PropertyValueBuffer buffer = _startBuildingForBuilder(p, ctxt);
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
         TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
@@ -980,7 +1026,7 @@ public class BuilderBasedDeserializer
         throws JacksonException
     {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        final ExternalTypeHandler ext = _externalTypeIdHandler.start();
+        final ExternalTypeHandler ext = _startExternalTypeIdHandler(p);
 
         for (int ix = p.currentNameMatch(_propertyNameMatcher); ; ix = p.nextNameMatch(_propertyNameMatcher)) {
             if (ix >= 0) { // normal case

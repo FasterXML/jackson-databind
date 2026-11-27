@@ -314,7 +314,7 @@ public class PropertyValueBuffer
                     prop, null, injection.getOptional(), injection.getUseInput());
         }
         // Second: required?
-        if (prop.isRequired()) {
+        if (_isRequiredParameter(prop)) {
             _context.reportInputMismatch(prop, "Missing required creator property '%s' (index %d)",
                     prop.getName(), prop.getCreatorIndex());
         }
@@ -342,6 +342,10 @@ public class PropertyValueBuffer
             }
             throw e;
         }
+    }
+
+    boolean _isRequiredParameter(SettableBeanProperty prop) {
+        return prop.isRequired();
     }
 
     /**

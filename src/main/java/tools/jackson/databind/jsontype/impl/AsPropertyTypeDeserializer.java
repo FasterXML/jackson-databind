@@ -10,6 +10,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.jsontype.TypeIdResolver;
 import tools.jackson.databind.util.TokenBuffer;
+import tools.jackson.databind.util.TypeIdPropertyParser;
 
 /**
  * Type deserializer used with {@link As#PROPERTY}
@@ -128,6 +129,10 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         throws JacksonException
     {
         ValueDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
+        final String consumedName = (!_typeIdVisible && _typePropertyName != null
+                && !_typePropertyName.isEmpty()
+                && ctxt.isEnabled(DeserializationFeature.FAIL_ON_MISSING_REQUIRED_PROPERTIES))
+                ? p.currentName() : null;
         if (_typeIdVisible) { // need to merge id back in JSON input?
             if (tb == null) {
                 tb = ctxt.bufferForInputBuffering(p);
@@ -146,7 +151,10 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             p.nextToken(); // to skip past String value
         }
         // deserializer should take care of closing END_OBJECT as well
-        if (tb != null) {
+        if (consumedName != null) {
+            p = new TypeIdPropertyParser(p, consumedName);
+        }
+        if (tb != null || consumedName != null) {
             final JsonParser bufferedParser = p;
             return ctxt.withParser(bufferedParser,
                     () -> deser.deserialize(bufferedParser, ctxt));

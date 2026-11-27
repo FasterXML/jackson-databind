@@ -480,7 +480,24 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default.
      */
-    EAGER_DESERIALIZER_FETCH(true)
+    EAGER_DESERIALIZER_FETCH(true),
+
+    /**
+     * Feature that determines whether a missing input property marked required
+     * with {@link com.fasterxml.jackson.annotation.JsonProperty} causes an error
+     * when binding properties of a new bean or builder from an object or
+     * positional array. A builder property or creator parameter with no
+     * required marker uses the marker from a matching property on the value type.
+     * An explicit null counts as present and is handled according to the
+     * property's null-value settings. Explicit markers on creator parameters
+     * are checked independently of this feature. Updates to existing instances
+     * can omit properties.
+     *<p>
+     * Feature is disabled by default.
+     *
+     * @since 3.4
+     */
+    FAIL_ON_MISSING_REQUIRED_PROPERTIES(false)
 
     ;
 

@@ -103,6 +103,14 @@ public class BeanAsArrayDeserializer
         if (!p.isExpectedStartArrayToken()) {
             return _deserializeFromNonArray(p, ctxt);
         }
+        RequiredPropertyParser tracking = _delegate._trackRequiredArrayProperties(p, ctxt, _orderedProperties);
+        return (tracking == null) ? _deserializeArray(p, ctxt)
+                : tracking.read(ctxt, () -> _deserializeArray(tracking, ctxt), null);
+    }
+
+    private Object _deserializeArray(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
         if (!_useVanillaProcessing(ctxt)) {
             return _deserializeNonVanilla(p, ctxt);
         }
@@ -239,6 +247,11 @@ public class BeanAsArrayDeserializer
             _skipToEndArray(p, ctxt);
         }
         return bean;
+    }
+
+    @Override
+    RequiredPropertyParser _trackRequiredPropertiesForNewInstance(JsonParser p, DeserializationContext ctxt) {
+        return p.isExpectedStartArrayToken() ? _delegate._trackArrayProperties(p, ctxt, _orderedProperties) : null;
     }
 
     @Override

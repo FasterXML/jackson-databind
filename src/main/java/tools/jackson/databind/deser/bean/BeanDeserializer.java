@@ -198,7 +198,9 @@ public class BeanDeserializer
         // common case first
         if (p.isExpectedStartObjectToken()) {
             if (_useVanillaProcessing(ctxt)) {
-                return _vanillaDeserialize(p, ctxt);
+                RequiredPropertyParser tracking = _trackRequiredProperties(p, ctxt);
+                return (tracking == null) ? _vanillaDeserialize(p, ctxt)
+                        : tracking.read(ctxt, () -> _vanillaDeserialize(tracking, ctxt), null);
             }
             // 23-Sep-2015, tatu: This is wrong at some many levels, but for now... it is
             //    what it is, including "expected behavior".
@@ -236,7 +238,9 @@ public class BeanDeserializer
             case PROPERTY_NAME:
             case END_OBJECT: // added to resolve [JACKSON-319], possible related issues
                 if (_useVanillaProcessing(ctxt)) {
-                    return _vanillaDeserialize(p, ctxt, t);
+                    RequiredPropertyParser tracking = _trackRequiredProperties(p, ctxt);
+                    return (tracking == null) ? _vanillaDeserialize(p, ctxt, t)
+                            : tracking.read(ctxt, () -> _vanillaDeserialize(tracking, ctxt, t), null);
                 }
                 if (_objectIdReader != null) {
                     return deserializeWithObjectId(p, ctxt);
@@ -680,6 +684,22 @@ public class BeanDeserializer
                 return deserializeFromObjectId(p, ctxt);
             }
         }
+        RequiredPropertyParser tracking = _trackRequiredProperties(p, ctxt);
+        return (tracking == null) ? _deserializeFromObject(p, ctxt)
+                : tracking.read(ctxt, () -> _deserializeFromObject(tracking, ctxt), null);
+    }
+
+    @Override
+    boolean _usesDelegatingObjectCreator(JsonParser p) {
+        if (_unwrappedPropertyHandler == null && _externalTypeIdHandler != null) {
+            return _propertyBasedCreator == null && _delegateDeserializer != null;
+        }
+        return super._usesDelegatingObjectCreator(p);
+    }
+
+    private Object _deserializeFromObject(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
         if (_nonStandardCreation) {
             if (_unwrappedPropertyHandler != null) {
                 return deserializeWithUnwrapped(p, ctxt);
@@ -1466,7 +1486,7 @@ public class BeanDeserializer
             Object bean)
         throws JacksonException
     {
-        return _deserializeWithExternalTypeId(p, ctxt, bean, _externalTypeIdHandler.start());
+        return _deserializeWithExternalTypeId(p, ctxt, bean, _startExternalTypeIdHandler(p));
     }
 
     protected Object _deserializeWithExternalTypeId(JsonParser p, DeserializationContext ctxt,
@@ -1534,7 +1554,7 @@ public class BeanDeserializer
     protected Object deserializeUsingPropertyBasedWithExternalTypeId(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        final ExternalTypeHandler ext = _externalTypeIdHandler.start();
+        final ExternalTypeHandler ext = _startExternalTypeIdHandler(p);
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader, false);
         // [databind#5958]: capture active view so type-ID properties respect @JsonView restrictions

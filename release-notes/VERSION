@@ -7,6 +7,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.4.0 (not yet released)
 
+#230: Add opt-in checks for missing required Bean and Builder properties
+ (requested by @cowtowncoder)
+ (implemented by @wozhenbang2004)
 #1591: Add `ObjectReader.convertValue(Object, ObjectWriter)`
  (requested by @apjoseph)
  (implemented by @wozhenbang2004)

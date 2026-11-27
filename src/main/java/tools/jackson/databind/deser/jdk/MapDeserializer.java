@@ -707,7 +707,7 @@ public class MapDeserializer
             SettableBeanProperty prop = creator.findCreatorProperty(key);
             if (prop != null) {
                 // [databind#6261]: honor active view, same as for POJO creator properties
-                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                if ((activeView != null) && !prop.visibleInView(activeView, ctxt)) {
                     p.skipChildren();
                     continue;
                 }

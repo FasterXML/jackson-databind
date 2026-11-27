@@ -496,6 +496,19 @@ public abstract class SettableBeanProperty
         return (_viewMatcher == null) || _viewMatcher.isVisibleForView(activeView);
     }
 
+    /**
+     * Whether this property is visible under the active view and the reader's
+     * inclusion or exclusion setting.
+     *
+     * @since 3.4
+     */
+    public boolean visibleInView(Class<?> activeView, DeserializationContext ctxt) {
+        if (ctxt.isEnabled(DeserializationFeature.EXCLUDE_VIEW_PROPERTIES)) {
+            return !hasViews() || !visibleInView(activeView);
+        }
+        return visibleInView(activeView);
+    }
+
     public boolean hasViews() { return _viewMatcher != null; }
 
     /**

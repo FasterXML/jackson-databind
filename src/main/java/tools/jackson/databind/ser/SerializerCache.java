@@ -59,6 +59,10 @@ public final class SerializerCache
      */
     private final LookupCache<TypeKey, ValueSerializer<Object>> _sharedMap;
 
+    // Exclusion gives serializer modifiers a different set of default view writers.
+    private final boolean _forViewExclusion;
+    private transient volatile SerializerCache _viewExclusionCache;
+
     /**
      * Transient staging map that holds serializers that are currently being
      * resolved ({@code resolve()} has been called but has not yet returned).
@@ -98,34 +102,64 @@ public final class SerializerCache
      * @since 3.0
      */
     public SerializerCache(int maxCached) {
-        int initial = Math.min(64, maxCached>>2);
-        _sharedMap = new SimpleLookupCache<>(initial, maxCached);
-        _inProgressMap = new HashMap<>();
-        _readOnlyMap = new AtomicReference<>();
+        this(new SimpleLookupCache<>(Math.min(64, maxCached >> 2), maxCached), false);
     }
 
     public SerializerCache(LookupCache<TypeKey, ValueSerializer<Object>> cache) {
+        this(cache, false);
+    }
+
+    private SerializerCache(LookupCache<TypeKey, ValueSerializer<Object>> cache,
+            boolean forViewExclusion) {
         _sharedMap = cache;
+        _forViewExclusion = forViewExclusion;
         _inProgressMap = new HashMap<>();
         _readOnlyMap = new AtomicReference<>();
     }
 
     protected SerializerCache(SimpleLookupCache<TypeKey, ValueSerializer<Object>> shared) {
-        _sharedMap = shared;
-        _inProgressMap = new HashMap<>();
-        _readOnlyMap = new AtomicReference<>();
+        this(shared, false);
     }
 
     // Since 3.0, needed to initialize cache properly: shared map would be ok but need to
     // reconstruct AtomicReference
     @Serial
     protected Object readResolve() {
-        return new SerializerCache(_sharedMap);
+        return new SerializerCache(_sharedMap, _forViewExclusion);
     }
 
     @Override
     public SerializerCache snapshot() {
-        return new SerializerCache(_sharedMap.snapshot());
+        SerializerCache copy = new SerializerCache(_sharedMap.snapshot(), _forViewExclusion);
+        SerializerCache excluded = _viewExclusionCache;
+        if (excluded != null) {
+            copy._viewExclusionCache = excluded.snapshot();
+        }
+        return copy;
+    }
+
+    /**
+     * Cache for serializers built with view exclusion enabled. A modifier can
+     * replace or remove writers while building a bean serializer, so its result
+     * cannot be shared with writers using ordinary view inclusion.
+     *
+     * @since 3.4
+     */
+    public SerializerCache forViewExclusion() {
+        if (_forViewExclusion) {
+            return this;
+        }
+        SerializerCache excluded = _viewExclusionCache;
+        if (excluded == null) {
+            synchronized (this) {
+                excluded = _viewExclusionCache;
+                if (excluded == null) {
+                    excluded = new SerializerCache(_sharedMap.emptyCopy(), true);
+                    _viewExclusionCache = excluded;
+                }
+            }
+        }
+        return excluded;
     }
 
     /**
@@ -163,7 +197,8 @@ public final class SerializerCache
      */
 
     public int size() {
-        return _sharedMap.size();
+        SerializerCache excluded = _viewExclusionCache;
+        return _sharedMap.size() + ((excluded == null) ? 0 : excluded._sharedMap.size());
     }
 
     /**
@@ -329,9 +364,16 @@ public final class SerializerCache
      * Method called by StdSerializationContext#flushCachedSerializers() to
      * clear all cached serializers
      */
-    public synchronized void flush() {
-        _sharedMap.clear();
-        _inProgressMap.clear();
-        _readOnlyMap.set(null);
+    public void flush() {
+        SerializerCache excluded;
+        synchronized (this) {
+            _sharedMap.clear();
+            _inProgressMap.clear();
+            _readOnlyMap.set(null);
+            excluded = _viewExclusionCache;
+        }
+        if (excluded != null) {
+            excluded.flush();
+        }
     }
 }

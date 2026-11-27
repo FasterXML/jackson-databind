@@ -130,7 +130,7 @@ public class UnwrappedPropertyHandler
         // visible in the active view rather than populating them from buffered input.
         final Class<?> activeView = ctxt.getActiveView();
         for (SettableBeanProperty prop : _creatorProperties) {
-            if ((activeView != null) && !prop.visibleInView(activeView)) {
+            if ((activeView != null) && !prop.visibleInView(activeView, ctxt)) {
                 continue;
             }
             JsonParser p = buffered.asParserOnFirstToken(ctxt);
@@ -181,7 +181,7 @@ public class UnwrappedPropertyHandler
             // visible in the active view rather than populating them from buffered input.
             final Class<?> activeView = ctxt.getActiveView();
             for (SettableBeanProperty prop : _properties) {
-                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                if ((activeView != null) && !prop.visibleInView(activeView, ctxt)) {
                     continue;
                 }
                 try (JsonParser p = buffered.asParserOnFirstToken(ctxt)) {

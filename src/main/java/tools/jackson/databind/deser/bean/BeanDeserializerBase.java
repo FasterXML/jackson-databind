@@ -2178,11 +2178,26 @@ ClassUtil.getTypeDescription(ct));
             SettableBeanProperty property, Class<?> activeView)
         throws JacksonException
     {
+        handleUnexpectedViewProperty(p, ctxt, property.getName(), activeView);
+    }
+
+    /**
+     * Variant for properties without a {@link SettableBeanProperty}, such as
+     * the message passed to a Throwable's String constructor.
+     *
+     * @since 3.4
+     */
+    protected void handleUnexpectedViewProperty(JsonParser p, DeserializationContext ctxt,
+            String propertyName, Class<?> activeView)
+        throws JacksonException
+    {
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)) {
+            String reason = ctxt.isEnabled(DeserializationFeature.EXCLUDE_VIEW_PROPERTIES)
+                    ? "belongs to excluded view" : "is not part of current active view";
             ctxt.reportInputMismatch(handledType(),
-                    "Input mismatch while deserializing %s. Property '%s' is not part of current active view '%s'" +
+                    "Input mismatch while deserializing %s. Property '%s' %s '%s'" +
                             " (disable 'DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES' to allow)",
-                    ClassUtil.nameOf(handledType()), property.getName(), activeView.getName());
+                    ClassUtil.nameOf(handledType()), propertyName, reason, activeView.getName());
         }
 
         p.skipChildren();

@@ -7,6 +7,9 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.4.0 (not yet released)
 
+#456: Allow an active view to exclude matching properties on read or write
+ (requested by @astral303)
+ (implemented by @wozhenbang2004)
 #1591: Add `ObjectReader.convertValue(Object, ObjectWriter)`
  (requested by @apjoseph)
  (implemented by @wozhenbang2004)

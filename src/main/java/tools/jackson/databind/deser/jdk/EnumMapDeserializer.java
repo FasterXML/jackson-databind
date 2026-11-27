@@ -562,7 +562,7 @@ public class EnumMapDeserializer
             SettableBeanProperty prop = creator.findCreatorProperty(keyName);
             if (prop != null) {
                 // [databind#6261]: honor active view, same as for POJO creator properties
-                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                if ((activeView != null) && !prop.visibleInView(activeView, ctxt)) {
                     p.skipChildren();
                     continue;
                 }

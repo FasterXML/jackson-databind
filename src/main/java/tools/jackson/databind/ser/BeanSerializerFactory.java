@@ -699,6 +699,7 @@ public class BeanSerializerFactory
         // whether non-annotated fields are included by default or not is configurable
         List<BeanPropertyWriter> props = builder.getProperties();
         boolean includeByDefault = config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        boolean excludeView = config.isEnabled(SerializationFeature.EXCLUDE_VIEW_PROPERTIES);
         final int propCount = props.size();
         int viewsFound = 0;
         BeanPropertyWriter[] filtered = new BeanPropertyWriter[propCount];
@@ -716,7 +717,7 @@ public class BeanSerializerFactory
             if (views == null
                     // [databind#2311]: sometimes we add empty array
                     || views.length == 0) { // no view info? include or exclude by default?
-                if (includeByDefault) {
+                if (includeByDefault || excludeView) {
                     filtered[i] = bpw;
                 }
             } else {

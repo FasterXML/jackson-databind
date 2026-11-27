@@ -1083,31 +1083,19 @@ public abstract class BeanSerializerBase
         // to allow that): if so, handle same as no filter (like serialization does)
         final PropertyFilter filter = (_propertyFilterId == null) ? null
                 : findPropertyFilter(ctxt, _propertyFilterId, null);
-        if (filter != null) {
-            // [databind#6410]: Object Id property is metadata, not to be filtered
-            final BeanPropertyWriter idProp = PropertyBasedObjectIdGenerator.findIdProperty(_objectIdWriter);
-            for (int i = 0, end = _props.length; i < end; ++i) {
-                final BeanPropertyWriter prop = _props[i];
-                if (prop == idProp) {
+        BeanPropertyWriter[] props = _props;
+        if ((_filteredProps != null) && (ctxt != null) && (ctxt.getActiveView() != null)
+                && ((filter == null) || ctxt.isEnabled(SerializationFeature.EXCLUDE_VIEW_PROPERTIES))) {
+            props = _filteredProps;
+        }
+        // [databind#6410]: Object Id property is metadata, not to be filtered
+        final BeanPropertyWriter idProp = PropertyBasedObjectIdGenerator.findIdProperty(_objectIdWriter);
+        for (BeanPropertyWriter prop : props) {
+            if (prop != null) {
+                if ((filter == null) || (prop == idProp)) {
                     prop.depositSchemaProperty(objectVisitor, ctxt);
                 } else {
                     filter.depositSchemaProperty(prop, objectVisitor, ctxt);
-                }
-            }
-        } else {
-            Class<?> view = ((_filteredProps == null) || (ctxt == null))
-                    ? null : ctxt.getActiveView();
-            final BeanPropertyWriter[] props;
-            if (view != null) {
-                props = _filteredProps;
-            } else {
-                props = _props;
-            }
-
-            for (int i = 0, end = props.length; i < end; ++i) {
-                BeanPropertyWriter prop = props[i];
-                if (prop != null) { // may be filtered out unconditionally
-                    prop.depositSchemaProperty(objectVisitor, ctxt);
                 }
             }
         }

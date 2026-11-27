@@ -344,7 +344,19 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is disabled by default; meaning that strict identity is used, not
      * <code>equals()</code>
      */
-    USE_EQUALITY_FOR_OBJECT_ID(false)
+    USE_EQUALITY_FOR_OBJECT_ID(false),
+
+    /**
+     * When an active view is selected, skip properties belonging to that view when
+     * writing. Properties in other views and properties with no view are included,
+     * regardless of {@link MapperFeature#DEFAULT_VIEW_INCLUSION}. View inheritance
+     * and class-level default views are resolved as usual.
+     * This feature is disabled by default and has no effect without an active view.
+     *
+     * @see DeserializationFeature#EXCLUDE_VIEW_PROPERTIES
+     * @since 3.4
+     */
+    EXCLUDE_VIEW_PROPERTIES(false)
     ;
 
     private final boolean _defaultState;

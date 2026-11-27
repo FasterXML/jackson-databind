@@ -36,6 +36,20 @@ public final class TypeWrappedDeserializer
     }
 
     @Override
+    public Boolean getFailOnUnknownProperties() {
+        return _deserializer.getFailOnUnknownProperties();
+    }
+
+    @Override
+    public TypeWrappedDeserializer withPropertyFailOnUnknownProperties(Boolean failOnUnknown) {
+        ValueDeserializer<?> updated = _deserializer.withPropertyFailOnUnknownProperties(failOnUnknown);
+        if (updated == _deserializer) {
+            return this;
+        }
+        return new TypeWrappedDeserializer(_typeDeserializer, updated);
+    }
+
+    @Override
     public Class<?> handledType() {
         return _deserializer.handledType();
     }

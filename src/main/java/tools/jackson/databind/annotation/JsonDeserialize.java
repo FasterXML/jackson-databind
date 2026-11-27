@@ -5,6 +5,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.fasterxml.jackson.annotation.OptBoolean;
+
 import tools.jackson.databind.KeyDeserializer;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.util.Converter;
@@ -112,6 +114,25 @@ public @interface JsonDeserialize
      * @since 3.1
      */
     public String builderPrefix() default USE_DEFAULT_PREFIX;
+
+    /**
+     * Whether unhandled unknown properties should cause a failure when
+     * deserializing values of the annotated type, or values of a property
+     * annotated with this setting. {@link OptBoolean#DEFAULT} retains behavior
+     * from {@link tools.jackson.databind.DeserializationFeature#FAIL_ON_UNKNOWN_PROPERTIES}
+     * and {@link com.fasterxml.jackson.annotation.JsonIgnoreProperties#ignoreUnknown()}.
+     * An explicit {@link OptBoolean#TRUE} or {@link OptBoolean#FALSE} overrides
+     * both. A member-level TRUE or FALSE takes precedence over the type-level
+     * value; DEFAULT leaves it in effect. For builder-based deserialization, an
+     * explicit setting on the target value type takes precedence over one on its
+     * Builder class.
+     * This setting applies to standard bean handling; a custom deserializer
+     * specified with {@link #using()} controls its own unknown-property handling.
+     * Named ignored properties and any-setters keep their usual behavior.
+     *
+     * @since 3.3
+     */
+    public OptBoolean failOnUnknownProperties() default OptBoolean.DEFAULT;
 
     // // // Annotations for specifying intermediate Converters
 

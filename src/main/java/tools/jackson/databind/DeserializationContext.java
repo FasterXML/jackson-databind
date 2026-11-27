@@ -1399,7 +1399,11 @@ public abstract class DeserializationContext
             throw _wrapUnknownPropertyProblem(p, e, instanceOrClass, propName);
         }
         // Nope, not handled. Potentially that's a problem...
-        if (!isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+        Boolean failOnUnknown = (deser == null) ? null : deser.getFailOnUnknownProperties();
+        boolean fail = (failOnUnknown == null)
+                ? isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                : failOnUnknown.booleanValue();
+        if (!fail) {
             p.skipChildren();
             return true;
         }

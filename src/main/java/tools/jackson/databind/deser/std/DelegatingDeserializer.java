@@ -128,6 +128,18 @@ public abstract class DelegatingDeserializer
     }
 
     @Override
+    public Boolean getFailOnUnknownProperties() {
+        return _delegatee.getFailOnUnknownProperties();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public ValueDeserializer<Object> withPropertyFailOnUnknownProperties(Boolean failOnUnknown) {
+        return (ValueDeserializer<Object>) _newIfChanged(
+                _delegatee.withPropertyFailOnUnknownProperties(failOnUnknown));
+    }
+
+    @Override
     public AccessPattern getNullAccessPattern() {
         return _delegatee.getNullAccessPattern();
     }

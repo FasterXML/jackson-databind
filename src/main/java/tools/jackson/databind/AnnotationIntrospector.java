@@ -331,6 +331,22 @@ public abstract class AnnotationIntrospector
     public Boolean isIgnorableType(MapperConfig<?> config, AnnotatedClass ac) { return null; }
 
     /**
+     * Method for finding an explicit setting for whether unhandled unknown
+     * properties should cause a failure for an annotated type or property.
+     * A {@code null} result means no explicit setting was found.
+     *
+     * @param config Effective mapper configuration in use
+     * @param a Annotated type or property to check
+     *
+     * @return Explicit setting, or {@code null} if none
+     *
+     * @since 3.3
+     */
+    public Boolean findFailOnUnknownProperties(MapperConfig<?> config, Annotated a) {
+        return null;
+    }
+
+    /**
      * Method for finding information about properties to ignore either by
      * name, or by more general specification ("ignore all unknown").
      * This method combines multiple aspects of name-based (as opposed to value-based)

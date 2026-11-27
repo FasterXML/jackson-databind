@@ -195,6 +195,18 @@ public class BeanDeserializer
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
+        // [databind#4889]: single-Map any-setter gets called once all properties are read
+        return _finishAnySetter(ctxt, _deserializeBean(p, ctxt));
+    }
+
+    /**
+     * Actual implementation of {@link #deserialize(JsonParser, DeserializationContext)},
+     * not including final any-setter handling.
+     *
+     * @since 3.4
+     */
+    protected Object _deserializeBean(JsonParser p, DeserializationContext ctxt) throws JacksonException
+    {
         // common case first
         if (p.isExpectedStartObjectToken()) {
             if (_useVanillaProcessing(ctxt)) {
@@ -255,6 +267,18 @@ public class BeanDeserializer
      */
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt, Object bean) throws JacksonException
+    {
+        // [databind#4889]: single-Map any-setter gets called once all properties are read
+        return _finishAnySetter(ctxt, _deserializeInto(p, ctxt, bean));
+    }
+
+    /**
+     * Actual implementation of {@link #deserialize(JsonParser, DeserializationContext, Object)},
+     * not including final any-setter handling.
+     *
+     * @since 3.4
+     */
+    protected Object _deserializeInto(JsonParser p, DeserializationContext ctxt, Object bean) throws JacksonException
     {
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.assignCurrentValue(bean);
@@ -659,6 +683,15 @@ public class BeanDeserializer
             p.nextToken();
             handleUnknownVanilla(p, ctxt, bean, p.currentName());
         }
+    }
+
+    private Object _finishAnySetter(DeserializationContext ctxt, Object bean)
+        throws JacksonException
+    {
+        if (_anySetter != null) {
+            _anySetter.finishAnySetter(ctxt, bean);
+        }
+        return bean;
     }
 
     /**

@@ -307,6 +307,91 @@ public class TokenBuffer
     }
 
     /**
+     * Helper method used by type deserializers (like
+     * {@code AsPropertyTypeDeserializer}) to find a property within buffered
+     * content without copying it: if given parser (possibly wrapped in a
+     * {@link tools.jackson.core.util.JsonParserSequence}) reads from a
+     * {@link TokenBuffer} and points to the first property name of an Object
+     * whose contents are all within the buffer, scans the remaining properties
+     * of that Object (without consuming any tokens) for the first property with
+     * given name and a non-null {@code String} value.
+     *
+     * @param p Parser that points to a {@link JsonToken#PROPERTY_NAME}
+     * @param propName Name of property to look for
+     * @param ignoreCase Whether property name comparison is case-insensitive
+     *
+     * @return Result of lookahead, if lookahead was possible; {@code null} if
+     *    not (in which case caller needs to use some other mechanism)
+     *
+     * @since 3.1.9
+     */
+    public static PropertyLookahead lookAheadForStringProperty(JsonParser p,
+            String propName, boolean ignoreCase)
+    {
+        while (true) {
+            if (p instanceof Parser tbp) {
+                return tbp._lookAheadForStringProperty(propName, ignoreCase);
+            }
+            if (p instanceof tools.jackson.core.util.JsonParserSequence seq) {
+                p = seq.delegate();
+                continue;
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Result of {@link TokenBuffer#lookAheadForStringProperty}.
+     *
+     * @since 3.1.9
+     */
+    public static final class PropertyLookahead
+    {
+        final static PropertyLookahead NOT_FOUND = new PropertyLookahead(null, null, 0, null, -1);
+
+        private final Parser _parser;
+        private final Segment _segment;
+        private final int _segmentPtr;
+        private final String _value;
+        private final int _index;
+
+        PropertyLookahead(Parser parser, Segment seg, int ptr, String value, int index) {
+            _parser = parser;
+            _segment = seg;
+            _segmentPtr = ptr;
+            _value = value;
+            _index = index;
+        }
+
+        /**
+         * @return Whether matching property was found in the Object
+         */
+        public boolean found() { return _value != null; }
+
+        /**
+         * @return {@code String} value of matching property, if found; {@code null} otherwise
+         */
+        public String value() { return _value; }
+
+        /**
+         * @return Index of the matching property within the Object
+         *   (0 for the first property), if found; -1 otherwise
+         */
+        public int propertyIndex() { return _index; }
+
+        /**
+         * Method to call to have parser skip matching property (its name and value)
+         * when it is reached; this is needed if the property is to be removed
+         * from the token stream.
+         */
+        public void skipWhenReached() {
+            if (_parser != null) {
+                _parser._addSkip(_segment, _segmentPtr);
+            }
+        }
+    }
+
+    /**
      * Same as:
      *<pre>
      *  JsonParser p = asParser(readCtxt);
@@ -1545,6 +1630,24 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         protected TokenStreamLocation _location = null;
 
+        /**
+         * Positions of property names (with their String values) to skip when
+         * reached; last entry is the closest one.
+         *
+         * @since 3.1.9
+         */
+        protected Segment[] _skipSegments;
+
+        /**
+         * @since 3.1.9
+         */
+        protected int[] _skipPtrs;
+
+        /**
+         * @since 3.1.9
+         */
+        protected int _skipCount;
+
         /*
         /******************************************************************
         /* Construction, init
@@ -1621,7 +1724,121 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 ptr = 0;
                 seg = (seg == null) ? null : seg.next();
             }
+            // Skip property marked to be skipped, if any (cannot be adjacent to another)
+            if ((_skipCount > 0) && (seg != null)
+                    && (seg == _skipSegments[_skipCount-1]) && (ptr == _skipPtrs[_skipCount-1])) {
+                ptr += 2;
+                if (ptr >= Segment.TOKENS_PER_SEGMENT) {
+                    ptr -= Segment.TOKENS_PER_SEGMENT;
+                    seg = seg.next();
+                }
+            }
             return (seg == null) ? null : seg.type(ptr);
+        }
+
+        /**
+         * Implementation of {@link TokenBuffer#lookAheadForStringProperty}:
+         * scans tokens after the current one (which must be a property name
+         * in an Object) without changing parser state.
+         */
+        PropertyLookahead _lookAheadForStringProperty(String propName, boolean ignoreCase)
+        {
+            if (_closed || (_segment == null) || (_currToken != JsonToken.PROPERTY_NAME)) {
+                return null;
+            }
+            final Segment skipSeg = (_skipCount > 0) ? _skipSegments[_skipCount-1] : null;
+            final int skipPtr = (_skipCount > 0) ? _skipPtrs[_skipCount-1] : -1;
+            Segment seg = _segment;
+            int ptr = _segmentPtr;
+            Segment nameSeg = null;
+            int namePtr = -1;
+            JsonToken t = JsonToken.PROPERTY_NAME;
+            boolean match = false;
+            int depth = 0;
+            int index = -1;
+
+            while (true) {
+                if (depth == 0) {
+                    if (t == JsonToken.PROPERTY_NAME) {
+                        ++index;
+                        Object ob = seg.get(ptr);
+                        String name = (ob instanceof String str) ? str : ClassUtil.nullOrToString(ob);
+                        match = propName.equals(name)
+                                || (ignoreCase && propName.equalsIgnoreCase(name));
+                        nameSeg = seg;
+                        namePtr = ptr;
+                    } else if (match) {
+                        if (t == JsonToken.VALUE_STRING) {
+                            Object ob = seg.get(ptr);
+                            String value = (ob instanceof String str) ? str : ClassUtil.nullOrToString(ob);
+                            if (value != null) {
+                                return new PropertyLookahead(this, nameSeg, namePtr, value, index);
+                            }
+                        } else if (t.isScalarValue() && (t != JsonToken.VALUE_NULL)) {
+                            // Other scalars converted to String by caller; not handled here
+                            return null;
+                        }
+                        match = false;
+                    }
+                }
+                if (t.isStructStart()) {
+                    ++depth;
+                } else if (t.isStructEnd() && (--depth < 0)) {
+                    return PropertyLookahead.NOT_FOUND;
+                }
+                if (++ptr >= Segment.TOKENS_PER_SEGMENT) {
+                    ptr = 0;
+                    if ((seg = seg.next()) == null) {
+                        return null;
+                    }
+                }
+                // End of content, or pending skip, reached before end of Object?
+                if (((seg == skipSeg) && (ptr == skipPtr)) || ((t = seg.type(ptr)) == null)) {
+                    return null;
+                }
+            }
+        }
+
+        void _addSkip(Segment seg, int ptr)
+        {
+            if (_skipSegments == null) {
+                _skipSegments = new Segment[4];
+                _skipPtrs = new int[4];
+            } else if (_skipCount == _skipSegments.length) {
+                _skipSegments = Arrays.copyOf(_skipSegments, _skipCount * 2);
+                _skipPtrs = Arrays.copyOf(_skipPtrs, _skipCount * 2);
+            }
+            _skipSegments[_skipCount] = seg;
+            _skipPtrs[_skipCount] = ptr;
+            ++_skipCount;
+        }
+
+        /**
+         * Helper method called when the current position matches the closest
+         * pending skip: advances past the property name and its (scalar) value.
+         *
+         * @return {@code true} if there is a token to read; {@code false} if
+         *   end of content was reached
+         */
+        private boolean _skipProperty()
+        {
+            --_skipCount;
+            _skipSegments[_skipCount] = null;
+            for (int i = 0; i < 2; ++i) {
+                if (++_segmentPtr >= Segment.TOKENS_PER_SEGMENT) {
+                    _segmentPtr = 0;
+                    _segment = _segment.next();
+                    if (_segment == null) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        private boolean _atSkip() {
+            return (_segment == _skipSegments[_skipCount-1])
+                    && (_segmentPtr == _skipPtrs[_skipCount-1]);
         }
 
         /*
@@ -1665,6 +1882,12 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                     return null;
                 }
             }
+            while ((_skipCount > 0) && _atSkip()) {
+                if (!_skipProperty()) {
+                    _updateTokenToNull();
+                    return null;
+                }
+            }
             _updateToken(_segment.type(_segmentPtr));
             // Property name? Need to update context
             if (_currToken == JsonToken.PROPERTY_NAME) {
@@ -1694,7 +1917,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             }
 
             int ptr = _segmentPtr+1;
-            if ((ptr < Segment.TOKENS_PER_SEGMENT) && (_segment.type(ptr) == JsonToken.PROPERTY_NAME)) {
+            if ((_skipCount == 0)
+                    && (ptr < Segment.TOKENS_PER_SEGMENT) && (_segment.type(ptr) == JsonToken.PROPERTY_NAME)) {
                 _segmentPtr = ptr;
                 _updateToken(JsonToken.PROPERTY_NAME);
                 Object ob = _segment.get(ptr); // inlined _currentObject();

@@ -652,6 +652,13 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    public String findBuilderFactoryMethodName(MapperConfig<?> config, AnnotatedClass valueClass) {
+        String result = _primary.findBuilderFactoryMethodName(config, valueClass);
+        return (result == null)
+                ? _secondary.findBuilderFactoryMethodName(config, valueClass) : result;
+    }
+
+    @Override
     public JsonPOJOBuilder.Value findPOJOBuilderConfig(MapperConfig<?> config, AnnotatedClass ac) {
         JsonPOJOBuilder.Value result = _primary.findPOJOBuilderConfig(config, ac);
         return (result == null) ? _secondary.findPOJOBuilderConfig(config, ac) : result;

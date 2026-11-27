@@ -1398,6 +1398,17 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    public String findBuilderFactoryMethodName(MapperConfig<?> config, AnnotatedClass valueClass)
+    {
+        JsonDeserialize ann = _findAnnotation(valueClass, JsonDeserialize.class);
+        if (ann == null) {
+            return null;
+        }
+        String factoryName = ann.builderMethod();
+        return factoryName.isEmpty() ? null : factoryName;
+    }
+
+    @Override
     public JsonPOJOBuilder.Value findPOJOBuilderConfig(MapperConfig<?> config, AnnotatedClass ac)
     {
         JsonPOJOBuilder ann = _findAnnotation(ac, JsonPOJOBuilder.class);

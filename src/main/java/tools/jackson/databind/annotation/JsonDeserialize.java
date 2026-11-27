@@ -98,6 +98,19 @@ public @interface JsonDeserialize
     public Class<?> builder() default Void.class;
 
     /**
+     * Optional name of a static, zero-argument factory method declared on
+     * the value class. Use it with {@link #builder()} to create a new builder
+     * before Jackson binds its properties. The factory's return type must be
+     * assignable to the configured builder type.
+     * After binding, {@link JsonPOJOBuilder#buildMethodName()} determines
+     * which method on the builder produces the value.
+     * An empty name leaves builder creator discovery in effect.
+     *
+     * @since 3.4
+     */
+    public String builderMethod() default "";
+
+    /**
      * Optional property for specifying the prefix used for builder
      * "with" methods when using {@link #builder()}. When set to a non-default value
      * (something other than {@link #USE_DEFAULT_PREFIX}), this overrides any

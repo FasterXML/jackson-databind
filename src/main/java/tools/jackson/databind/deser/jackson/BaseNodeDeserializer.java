@@ -543,7 +543,7 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
 
         JsonParser.NumberTypeFP nt = p.getNumberTypeFP();
         if (nt == JsonParser.NumberTypeFP.BIG_DECIMAL) {
-            BigDecimal nr = p.getDecimalValue();
+            BigDecimal nr = ctxt.validateBigDecimalScale(p.getDecimalValue());
             if (ctxt.isEnabled(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)) {
                 nr = NumberUtil.stripTrailingZeros(nr);
             }
@@ -566,7 +566,7 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
                 }
                 return nodeFactory.numberNode(p.getDoubleValue());
             }
-            BigDecimal nr = p.getDecimalValue();
+            BigDecimal nr = ctxt.validateBigDecimalScale(p.getDecimalValue());
             if (ctxt.isEnabled(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)) {
                 nr = NumberUtil.stripTrailingZeros(nr);
             }

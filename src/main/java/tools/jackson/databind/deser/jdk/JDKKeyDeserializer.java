@@ -212,7 +212,7 @@ public class JDKKeyDeserializer extends KeyDeserializer
             return NumberInput.parseBigInteger(key, true);
         case TYPE_BIG_DECIMAL:
             ctxt.streamReadConstraints().validateFPLength(key.length());
-            return NumberInput.parseBigDecimal(key, true);
+            return ctxt.validateBigDecimalScale(NumberInput.parseBigDecimal(key, true));
         case TYPE_LOCALE:
         case TYPE_CURRENCY:
             try {

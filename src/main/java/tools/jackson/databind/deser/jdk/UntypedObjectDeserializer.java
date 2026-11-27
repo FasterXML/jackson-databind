@@ -709,11 +709,11 @@ public class UntypedObjectDeserializer
     {
         JsonParser.NumberTypeFP nt = p.getNumberTypeFP();
         if (nt == JsonParser.NumberTypeFP.BIG_DECIMAL) {
-            return p.getDecimalValue();
+            return ctxt.validateBigDecimalScale(p.getDecimalValue());
         }
         if (!p.isNaN()) {
             if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                return p.getDecimalValue();
+                return ctxt.validateBigDecimalScale(p.getDecimalValue());
             }
         }
         if (nt == JsonParser.NumberTypeFP.FLOAT32) {

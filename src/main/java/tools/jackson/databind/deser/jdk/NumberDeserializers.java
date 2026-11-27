@@ -926,10 +926,14 @@ public class NumberDeserializers
                 if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                     // 10-Mar-2017, tatu: NaN and BigDecimal won't mix...
                     if (!p.isNaN()) {
-                        return p.getDecimalValue();
+                        return ctxt.validateBigDecimalScale(p.getDecimalValue());
                     }
                 }
-                return p.getNumberValue();
+                Object number = p.getNumberValue();
+                if (number instanceof BigDecimal bd) {
+                    return ctxt.validateBigDecimalScale(bd);
+                }
+                return number;
             case JsonTokenId.ID_START_ARRAY:
                 return _deserializeFromArray(p, ctxt);
             // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
@@ -985,8 +989,8 @@ public class NumberDeserializers
                 if (NumberInput.looksLikeValidNumber(text)) {
                     p.streamReadConstraints().validateFPLength(text.length());
                     if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                        return NumberInput.parseBigDecimal(
-                                text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+                        return ctxt.validateBigDecimalScale(NumberInput.parseBigDecimal(
+                                text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER)));
                     }
                     return NumberInput.parseDouble(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
                 }
@@ -1155,7 +1159,7 @@ public class NumberDeserializers
                 }
                 // fall through to coerce
             case JsonTokenId.ID_NUMBER_FLOAT:
-                return p.getDecimalValue();
+                return ctxt.validateBigDecimalScale(p.getDecimalValue());
             case JsonTokenId.ID_STRING:
                 text = p.getString();
                 // Some parsers (like Ion, for corrupt content) may report VALUE_STRING without text
@@ -1193,7 +1197,8 @@ public class NumberDeserializers
             if (NumberInput.looksLikeValidNumber(text)) {
                 p.streamReadConstraints().validateFPLength(text.length());
                 try {
-                    return NumberInput.parseBigDecimal(text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+                    return ctxt.validateBigDecimalScale(NumberInput.parseBigDecimal(
+                            text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER)));
                 } catch (IllegalArgumentException iae) { }
             }
             return (BigDecimal) ctxt.handleWeirdStringValue(_valueClass, text,

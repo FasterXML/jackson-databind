@@ -281,14 +281,7 @@ public abstract class BeanDeserializerBase
         //    scalar-delegation cases. It is set when default (0-argument) constructor
         //    is NOT to be used when binding an Object value (or in case of
         //    POJO-as-array, Array value).
-        _nonStandardCreation = (_unwrappedPropertyHandler != null)
-            || _valueInstantiator.canCreateUsingDelegate()
-        // [databind#2486]: as per above, array-delegating creator should not be considered
-        //   as doing so will prevent use of Array-or-standard-Object deserialization
-        //            || _valueInstantiator.canCreateUsingArrayDelegate()
-            || _valueInstantiator.canCreateFromObjectWith()
-            || !_valueInstantiator.canCreateUsingDefault()
-            ;
+        _nonStandardCreation = _calcNonStandardCreation();
 
         // Any transformation we may need to apply?
         _serializationShape = beanDescRef.findExpectedFormat(_beanType.getRawClass()).getShape();
@@ -296,7 +289,31 @@ public abstract class BeanDeserializerBase
         _needViewProcesing = hasViews;
         // [databind#6219]: view processing only needed if a view is active,
         // which is checked per-call
-        _vanillaProcessing = !_nonStandardCreation
+        _vanillaProcessing = _calcVanillaProcessing();
+    }
+
+    /**
+     * Helper method for determining initial value of {@link #_nonStandardCreation}:
+     * may be further changed by {@link #resolve} (external type ids,
+     * unwrapped properties).
+     */
+    private boolean _calcNonStandardCreation() {
+        return (_unwrappedPropertyHandler != null)
+            || _valueInstantiator.canCreateUsingDelegate()
+        // [databind#2486]: as per above, array-delegating creator should not be considered
+        //   as doing so will prevent use of Array-or-standard-Object deserialization
+        //            || _valueInstantiator.canCreateUsingArrayDelegate()
+            || _valueInstantiator.canCreateFromObjectWith()
+            || !_valueInstantiator.canCreateUsingDefault()
+            ;
+    }
+
+    /**
+     * Helper method for determining value of {@link #_vanillaProcessing}
+     * based on {@link #_nonStandardCreation} and other settings.
+     */
+    private boolean _calcVanillaProcessing() {
+        return !_nonStandardCreation
                 && (_injectables == null)
                 // also, may need to reorder stuff if we expect Object Id:
                 && (_objectIdReader == null)
@@ -436,7 +453,6 @@ public abstract class BeanDeserializerBase
                 : src._propertyBasedCreator.withByNameInclusion(ignorableProps, includableProps);
 
         _backRefs = src._backRefs;
-        _ignorableProps = ignorableProps;
         _ignoreAllUnknown = src._ignoreAllUnknown;
         _includableProps = includableProps;
         _anySetter = src._anySetter;
@@ -454,7 +470,47 @@ public abstract class BeanDeserializerBase
         //    to avoid them being deserialized
         _beanProperties = src._beanProperties.withoutProperties(ignorableProps, includableProps);
 
-        _externalTypeIdHandler = src._externalTypeIdHandler;
+        // ... and same for external-typed properties, only known to the handler
+        _externalTypeIdHandler = (src._externalTypeIdHandler == null) ? null
+                : src._externalTypeIdHandler.withoutProperties(ignorableProps, includableProps);
+        // [databind#6312]: type ids of excluded external-typed properties are no longer
+        //   handled by the handler, so need to be ignored as well
+        _ignorableProps = _withExcludedTypeIdNames(ignorableProps,
+                src._externalTypeIdHandler, _externalTypeIdHandler, _beanProperties);
+        // [databind#6312]: if all external-typed properties were excluded, they no
+        //   longer force non-standard creation (nor prevent vanilla processing)
+        if ((src._externalTypeIdHandler != null) && (_externalTypeIdHandler == null)) {
+            _nonStandardCreation = _calcNonStandardCreation();
+            _vanillaProcessing = _calcVanillaProcessing();
+        }
+    }
+
+    /**
+     * Helper method for adding names of external type ids, used only by external-typed
+     * properties excluded from {@code origHandler} (and not by any remaining
+     * external-typed or regular property), to names of properties to ignore.
+     */
+    private static Set<String> _withExcludedTypeIdNames(Set<String> ignorableProps,
+            ExternalTypeHandler origHandler, ExternalTypeHandler newHandler,
+            BeanPropertyMap beanProps)
+    {
+        if ((origHandler == null) || (origHandler == newHandler)) {
+            return ignorableProps;
+        }
+        final Set<String> stillUsed = (newHandler == null) ? Collections.emptySet()
+                : newHandler.getTypePropertyNames();
+        Set<String> result = ignorableProps;
+        for (String name : origHandler.getTypePropertyNames()) {
+            if (stillUsed.contains(name) || (beanProps.findDefinition(name) != null)
+                    || ((result != null) && result.contains(name))) {
+                continue;
+            }
+            if (result == ignorableProps) {
+                result = (ignorableProps == null) ? new HashSet<>() : new HashSet<>(ignorableProps);
+            }
+            result.add(name);
+        }
+        return result;
     }
 
     protected BeanDeserializerBase(BeanDeserializerBase src, BeanPropertyMap beanProps)

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
+import com.fasterxml.jackson.core.util.JsonParserSequence;
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -312,6 +313,10 @@ public class TokenBuffer
 
     public JsonToken firstToken() {
         // no need to null check; never create without `_first`
+        if (_first.rawType(0) == Segment.RAW_TYPE_RANGE) {
+            BufferedRange range = (BufferedRange) _first.get(0);
+            return range.startSegment.type(range.startIndex);
+        }
         return _first.type(0);
     }
 
@@ -375,12 +380,28 @@ public class TokenBuffer
 
         final boolean checkIds = _mayHaveNativeIds;
         boolean hasIds = checkIds && (segment.hasIds());
+        // @since 2.21.10: for following references to buffered ranges
+        RangeFrame frame = null;
 
         while (true) {
+            // End of referenced range(s)? Continue after reference
+            while ((frame != null) && (segment == frame.endSegment) && (ptr == frame.endIndex)) {
+                segment = frame.returnSegment;
+                ptr = frame.returnIndex;
+                frame = frame.parent;
+                hasIds = checkIds && (segment.hasIds());
+            }
             if (++ptr >= Segment.TOKENS_PER_SEGMENT) {
                 ptr = 0;
                 segment = segment.next();
                 if (segment == null) break;
+                hasIds = checkIds && (segment.hasIds());
+            }
+            if (segment.rawType(ptr) == Segment.RAW_TYPE_RANGE) {
+                BufferedRange range = (BufferedRange) segment.get(ptr);
+                frame = new RangeFrame(segment, ptr, range, frame);
+                segment = range.startSegment;
+                ptr = range.startIndex;
                 hasIds = checkIds && (segment.hasIds());
             }
             JsonToken t = segment.type(ptr);
@@ -1194,6 +1215,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         // Plus also deal with oddity of "dangling" END_OBJECT/END_ARRAY
         switch (t) {
         case START_ARRAY:
+            if (_copyStructureAsReference(p)) {
+                break;
+            }
             if (_mayHaveNativeIds) {
                 _checkNativeIds(p);
             }
@@ -1201,6 +1225,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             _copyBufferContents(p);
             break;
         case START_OBJECT:
+            if (_copyStructureAsReference(p)) {
+                break;
+            }
             if (_mayHaveNativeIds) {
                 _checkNativeIds(p);
             }
@@ -1215,6 +1242,72 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             break;
         default: // others are simple:
             _copyBufferValue(p, t);
+        }
+    }
+
+    /**
+     * Helper method called when copying a structured value (Object or Array)
+     * from given parser: if the parser reads contents of another
+     * {@link TokenBuffer}, will not copy tokens but instead append a reference
+     * to the range of the source buffer that contains the value, and advance
+     * the source parser past the value (as if contents had been copied).
+     *<p>
+     * This avoids repeated copying of content when buffered content is re-buffered
+     * (for example with nested polymorphic values), which would otherwise result
+     * in {@code O(size * depth)} CPU and memory usage.
+     *
+     * @return {@code true} if a reference was appended (and parser advanced);
+     *    {@code false} if not (in which case nothing was changed)
+     *
+     * @since 2.21.10
+     */
+    private boolean _copyStructureAsReference(JsonParser p) throws IOException
+    {
+        final Parser src = _bufferParserFor(p);
+        if (src == null) {
+            return false;
+        }
+        // Native ids are read directly from the source buffer, so handling must match
+        if ((src._hasNativeTypeIds != _hasNativeTypeIds)
+                || (src._hasNativeObjectIds != _hasNativeObjectIds)
+                // and pending (explicitly written) ids could not be attached to the value
+                || (_hasNativeId && !_mayHaveNativeIds)) {
+            return false;
+        }
+        final BufferedRange range = src._skipStructureAsRange();
+        if (range == null) {
+            return false;
+        }
+        // Same net effect on write context as writeStartXxx() + writeEndXxx()
+        _writeContext.writeValue();
+        _appendRange(range);
+        if (_mayHaveNativeIds) {
+            // ids of the value itself are retained in the source buffer; ensure that
+            // pending ids are not attached to anything appended after the value
+            _typeId = null;
+            _objectId = null;
+        }
+        return true;
+    }
+
+    /**
+     * Helper method for finding the {@link Parser} that reads contents of
+     * a {@link TokenBuffer}, either directly or as the currently active
+     * parser of a {@link JsonParserSequence}, if any.
+     */
+    private static Parser _bufferParserFor(JsonParser p)
+    {
+        while (true) {
+            if (p instanceof Parser) {
+                Parser bp = (Parser) p;
+                return (bp._closed || (bp._segment == null)) ? null : bp;
+            }
+            // Only plain sequences: they do not modify contents of delegates
+            // (unlike, say, filtering delegates)
+            if ((p == null) || (p.getClass() != JsonParserSequence.class)) {
+                return null;
+            }
+            p = ((JsonParserSequence) p).delegate();
         }
     }
 
@@ -1455,6 +1548,23 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     /**
+     * Method used for appending a reference to a structured value stored in
+     * another (or this) buffer.
+     *
+     * @since 2.21.10
+     */
+    private final void _appendRange(BufferedRange range)
+    {
+        Segment next = _last.appendRange(_appendAt, range);
+        if (next == null) {
+            ++_appendAt;
+        } else {
+            _last = next;
+            _appendAt = 1;
+        }
+    }
+
+    /**
      * Specialized method used for appending a structural end Object/Array marker
      *
      * @since 2.10
@@ -1532,6 +1642,15 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         protected transient ByteArrayBuilder _byteBuilder;
 
         protected JsonLocation _location = null;
+
+        /**
+         * If currently reading contents of a referenced range (see
+         * {@link BufferedRange}), information on where the range ends and
+         * where to continue after it; {@code null} otherwise.
+         *
+         * @since 2.21.10
+         */
+        private RangeFrame _rangeFrame;
 
         /*
         /**********************************************************
@@ -1617,12 +1736,126 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             // closed? nothing more to peek, either
             if (_closed) return null;
             Segment seg = _segment;
-            int ptr = _segmentPtr+1;
-            if (ptr >= Segment.TOKENS_PER_SEGMENT) {
+            int ptr = _segmentPtr;
+            RangeFrame frame = _rangeFrame;
+            // At the end of referenced range(s)? Continue after reference
+            while ((frame != null) && (seg == frame.endSegment) && (ptr == frame.endIndex)) {
+                seg = frame.returnSegment;
+                ptr = frame.returnIndex;
+                frame = frame.parent;
+            }
+            if (++ptr >= Segment.TOKENS_PER_SEGMENT) {
                 ptr = 0;
                 seg = (seg == null) ? null : seg.next();
             }
-            return (seg == null) ? null : seg.type(ptr);
+            if (seg == null) {
+                return null;
+            }
+            if (seg.rawType(ptr) == Segment.RAW_TYPE_RANGE) {
+                // Referenced ranges always start with a real START_OBJECT/START_ARRAY
+                BufferedRange range = (BufferedRange) seg.get(ptr);
+                return range.startSegment.type(range.startIndex);
+            }
+            return seg.type(ptr);
+        }
+
+        /**
+         * Helper method for advancing to the next physical token position,
+         * following references to buffered ranges as necessary.
+         *
+         * @return {@code true} if advanced to the next position;
+         *    {@code false} if no more segments
+         *
+         * @since 2.21.10
+         */
+        private boolean _advance()
+        {
+            // At the end of referenced range(s)? Continue after reference
+            RangeFrame frame;
+            while (((frame = _rangeFrame) != null)
+                    && (_segment == frame.endSegment) && (_segmentPtr == frame.endIndex)) {
+                _segment = frame.returnSegment;
+                _segmentPtr = frame.returnIndex;
+                _rangeFrame = frame.parent;
+            }
+            if (++_segmentPtr >= Segment.TOKENS_PER_SEGMENT) {
+                _segmentPtr = 0;
+                _segment = _segment.next();
+                if (_segment == null) {
+                    return false;
+                }
+            }
+            // Reference to a range? Continue from its start (which is never a reference)
+            if (_segment.rawType(_segmentPtr) == Segment.RAW_TYPE_RANGE) {
+                BufferedRange range = (BufferedRange) _segment.get(_segmentPtr);
+                _rangeFrame = new RangeFrame(_segment, _segmentPtr, range, _rangeFrame);
+                _segment = range.startSegment;
+                _segmentPtr = range.startIndex;
+            }
+            return true;
+        }
+
+        /**
+         * Method called (by {@link TokenBuffer#copyCurrentStructure}) when parser
+         * points to a {@code START_OBJECT} or {@code START_ARRAY}: if the whole
+         * structured value is contained in the currently active buffer
+         * (or referenced range), will construct a {@link BufferedRange} for it and
+         * advance parser to point to the matching end marker (same as
+         * {@link #skipChildren()} would).
+         * Otherwise will return {@code null} without changing state of parser.
+         *<p>
+         * NOTE: references to ranges within value are not followed, as they
+         * are always complete values.
+         *
+         * @since 2.21.10
+         */
+        BufferedRange _skipStructureAsRange() throws IOException
+        {
+            final JsonToken startToken = _currToken;
+            if ((startToken != JsonToken.START_OBJECT) && (startToken != JsonToken.START_ARRAY)) {
+                return null;
+            }
+            final Segment startSeg = _segment;
+            final int startPtr = _segmentPtr;
+            // sanity check: must be pointing to the token itself
+            if ((startPtr < 0) || (startSeg.type(startPtr) != startToken)) {
+                return null;
+            }
+            final RangeFrame frame = _rangeFrame;
+            Segment seg = startSeg;
+            int ptr = startPtr;
+            int depth = 1;
+
+            while (true) {
+                // Must not go past end of the referenced range we are in
+                if ((frame != null) && (seg == frame.endSegment) && (ptr == frame.endIndex)) {
+                    return null;
+                }
+                if (++ptr >= Segment.TOKENS_PER_SEGMENT) {
+                    ptr = 0;
+                    seg = seg.next();
+                    if (seg == null) {
+                        return null;
+                    }
+                }
+                final int raw = seg.rawType(ptr);
+                if ((raw == Segment.RAW_TYPE_START_OBJECT) || (raw == Segment.RAW_TYPE_START_ARRAY)) {
+                    ++depth;
+                } else if ((raw == Segment.RAW_TYPE_END_OBJECT) || (raw == Segment.RAW_TYPE_END_ARRAY)) {
+                    if (--depth == 0) {
+                        break;
+                    }
+                } else if (raw == 0) { // end of content (unbalanced)
+                    return null;
+                }
+                // all others (including references to ranges) are complete values
+            }
+            // Found it: update state as if we had iterated to the end marker
+            _segment = seg;
+            _segmentPtr = ptr;
+            _updateToken(seg.type(ptr));
+            _parsingContext = _parsingContext.parentOrCopy();
+            return new BufferedRange(startSeg, startPtr, seg, ptr);
         }
 
         /*
@@ -1651,12 +1884,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (_closed || (_segment == null)) return null;
 
             // Ok, then: any more tokens?
-            if (++_segmentPtr >= Segment.TOKENS_PER_SEGMENT) {
-                _segmentPtr = 0;
-                _segment = _segment.next();
-                if (_segment == null) {
-                    return null;
-                }
+            if (!_advance()) {
+                return null;
             }
             _updateToken(_segment.type(_segmentPtr));
             // Field name? Need to update context
@@ -1687,7 +1916,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             }
 
             int ptr = _segmentPtr+1;
-            if ((ptr < Segment.TOKENS_PER_SEGMENT) && (_segment.type(ptr) == JsonToken.FIELD_NAME)) {
+            if ((ptr < Segment.TOKENS_PER_SEGMENT) && (_segment.type(ptr) == JsonToken.FIELD_NAME)
+                    // must not read past end of a referenced range
+                    && !_atEndOfRange()) {
                 _segmentPtr = ptr;
                 _updateToken(JsonToken.FIELD_NAME);
                 Object ob = _segment.get(ptr); // inlined _currentObject();
@@ -2141,6 +2372,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             return _segment.get(_segmentPtr);
         }
 
+        private boolean _atEndOfRange() {
+            final RangeFrame frame = _rangeFrame;
+            return (frame != null) && (_segment == frame.endSegment) && (_segmentPtr == frame.endIndex);
+        }
+
         protected final void _checkIsNumber() throws JacksonException
         {
             if (_currToken == null || !_currToken.isNumeric()) {
@@ -2164,6 +2400,20 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     protected final static class Segment
     {
         public final static int TOKENS_PER_SEGMENT = 16;
+
+        // Raw type markers for structural tokens (same as ordinals of JsonToken)
+        final static int RAW_TYPE_START_OBJECT = JsonToken.START_OBJECT.ordinal();
+        final static int RAW_TYPE_END_OBJECT = JsonToken.END_OBJECT.ordinal();
+        final static int RAW_TYPE_START_ARRAY = JsonToken.START_ARRAY.ordinal();
+        final static int RAW_TYPE_END_ARRAY = JsonToken.END_ARRAY.ordinal();
+
+        /**
+         * Raw type marker (not used by any {@link JsonToken}) for an entry that
+         * refers to a {@link BufferedRange}.
+         *
+         * @since 2.21.10
+         */
+        final static int RAW_TYPE_RANGE = 15;
 
         /**
          * Static array used for fast conversion between token markers and
@@ -2283,6 +2533,30 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             _next = new Segment();
             _next.set(0, tokenType, value, objectId, typeId);
             return _next;
+        }
+
+        /**
+         * @since 2.21.10
+         */
+        Segment appendRange(int index, BufferedRange range)
+        {
+            if (index < TOKENS_PER_SEGMENT) {
+                _setRange(index, range);
+                return null;
+            }
+            _next = new Segment();
+            _next._setRange(0, range);
+            return _next;
+        }
+
+        private void _setRange(int index, BufferedRange range)
+        {
+            _tokens[index] = range;
+            long typeCode = RAW_TYPE_RANGE;
+            if (index > 0) {
+                typeCode <<= (index << 2);
+            }
+            _tokenTypes |= typeCode;
         }
 
         /*
@@ -2405,5 +2679,54 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         private final int _typeIdIndex(int i) { return i+i; }
         private final int _objectIdIndex(int i) { return i+i+1; }
+    }
+
+    /**
+     * Reference to a complete structured value (from {@code START_OBJECT}/{@code START_ARRAY}
+     * to matching {@code END_OBJECT}/{@code END_ARRAY}, inclusive) stored in
+     * segments of a buffer: used to avoid copying of tokens when re-buffering
+     * contents read from a buffer.
+     *<p>
+     * Start and end entries are always actual tokens; but entries in between
+     * may be references to other ranges.
+     *
+     * @since 2.21.10
+     */
+    private final static class BufferedRange
+    {
+        final Segment startSegment;
+        final int startIndex;
+        final Segment endSegment;
+        final int endIndex;
+
+        BufferedRange(Segment startSeg, int startIndex, Segment endSeg, int endIndex) {
+            startSegment = startSeg;
+            this.startIndex = startIndex;
+            endSegment = endSeg;
+            this.endIndex = endIndex;
+        }
+    }
+
+    /**
+     * State for iterating over a {@link BufferedRange}: where it ends,
+     * and where to continue after it.
+     *
+     * @since 2.21.10
+     */
+    private final static class RangeFrame
+    {
+        final Segment returnSegment;
+        final int returnIndex;
+        final Segment endSegment;
+        final int endIndex;
+        final RangeFrame parent;
+
+        RangeFrame(Segment returnSeg, int returnIndex, BufferedRange range, RangeFrame parent) {
+            returnSegment = returnSeg;
+            this.returnIndex = returnIndex;
+            endSegment = range.endSegment;
+            endIndex = range.endIndex;
+            this.parent = parent;
+        }
     }
 }

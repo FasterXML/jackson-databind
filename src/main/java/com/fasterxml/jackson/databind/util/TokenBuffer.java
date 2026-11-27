@@ -380,7 +380,7 @@ public class TokenBuffer
 
         final boolean checkIds = _mayHaveNativeIds;
         boolean hasIds = checkIds && (segment.hasIds());
-        // @since 2.21.9: for following references to buffered ranges
+        // @since 2.21.10: for following references to buffered ranges
         RangeFrame frame = null;
 
         while (true) {
@@ -1259,7 +1259,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      * @return {@code true} if a reference was appended (and parser advanced);
      *    {@code false} if not (in which case nothing was changed)
      *
-     * @since 2.21.9
+     * @since 2.21.10
      */
     private boolean _copyStructureAsReference(JsonParser p) throws IOException
     {
@@ -1551,7 +1551,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      * Method used for appending a reference to a structured value stored in
      * another (or this) buffer.
      *
-     * @since 2.21.9
+     * @since 2.21.10
      */
     private final void _appendRange(BufferedRange range)
     {
@@ -1648,7 +1648,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
          * {@link BufferedRange}), information on where the range ends and
          * where to continue after it; {@code null} otherwise.
          *
-         * @since 2.21.9
+         * @since 2.21.10
          */
         private RangeFrame _rangeFrame;
 
@@ -1766,7 +1766,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
          * @return {@code true} if advanced to the next position;
          *    {@code false} if no more segments
          *
-         * @since 2.21.9
+         * @since 2.21.10
          */
         private boolean _advance()
         {
@@ -1807,7 +1807,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
          * NOTE: references to ranges within value are not followed, as they
          * are always complete values.
          *
-         * @since 2.21.9
+         * @since 2.21.10
          */
         BufferedRange _skipStructureAsRange() throws IOException
         {
@@ -2411,7 +2411,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
          * Raw type marker (not used by any {@link JsonToken}) for an entry that
          * refers to a {@link BufferedRange}.
          *
-         * @since 2.21.9
+         * @since 2.21.10
          */
         final static int RAW_TYPE_RANGE = 15;
 
@@ -2536,7 +2536,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         /**
-         * @since 2.21.9
+         * @since 2.21.10
          */
         Segment appendRange(int index, BufferedRange range)
         {
@@ -2690,7 +2690,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      * Start and end entries are always actual tokens; but entries in between
      * may be references to other ranges.
      *
-     * @since 2.21.9
+     * @since 2.21.10
      */
     private final static class BufferedRange
     {
@@ -2711,7 +2711,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      * State for iterating over a {@link BufferedRange}: where it ends,
      * and where to continue after it.
      *
-     * @since 2.21.9
+     * @since 2.21.10
      */
     private final static class RangeFrame
     {

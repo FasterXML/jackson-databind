@@ -9,11 +9,11 @@
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <artifactId>jackson-base</artifactId>
-    <version>2.21.9-SNAPSHOT</version>
+    <version>2.21.10-SNAPSHOT</version>
   </parent>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.21.9-SNAPSHOT</version>
+  <version>2.21.10-SNAPSHOT</version>
   <name>jackson-databind</name>
   <packaging>jar</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
@@ -77,7 +77,7 @@
     <packageVersion.package>com.fasterxml.jackson.databind.cfg</packageVersion.package>
 
     <!-- for Reproducible Builds -->
-    <project.build.outputTimestamp>2026-10-17T20:09:50Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2026-11-24T19:59:10Z</project.build.outputTimestamp>
   </properties>
 
   <dependencyManagement>
